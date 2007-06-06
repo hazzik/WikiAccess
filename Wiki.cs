@@ -255,7 +255,7 @@ namespace WikiTools.Access
 		{
 			Page pg = new Page(this, name);
 			if (!overwrite) 
-				if (pg.Exists) continue;
+				if (pg.Exists) return;
 			pg.SetText(text, summary);
 		}
 
