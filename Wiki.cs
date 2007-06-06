@@ -207,7 +207,57 @@ namespace WikiTools.Access
                 result.Views = stats["views"];
                 return result;
             }
-        }
+		}
+		#region CreatePage versions
+
+		/// <summary>
+		/// Creates a page on wiki if it doesn't exists
+		/// </summary>
+		/// <param name="name">Page name</param>
+		/// <param name="text">Page text</param>
+		/// <param name="summary">Page creation summry</param>
+		public void CreatePage(string name, string text, string summary)
+		{
+			CreatePage(name, text, summary, false);
+		}
+
+		/// <summary>
+		/// Creates a page on wiki if it doesn't exists
+		/// </summary>
+		/// <param name="name">Page name</param>
+		/// <param name="text">Page text</param>
+		public void CreatePage(string name, string text)
+		{
+			CreatePage(name, text, "", false);
+		}
+
+		/// <summary>
+		/// Creates a page on wiki
+		/// </summary>
+		/// <param name="name">Page name</param>
+		/// <param name="text">Page text</param>
+		/// <param name="overwrite">Overwrite page, if it already exists</param>
+		public void CreatePage(string name, string text, bool overwrite)
+		{
+			CreatePage(name, text, "", overwrite);
+		}
+
+		#endregion
+
+		/// <summary>
+		/// Creates a page on wiki
+		/// </summary>
+		/// <param name="name">Page name</param>
+		/// <param name="text">Page text</param>
+		/// <param name="summary">Page creation summry</param>
+		/// <param name="overwrite">Overwrite page, if it already exists</param>
+		public void CreatePage(string name, string text, string summary, bool overwrite)
+		{
+			Page pg = new Page(this, name);
+			if (!overwrite) 
+				if (pg.Exists) continue;
+			pg.SetText(text, summary);
+		}
 
         #region IDisposable Members
 
