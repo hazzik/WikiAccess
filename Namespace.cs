@@ -247,5 +247,14 @@ namespace WikiTools.Access
         {
             return GetNamespaceByTitle(title) > 0 && GetNamespaceByTitle(title) % 2 == 1;
         }
+
+		public string RemoveNamespace(string pgname)
+		{
+			pgname = pgname.Trim();
+			int ns = GetNamespaceByTitle(pgname);
+			if (ns == 0) return pgname;
+			else if (pgname.StartsWith(namespaces[ns])) return pgname.Substring(namespaces[ns].Length + 1);
+			else return pgname.Substring(GetStandardNamespaces()[ns].Length + 1);
+		}
 	}
 }
