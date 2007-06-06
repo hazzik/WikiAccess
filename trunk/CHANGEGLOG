@@ -2,3 +2,4 @@
 * LoadHistory method upgraded to new API version
 * Added Namespace constants (Namespaces.Main, Namespaces.Talk, etc.)
 * Added GetPrefixIndex(), Page.Subpages
+* New methods: WatchList.Add() and WatchList.Delete()

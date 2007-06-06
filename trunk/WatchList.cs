@@ -80,5 +80,25 @@ namespace WikiTools.Access
                 return contents;
             }
         }
+
+		/// <summary>
+		/// Add pages to watchlist
+		/// </summary>
+		/// <param name="page">Page name</param>
+		public void Add(string page)
+		{
+			Page pg = new Page(wiki, page);
+			pg.Watch();
+		}
+
+		/// <summary>
+		/// Removes page from watchlist
+		/// </summary>
+		/// <param name="page">Page name</param>
+		public void Remove(string page)
+		{
+			Page pg = new Page(wiki, page);
+			pg.Unwatch();
+		}
 	}
 }
