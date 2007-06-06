@@ -1,0 +1,4 @@
+* New method: Utils.Swap<T>
+* LoadHistory method upgraded to new API version
+* Added Namespace constants (Namespaces.Main, Namespaces.Talk, etc.)
+* Added GetPrefixIndex(), Page.Subpages
