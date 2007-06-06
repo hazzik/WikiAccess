@@ -53,6 +53,8 @@ namespace WikiTools.Access
 
         string[] categories; bool categoriesLoaded = false;
 
+		string[] subpages; bool subpagesLoaded = false;
+
         /// <summary>
         /// Initializes new instance of page
         /// </summary>
@@ -244,6 +246,16 @@ namespace WikiTools.Access
             categories = tmp.ToArray();
         }
 
+		/// <summary>
+		/// Loads subpages of this page
+		/// </summary>
+		public void LoadSubpages()
+		{
+			subpages = wiki.GetPrefixIndex(
+				wiki.NamespacesUtils.RemoveNamespace(name) + "/", PageTypes.All, NamespaceID);
+			subpagesLoaded = true;
+		}
+
         /// <summary>
         /// Category of this page. Automatically calls LoadCategory() on first usage
         /// </summary>
@@ -308,6 +320,19 @@ namespace WikiTools.Access
                 return externalLinks;
             }
         }
+
+		/// <summary>
+		/// Gets subpages of this page. Automatically calls LoadSubpages() on first usage
+		/// </summary>
+		public string[] Subpages
+		{
+			get
+			{
+				if (!subpagesLoaded)
+					LoadSubpages();
+				return subpages;
+			}
+		}
 
         #region Common page info (from api.php?action=query&prop=info)
 
