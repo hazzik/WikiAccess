@@ -4,3 +4,4 @@
 * Added GetPrefixIndex(), Page.Subpages
 * New methods: WatchList.Add() and WatchList.Delete()
 * New method: Wiki.CreatePage()
+* Added email support (see User.SendEmail())

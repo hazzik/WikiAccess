@@ -150,5 +150,18 @@ namespace WikiTools.Access
         {
             MakeBot(comment, false);
         }
+
+		/// <summary>
+		/// Sends email to the user via Special:Emailuser
+		/// </summary>
+		/// <param name="subject">Subject of email</param>
+		/// <param name="text">Email text</param>
+		public void SendEmail(string subject, string text)
+		{
+			ab.PageName = "index.php?title=Special:Emailuser/" + ab.EncodeUrl(name);
+			ab.SetTextboxField("wpSubject", subject);
+			ab.SetTextboxField("wpText", text);
+			ab.ClickButton("wpSend");
+		}
     }
 }
