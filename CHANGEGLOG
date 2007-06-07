@@ -5,3 +5,6 @@
 * New methods: WatchList.Add() and WatchList.Delete()
 * New method: Wiki.CreatePage()
 * Added email support (see User.SendEmail())
+* Fully integrated capabilities system:
+** Added property Wiki.Capabilities
+** New cahce file: <site>.capabilities
