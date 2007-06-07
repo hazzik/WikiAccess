@@ -33,9 +33,10 @@ namespace WikiTools.Access
 		string wikiURI;
         internal AccessBrowser ab;
 		MessageCache mcache;
-        string mcachepath, nscachepath, urcachepath;
+        string mcachepath, nscachepath, urcachepath, capacachepath;
 		internal Namespaces ns;
         string[] userflags;
+		WikiCapabilities capabilities;
 
 		/// <summary>
 		/// URI of wiki in format http://mediawiki.org/w
@@ -66,6 +67,7 @@ namespace WikiTools.Access
 			mcachepath = cachedir + "\\" + MessageCache.MkName(uri);
 			nscachepath = cachedir + "\\" + Namespaces.MkName(uri);
             urcachepath = cachedir + "\\" + new Uri(uri).Host + ".userflags";
+			capacachepath = cachedir + "\\" + new Uri(uri).Host + ".capabilities";
 			if (File.Exists(mcachepath)) mcache = new MessageCache(mcachepath);
 			else
 			{
@@ -84,6 +86,12 @@ namespace WikiTools.Access
                 userflags = User.GetAvailableFlags(this);
                 File.WriteAllLines(urcachepath, userflags);
             }
+			if (File.Exists(capacachepath)) capabilities.FromString(File.ReadAllText(capacachepath));
+			else
+			{
+				capabilities = LoadCapabilities();
+				File.WriteAllText(capacachepath, capabilities.ToString());
+			}
         }
 
         #region Login Functions
@@ -149,6 +157,17 @@ namespace WikiTools.Access
         }
 
         #endregion
+
+		/// <summary>
+		/// Returns wiki capabilities (version and extensions)
+		/// </summary>
+		public WikiCapabilities Capabilities
+		{
+			get
+			{
+				return capabilities;
+			}
+		}
 
 		/// <summary>
 		/// User flags available on this wiki
