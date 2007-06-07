@@ -51,6 +51,7 @@ namespace WikiTools.Access
 		/// <returns>Image</returns>
         public byte[] Download()
         {
+			if (!wiki.Capabilities.HasFilePath) throw new WikiNotSupportedException();
             return ab.DownloadBinary("index.php?title=Special:Filepath/" + ab.EncodeUrl(name));
         }
 

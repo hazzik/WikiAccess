@@ -118,6 +118,7 @@ namespace WikiTools.Access
         /// <param name="movepages">If true, user pages will be also renamed</param>
         public void Rename(string newname, bool movepages)
         {
+			if (!wiki.Capabilities.HasRenameUser) throw new WikiNotSupportedException();
             ab.PageName = "index.php?title=Special:Renameuser";
             ab.SetTextboxField("oldusername", name);
             ab.SetTextboxField("newusername", newname);
@@ -127,7 +128,7 @@ namespace WikiTools.Access
 
         private void MakeBot(string reason, bool make)
         {
-            //if (!wiki.Capabilities.HasMakeBot) throw new WikiNotSupportedException();
+            if (!wiki.Capabilities.HasMakeBot) throw new WikiNotSupportedException();
             ab.PageName = "index.php?title=Special:Makebot&username=" + ab.EncodeUrl(name);
             ab.SetTextboxField("comment", reason);
             ab.ClickButton(make ? "grant" : "revoke");
