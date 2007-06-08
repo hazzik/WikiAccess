@@ -54,6 +54,7 @@
     <Compile Include="Namespace.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="Image.cs" />
+    <Compile Include="PageList.cs" />
     <Compile Include="RegExes.cs" />
     <Compile Include="Revision.cs" />
     <Compile Include="User.cs" />

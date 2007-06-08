@@ -14,8 +14,8 @@ TODO: Allow to make page lists from:
 * User contribs
 * Several special pages
 * Image usage links
-* Watchlist (done, needs PageList method)
+* Watchlist (done)
 * Redirects on
 * Used images
 * Used templates
-* All pages
+* All pages (done)
