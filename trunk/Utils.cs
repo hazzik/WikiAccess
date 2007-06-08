@@ -153,5 +153,15 @@ namespace WikiTools.Access
             arg1 = arg2;
             arg2 = temp;
         }
+
+        /// <summary>
+        /// Adoptated version of Thread.Sleep method
+        /// </summary>
+        /// <param name="ts"></param>
+        public static void Wait(TimeSpan ts)
+        {
+            DateTime start = DateTime.Now;
+            while (DateTime.Now - start < ts) DoEvents();
+        }
     }
 }

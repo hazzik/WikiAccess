@@ -9,3 +9,4 @@
 ** Added property Wiki.Capabilities
 ** New cahce file: <site>.capabilities
 * Added Page.Templates, Page.Images properties
+* Added Utils.Wait() method (specially adoptated)
