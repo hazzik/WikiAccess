@@ -53,6 +53,8 @@ namespace WikiTools.Access
 
         string[] categories; bool categoriesLoaded = false;
 
+		string[] templates; bool templatesLoaded = false;
+
 		string[] subpages; bool subpagesLoaded = false;
 
         /// <summary>
@@ -180,6 +182,25 @@ namespace WikiTools.Access
             externalLinksLoaded = true;
             externalLinks = tmp.ToArray();
         }
+
+		/// <summary>
+		/// Loads list of templates used on this page
+		/// </summary>
+		public void LoadTemplates()
+		{
+			string page = ab.DownloadPage("api.php?action=query&format=xml&prop=templates&titles=" + ab.EncodeUrl(name));
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(page);
+			XmlNodeList nl = doc.GetElementsByTagName("tl");
+			List<string> tmp = new List<string>();
+			foreach (XmlNode node in nl)
+			{
+				XmlElement celem = (XmlElement)node;
+				tmp.Add(celem.Attributes["title"].Value);
+			}
+			templatesLoaded = true;
+			templates = tmp.ToArray();
+		}
 
         /// <summary>
         /// Loads history of this page
@@ -331,6 +352,19 @@ namespace WikiTools.Access
 				if (!subpagesLoaded)
 					LoadSubpages();
 				return subpages;
+			}
+		}
+
+		/// <summary>
+		/// Gets list of templates used of this page. Automatically calls LoadSubpages() on first usage
+		/// </summary>
+		public string[] Templates
+		{
+			get
+			{
+				if (!templatesLoaded)
+					LoadTemplates();
+				return templates;
 			}
 		}
 
