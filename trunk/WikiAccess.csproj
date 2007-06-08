@@ -64,7 +64,6 @@
     <Compile Include="Wikimedia\WikimediaProjects.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Notes\CapabilitiesNotices.txt" />
     <Content Include="Notes\CodeFileHeader.txt" />
     <Content Include="Notes\PageListGenerators.txt" />
     <None Include="CHANGEGLOG" />
