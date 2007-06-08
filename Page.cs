@@ -55,6 +55,8 @@ namespace WikiTools.Access
 
 		string[] templates; bool templatesLoaded = false;
 
+        string[] images; bool imagesLoaded = false;
+
 		string[] subpages; bool subpagesLoaded = false;
 
         /// <summary>
@@ -201,6 +203,25 @@ namespace WikiTools.Access
 			templatesLoaded = true;
 			templates = tmp.ToArray();
 		}
+
+        /// <summary>
+        /// Loads images of templates used on this page
+        /// </summary>
+        public void LoadImages()
+        {
+            string page = ab.DownloadPage("api.php?action=query&format=xml&prop=images&titles=" + ab.EncodeUrl(name));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(page);
+            XmlNodeList nl = doc.GetElementsByTagName("im");
+            List<string> tmp = new List<string>();
+            foreach (XmlNode node in nl)
+            {
+                XmlElement celem = (XmlElement)node;
+                tmp.Add(celem.Attributes["title"].Value);
+            }
+            imagesLoaded = true;
+            images = tmp.ToArray();
+        }
 
         /// <summary>
         /// Loads history of this page
@@ -356,7 +377,7 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Gets list of templates used of this page. Automatically calls LoadSubpages() on first usage
+		/// Gets list of templates used of this page. Automatically calls LoadTemplates() on first usage
 		/// </summary>
 		public string[] Templates
 		{
@@ -367,6 +388,19 @@ namespace WikiTools.Access
 				return templates;
 			}
 		}
+
+        /// <summary>
+        /// Gets list of images used of this page. Automatically calls LoadImages() on first usage
+        /// </summary>
+        public string[] Images
+        {
+            get
+            {
+                if (!imagesLoaded)
+                    LoadImages();
+                return images;
+            }
+        }
 
         #region Common page info (from api.php?action=query&prop=info)
 
