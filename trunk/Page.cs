@@ -581,6 +581,16 @@ namespace WikiTools.Access
         #endregion
 
         /// <summary>
+        /// Loads edit window and gets text from here
+        /// </summary>
+        public void LoadTextWritePrepared()
+        {
+            ab.PageName = "index.php?action=edit&title=" + ab.EncodeUrl(name);
+            text = ab.GetTextboxField("wpTextbox1");
+            textLoaded = true;
+        }
+
+        /// <summary>
         /// Deletes this page
         /// </summary>
         /// <param name="reason">Reason of deletion</param>
