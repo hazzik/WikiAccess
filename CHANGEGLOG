@@ -10,3 +10,4 @@
 ** New cahce file: <site>.capabilities
 * Added Page.Templates, Page.Images properties
 * Added Utils.Wait() method (specially adoptated)
+* Added "Prepared get" - Page.LoadTextWritePrepared()
