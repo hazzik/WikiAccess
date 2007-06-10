@@ -278,6 +278,25 @@ namespace WikiTools.Access
 			pg.SetText(text, summary);
 		}
 
+		/// <summary>
+		/// Returns true if page contains new message notification
+		/// </summary>
+		public bool HasNewMessages
+		{
+			get
+			{
+				return ab.PageText.Contains("<div class=\"usermessage\">");
+			}
+		}
+
+		/// <summary>
+		/// Reads user talk page to remove new message notification
+		/// </summary>
+		public void ReadNewMessages()
+		{
+			ab.PageName = "index.php?title=Special:Mytalk";
+		}
+
         #region IDisposable Members
 
 		/// <summary>
