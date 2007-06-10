@@ -11,3 +11,4 @@
 * Added Page.Templates, Page.Images properties
 * Added Utils.Wait() method (specially adoptated)
 * Added "Prepared get" - Page.LoadTextWritePrepared()
+* Added new message(s) notification support
