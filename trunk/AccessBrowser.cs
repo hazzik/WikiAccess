@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Message cache functions of WikiAcces Library                                   *
+ * Web access layer of WikiAcces Library                                          *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
  * This program is free software; you can redistribute it and/or                  *
