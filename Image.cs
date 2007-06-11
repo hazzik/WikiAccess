@@ -55,27 +55,6 @@ namespace WikiTools.Access
             return ab.DownloadBinary("index.php?title=Special:Filepath/" + ab.EncodeUrl(name));
         }
 
-        #region Unimplemented Upload method
-        /*/// <summary>
-        /// ***NOT IMPLEMENTED***
-        /// </summary>
-        /// <param name="path">Path of file to upload</param>
-        /// <param name="fname">Target name of file</param>
-        /// <param name="description">File description</param>
-        public void Upload(string path, string fname, string description)
-        {
-            throw new NotImplementedException();
-            ab.PageName = "index.php?title=Special:Upload";
-            if (!File.Exists(path)) throw new FileNotFoundException("File is not found", path);
-            ab.SetValue("wpUploadFile", path);
-            ab.SetTextboxField("wpDestFile", fname);
-            ab.SetTextboxField("wpUploadDescription", description);
-            ab.SetCheckbox("wpWatchthis", false);
-            ab.SetCheckbox("wpIgnoreWarning", true);
-            ab.ClickButton("wpUpload");
-        } */
-        #endregion
-
         /// <summary>
         /// Computes MD5 hash using .NET and converts it to string
         /// </summary>

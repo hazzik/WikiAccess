@@ -1,3 +1,6 @@
+== WikiAccess Library 0.2 ==
+This is the new release of WikiAccess library from the 11.06.2007. New functions:
+
 * New method: Utils.Swap<T>
 * LoadHistory method upgraded to new API version
 * Added Namespace constants (Namespaces.Main, Namespaces.Talk, etc.)

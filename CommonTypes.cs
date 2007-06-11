@@ -177,43 +177,4 @@ namespace WikiTools.Access
 		/// </summary>
         public int Jobs;
     }
-
-    public enum ProtectionLevel
-    {
-        None,
-        Autoconfirmed,
-        Sysop,
-    }
-
-    public enum LogAction
-    {
-        Block,
-        Unblock,
-        Protect,
-        Unprotect,
-        Rights,
-        Delete,
-        Restore,
-        DeleteRevision,
-        Upload,
-        Move,
-        Import,
-        RenameUser,
-        MakeBot,
-        RevokeBot
-    }
-
-    public enum LogType
-    {
-        Block = 1,
-        Protect = 2,
-        Rights = 4,
-        Delete = 8,
-        Upload = 16,
-        Move = 32,
-        Import = 64,
-        Renameuser = 128,
-        Newusers = 256,
-        Makebot = 512
-    }
 }

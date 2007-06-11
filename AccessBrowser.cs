@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Message cache functions of WikiAcces Library                                   *
+ * Web access layer of WikiAcces Library                                          *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
  * This program is free software; you can redistribute it and/or                  *
@@ -27,9 +27,9 @@ using System.IO;
 
 namespace WikiTools.Access
 {
-    /// <summary>
-    /// Provides access to wiki via IE and WebRequest
-    /// </summary>
+	/// <summary>
+	/// Provides access to wiki via IE and WebRequest
+	/// </summary>
 	public class AccessBrowser : IDisposable
 	{
 		WebBrowser wb;
@@ -37,12 +37,12 @@ namespace WikiTools.Access
 		string cpagename = "";
 		//public bool Shutdown = false;
 
-        Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
+		Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
 
-        /// <summary>
-        /// Initializes new instance of AccessBrowser
-        /// </summary>
-        /// <param name="wiki">Wiki to work with</param>
+		/// <summary>
+		/// Initializes new instance of AccessBrowser
+		/// </summary>
+		/// <param name="wiki">Wiki to work with</param>
 		public AccessBrowser(Wiki wiki)
 		{
 			wb = new WebBrowser();
@@ -50,9 +50,9 @@ namespace WikiTools.Access
 			wb.ScriptErrorsSuppressed = true;
 		}
 
-        /// <summary>
-        /// Allows to change current page
-        /// </summary>
+		/// <summary>
+		/// Allows to change current page
+		/// </summary>
 		public string PageName
 		{
 			get
@@ -61,20 +61,20 @@ namespace WikiTools.Access
 			}
 			set
 			{
-                if (cpagename != value)
-                {
-                    cpagename = value;
-                    wb.AllowNavigation = true;
-                    wb.Navigate(wiki.WikiURI + "/" + cpagename);
-                    Wait();
-                }
+				if (cpagename != value)
+				{
+					cpagename = value;
+					wb.AllowNavigation = true;
+					wb.Navigate(wiki.WikiURI + "/" + cpagename);
+					Wait();
+				}
 			}
 		}
 
-        /// <summary>
-        /// Checks if we are currently logged in
-        /// </summary>
-        /// <returns>Login status</returns>
+		/// <summary>
+		/// Checks if we are currently logged in
+		/// </summary>
+		/// <returns>Login status</returns>
 		public bool IsLoggedIn()
 		{
 			return !wb.DocumentText.Contains("var wgUserName = null;");
@@ -89,7 +89,7 @@ namespace WikiTools.Access
 		public bool SetTextboxField(string name, string value)
 		{
 			if (wb.Document.GetElementById(name) == null) return false;
-            wb.Document.GetElementById(name).InnerText = value;
+			wb.Document.GetElementById(name).InnerText = value;
 			return true;
 		}
 
@@ -135,7 +135,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Wait()
 		{
-            while (wb.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
+			while (wb.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
 		}
 
 		/// <summary>
@@ -154,10 +154,10 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="str">String to encode</param>
 		/// <returns>Encoded URL</returns>
-        public string EncodeUrl(string str)
-        {
-            return HttpUtility.UrlEncode(str);
-        }
+		public string EncodeUrl(string str)
+		{
+			return HttpUtility.UrlEncode(str);
+		}
 
 		/// <summary>
 		/// Downloads page via WebRequest.
@@ -165,16 +165,16 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
-        public string DownloadPage(string pgname)
-        {
+		public string DownloadPage(string pgname)
+		{
 			string result;
-            WebRequest rq = WebRequest.Create(wiki.WikiURI + "/" + pgname);
-            rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			WebRequest rq = WebRequest.Create(wiki.WikiURI + "/" + pgname);
+			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			Utils.DoEvents();
-            result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			Utils.DoEvents();
 			return result;
-        }
+		}
 
 		/// <summary>
 		/// Downloads page via WebRequest.
@@ -182,29 +182,29 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
-        public byte[] DownloadBinary(string pgname)
-        {
-            WebRequest rq = WebRequest.Create(wiki.WikiURI + "/" + pgname);
-            List<Byte> result = new List<byte>();
-            int cbyte; Stream rpstream = rq.GetResponse().GetResponseStream();
-            while ((cbyte = rpstream.ReadByte()) != -1)
-            {
-                result.Add((byte)cbyte);
+		public byte[] DownloadBinary(string pgname)
+		{
+			WebRequest rq = WebRequest.Create(wiki.WikiURI + "/" + pgname);
+			List<Byte> result = new List<byte>();
+			int cbyte; Stream rpstream = rq.GetResponse().GetResponseStream();
+			while ((cbyte = rpstream.ReadByte()) != -1)
+			{
+				result.Add((byte)cbyte);
 				if (DateTime.Now.Ticks % 10 == 0) Utils.DoEvents();
-            }
-            return result.ToArray();
-        }
+			}
+			return result.ToArray();
+		}
 
 		/// <summary>
 		/// Instance of WebBrowser
 		/// </summary>
-        public WebBrowser WebBrowser
-        {
-            get 
-            { 
-                return wb; 
-            }
-        }
+		public WebBrowser WebBrowser
+		{
+			get
+			{
+				return wb;
+			}
+		}
 
 		#region IDisposable Members
 
@@ -223,26 +223,26 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="p">API timestamp in string</param>
 		/// <returns>Result in DateTime</returns>
-        public DateTime ParseAPITimestamp(string p)
-        {
-            Match match = APITimestamp.Match(p);
-            return new DateTime(
-               int.Parse(match.Groups[1].Value),
-               int.Parse(match.Groups[2].Value),
-               int.Parse(match.Groups[3].Value),
-               int.Parse(match.Groups[4].Value),
-               int.Parse(match.Groups[5].Value),
-               int.Parse(match.Groups[6].Value)
-            );
-        }
+		public DateTime ParseAPITimestamp(string p)
+		{
+			Match match = APITimestamp.Match(p);
+			return new DateTime(
+			   int.Parse(match.Groups[1].Value),
+			   int.Parse(match.Groups[2].Value),
+			   int.Parse(match.Groups[3].Value),
+			   int.Parse(match.Groups[4].Value),
+			   int.Parse(match.Groups[5].Value),
+			   int.Parse(match.Groups[6].Value)
+			);
+		}
 
 		/// <summary>
 		/// Updates current page
 		/// </summary>
-        public void Update()
-        {
-            wb.Update();
-            Wait();
-        }
-    }
+		public void Update()
+		{
+			wb.Update();
+			Wait();
+		}
+	}
 }

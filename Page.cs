@@ -601,14 +601,6 @@ namespace WikiTools.Access
             ab.ClickButton("wpConfirmB");
         }
 
-        public void Protect(string reason, ProtectionLevel edit, ProtectionLevel move, bool cascade, TimeSpan duration)
-        {
-            ab.PageName = "index.php?action=protect&title=" + ab.EncodeUrl(name);
-            ab.SetTextboxField("mwProtect-reason", reason);
-            ab.SetTextboxField("mwProtect-expiry", Utils.FormatDateTimeRFC2822(DateTime.UtcNow + duration));
-            ab.SetCheckbox("mwProtect-cascade", cascade);
-        }
-
         /// <summary>
         /// Renames this name
         /// </summary>

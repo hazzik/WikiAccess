@@ -23,78 +23,78 @@ using System.Xml;
 
 namespace WikiTools.Access
 {
-    /// <summary>
-    /// Page type for AllPages filtering
-    /// </summary>
-    public enum PageTypes
-    {
-        /// <summary>
-        /// Allow all pages
-        /// </summary>
-        All,
-        /// <summary>
-        /// Allow only redirects
-        /// </summary>
-        Redirects,
-        /// <summary>
-        /// Allow everything but redirects
-        /// </summary>
-        NonRedirects
-    }
+	/// <summary>
+	/// Page type for AllPages filtering
+	/// </summary>
+	public enum PageTypes
+	{
+		/// <summary>
+		/// Allow all pages
+		/// </summary>
+		All,
+		/// <summary>
+		/// Allow only redirects
+		/// </summary>
+		Redirects,
+		/// <summary>
+		/// Allow everything but redirects
+		/// </summary>
+		NonRedirects
+	}
 
-    partial class Wiki
-    {
-        /// <summary>
-        /// Retrieves all pages list from wiki
-        /// </summary>
-        /// <param name="startfrom">Starts enumerating from this pages</param>
-        /// <param name="limit">Limit of pages to get</param>
-        /// <param name="filter">Redirects filter</param>
-        /// <param name="namespaceID">Namespace to enumerate</param>
-        /// <returns>All pages list</returns>
-        public string[] GetAllPages(string startfrom, int limit, PageTypes filter, int namespaceID)
-        {
-            int walks_count = (int)Math.Floor((double)limit / 500), adittional_walk = limit % 500;
-            string rq_uri;
-            string next = startfrom;
-            List<string> result = new List<string>();
-            for (int i = 0; i < walks_count; i++)
-            {
-                rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
-                    + "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID;
-                result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
-                if (String.IsNullOrEmpty(next)) return result.ToArray();
-            }
-            if (adittional_walk > 0)
-            {
-                rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=" + adittional_walk + 
-                    "&apfilterredir=" + filter.ToString().ToLower()
-                    + "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID;
-                result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
-            }
-            return result.ToArray();
-        }
+	partial class Wiki
+	{
+		/// <summary>
+		/// Retrieves all pages list from wiki
+		/// </summary>
+		/// <param name="startfrom">Starts enumerating from this pages</param>
+		/// <param name="limit">Limit of pages to get</param>
+		/// <param name="filter">Redirects filter</param>
+		/// <param name="namespaceID">Namespace to enumerate</param>
+		/// <returns>All pages list</returns>
+		public string[] GetAllPages(string startfrom, int limit, PageTypes filter, int namespaceID)
+		{
+			int walks_count = (int)Math.Floor((double)limit / 500), adittional_walk = limit % 500;
+			string rq_uri;
+			string next = startfrom;
+			List<string> result = new List<string>();
+			for (int i = 0; i < walks_count; i++)
+			{
+				rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
+					+ "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID;
+				result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
+				if (String.IsNullOrEmpty(next)) return result.ToArray();
+			}
+			if (adittional_walk > 0)
+			{
+				rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=" + adittional_walk +
+					"&apfilterredir=" + filter.ToString().ToLower()
+					+ "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID;
+				result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
+			}
+			return result.ToArray();
+		}
 
-        private string[] ParseAllPages(string xml, out string next)
-        {
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xml);
-            XmlNodeList pgnodes = doc.GetElementsByTagName("p");
-            List<string> result = new List<string>();
-            foreach (XmlNode cnode in pgnodes)
-            {
-                XmlElement celem = (XmlElement)cnode;
-                result.Add(celem.Attributes["title"].Value);
-            }
-            if (doc.GetElementsByTagName("query-continue").Count > 0)
-            {
-                XmlElement qcelem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
-                next = qcelem.Attributes["apfrom"].Value;
-            }
-            else
-                next = String.Empty;
-            return result.ToArray();
-        }
+		private string[] ParseAllPages(string xml, out string next)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(xml);
+			XmlNodeList pgnodes = doc.GetElementsByTagName("p");
+			List<string> result = new List<string>();
+			foreach (XmlNode cnode in pgnodes)
+			{
+				XmlElement celem = (XmlElement)cnode;
+				result.Add(celem.Attributes["title"].Value);
+			}
+			if (doc.GetElementsByTagName("query-continue").Count > 0)
+			{
+				XmlElement qcelem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
+				next = qcelem.Attributes["apfrom"].Value;
+			}
+			else
+				next = String.Empty;
+			return result.ToArray();
+		}
 
 		/// <summary>
 		/// Retrieves all pages list from wiki, that starts from specified prefix
@@ -116,5 +116,5 @@ namespace WikiTools.Access
 			} while (!String.IsNullOrEmpty(next));
 			return result.ToArray();
 		}
-    }
+	}
 }

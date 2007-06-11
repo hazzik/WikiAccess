@@ -30,80 +30,80 @@ namespace WikiTools.Access
 	/// </summary>
 	public class Namespaces
 	{
-        static Regex NamespaceFromMeta = new Regex("<ns id=\"(-?\\d{1,3})\">(.+?)</ns>", RegexOptions.Compiled);
+		static Regex NamespaceFromMeta = new Regex("<ns id=\"(-?\\d{1,3})\">(.+?)</ns>", RegexOptions.Compiled);
 
 		/// <summary>
 		/// Media namesapce
 		/// </summary>
-        public static readonly int Media = -2;
+		public static readonly int Media = -2;
 		/// <summary>
 		/// Special namespace, where specail pages are stored
 		/// </summary>
-        public static readonly int Special = -1;
+		public static readonly int Special = -1;
 		/// <summary>
 		/// Main (article) namespace
 		/// </summary>
-        public static readonly int Main = 0;
+		public static readonly int Main = 0;
 		/// <summary>
 		/// Talk for mainspace pages
 		/// </summary>
-        public static readonly int Talk = 1;
+		public static readonly int Talk = 1;
 		/// <summary>
 		/// Users' personal pages
 		/// </summary>
-        public static readonly int User = 2;
+		public static readonly int User = 2;
 		/// <summary>
 		/// Users' talk pages
 		/// </summary>
-        public static readonly int UserTalk = 3;
+		public static readonly int UserTalk = 3;
 		/// <summary>
 		/// Project pages
 		/// </summary>
-        public static readonly int Project = 4;
+		public static readonly int Project = 4;
 		/// <summary>
 		/// Talk for project pages
 		/// </summary>
-        public static readonly int ProjectTalk = 5;
+		public static readonly int ProjectTalk = 5;
 		/// <summary>
 		/// Media files
 		/// </summary>
-        public static readonly int Image = 6;
+		public static readonly int Image = 6;
 		/// <summary>
 		/// Media files' talk pages
 		/// </summary>
-        public static readonly int ImageTalk = 7;
+		public static readonly int ImageTalk = 7;
 		/// <summary>
 		/// MediaWiki messages
 		/// </summary>
-        public static readonly int MediaWiki = 8;
+		public static readonly int MediaWiki = 8;
 		/// <summary>
 		/// MediaWiki messages talk pages
 		/// </summary>
-        public static readonly int MediaWikiTalk = 9;
+		public static readonly int MediaWikiTalk = 9;
 		/// <summary>
 		/// Templates
 		/// </summary>
-        public static readonly int Template = 10;
+		public static readonly int Template = 10;
 		/// <summary>
 		/// Templates' talk pages
 		/// </summary>
-        public static readonly int TemplateTalk = 11;
+		public static readonly int TemplateTalk = 11;
 		/// <summary>
 		/// Help
 		/// </summary>
-        public static readonly int Help = 12;
+		public static readonly int Help = 12;
 		/// <summary>
 		/// Help's talk pages
 		/// </summary>
-        public static readonly int HelpTalk = 13;
+		public static readonly int HelpTalk = 13;
 		/// <summary>
 		/// Categories
 		/// </summary>
-        public static readonly int Category = 14;
+		public static readonly int Category = 14;
 		/// <summary>
 		/// Categories' talk pages
 		/// </summary>
-        public static readonly int CategoryTalk = 15;
+		public static readonly int CategoryTalk = 15;
 
 		#region Load and save
 
@@ -168,7 +168,7 @@ namespace WikiTools.Access
 		}
 
 		#endregion
-		
+
 		/// <summary>
 		/// Gets canonical namespaces list
 		/// </summary>
@@ -224,11 +224,11 @@ namespace WikiTools.Access
 		/// <returns></returns>
 		public int GetNamespaceID(string nsName)
 		{
-            if (namespaces.ContainsValue(nsName))
-                return namespaces.Keys[namespaces.Values.IndexOf(nsName)];
-            else if (GetStandardNamespaces().ContainsValue(nsName))
-                return GetStandardNamespaces().Keys[GetStandardNamespaces().Values.IndexOf(nsName)];
-            else return 0;
+			if (namespaces.ContainsValue(nsName))
+				return namespaces.Keys[namespaces.Values.IndexOf(nsName)];
+			else if (GetStandardNamespaces().ContainsValue(nsName))
+				return GetStandardNamespaces().Keys[GetStandardNamespaces().Values.IndexOf(nsName)];
+			else return 0;
 		}
 
 		/// <summary>
@@ -236,10 +236,10 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="title">Page title</param>
 		/// <returns>Namespace ID</returns>
-        public int GetNamespaceByTitle(string title)
-        {
-            return GetNamespaceID(title.Split(':')[0]);
-        }
+		public int GetNamespaceByTitle(string title)
+		{
+			return GetNamespaceID(title.Split(':')[0]);
+		}
 
 		/// <summary>
 		/// Saves namespaces to file
@@ -255,52 +255,52 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="ID">Namespace ID</param>
 		/// <returns>Namespace name</returns>
-        public string GetNamespaceByID(int ID)
-        {
-            return namespaces[ID];
-        }
+		public string GetNamespaceByID(int ID)
+		{
+			return namespaces[ID];
+		}
 
 		/// <summary>
 		/// Get talk title of specified page
 		/// </summary>
 		/// <param name="title">Page title</param>
 		/// <returns>Talk title</returns>
-        public string TitleToTalk(string title)
-        {
-            int nid = GetNamespaceByTitle(title);
-            if (IsTalkNamespace(title) | nid < 0) return title;
-            if (nid == 0) return namespaces[1] + ":" + title;
-            else if (title.StartsWith(namespaces[nid]))
-                return namespaces[nid + 1] + title.Substring(title.IndexOf(":"));
-            else
-                return GetStandardNamespaces()[nid + 1] + title.Substring(title.IndexOf(":"));
-        }
+		public string TitleToTalk(string title)
+		{
+			int nid = GetNamespaceByTitle(title);
+			if (IsTalkNamespace(title) | nid < 0) return title;
+			if (nid == 0) return namespaces[1] + ":" + title;
+			else if (title.StartsWith(namespaces[nid]))
+				return namespaces[nid + 1] + title.Substring(title.IndexOf(":"));
+			else
+				return GetStandardNamespaces()[nid + 1] + title.Substring(title.IndexOf(":"));
+		}
 
 		/// <summary>
 		/// Get page title of specified talk page
 		/// </summary>
 		/// <param name="title">Talk title</param>
 		/// <returns>Page title</returns>
-        public string TitleFromTalk(string title)
-        {
-            if (!IsTalkNamespace(title)) return title;
-            int nid = GetNamespaceByTitle(title);
-            if (nid == 1) return title.Substring(title.IndexOf(":") + 1);
-            else if (title.StartsWith(namespaces[nid]))
-                return namespaces[nid - 1] + title.Substring(title.IndexOf(":"));
-            else
-                return GetStandardNamespaces()[nid - 1] + title.Substring(title.IndexOf(":"));
-        }
+		public string TitleFromTalk(string title)
+		{
+			if (!IsTalkNamespace(title)) return title;
+			int nid = GetNamespaceByTitle(title);
+			if (nid == 1) return title.Substring(title.IndexOf(":") + 1);
+			else if (title.StartsWith(namespaces[nid]))
+				return namespaces[nid - 1] + title.Substring(title.IndexOf(":"));
+			else
+				return GetStandardNamespaces()[nid - 1] + title.Substring(title.IndexOf(":"));
+		}
 
 		/// <summary>
 		/// Checks if page is in talk namespace
 		/// </summary>
 		/// <param name="title">Page title</param>
 		/// <returns>Is talk namespace</returns>
-        public bool IsTalkNamespace(string title)
-        {
-            return GetNamespaceByTitle(title) > 0 && GetNamespaceByTitle(title) % 2 == 1;
-        }
+		public bool IsTalkNamespace(string title)
+		{
+			return GetNamespaceByTitle(title) > 0 && GetNamespaceByTitle(title) % 2 == 1;
+		}
 
 		/// <summary>
 		/// Removes namespace prefix from 
