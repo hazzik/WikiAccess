@@ -10,3 +10,5 @@ WikiAccess is the library for .NET Framework v2.0. Here is some short notes to i
 == Build ===
 If you uploaded source code, and want to build it:
 * Open .NET 2.0 SDK Command prompt
+* Go to WikiAccess source directory
+* Type "msbuild" (without quotation marks)
