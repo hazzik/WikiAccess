@@ -147,6 +147,12 @@ namespace WikiTools.Access
             System.Windows.Forms.Application.DoEvents();
         }
 
+		/// <summary>
+		/// Swaps values of 2 variables
+		/// </summary>
+		/// <typeparam name="T">Variables type</typeparam>
+		/// <param name="arg1">First variable</param>
+		/// <param name="arg2">Second variable</param>
         public static void Swap<T>(ref T arg1, ref T arg2)
         {
             T temp = arg1;
@@ -157,7 +163,7 @@ namespace WikiTools.Access
         /// <summary>
         /// Adoptated version of Thread.Sleep method
         /// </summary>
-        /// <param name="ts"></param>
+        /// <param name="ts">Time to wait</param>
         public static void Wait(TimeSpan ts)
         {
             DateTime start = DateTime.Now;

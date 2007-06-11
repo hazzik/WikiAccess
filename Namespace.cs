@@ -32,23 +32,77 @@ namespace WikiTools.Access
 	{
         static Regex NamespaceFromMeta = new Regex("<ns id=\"(-?\\d{1,3})\">(.+?)</ns>", RegexOptions.Compiled);
 
+		/// <summary>
+		/// Media namesapce
+		/// </summary>
         public static readonly int Media = -2;
+		/// <summary>
+		/// Special namespace, where specail pages are stored
+		/// </summary>
         public static readonly int Special = -1;
+		/// <summary>
+		/// Main (article) namespace
+		/// </summary>
         public static readonly int Main = 0;
+		/// <summary>
+		/// Talk for mainspace pages
+		/// </summary>
         public static readonly int Talk = 1;
+		/// <summary>
+		/// Users' personal pages
+		/// </summary>
         public static readonly int User = 2;
+		/// <summary>
+		/// Users' talk pages
+		/// </summary>
         public static readonly int UserTalk = 3;
+		/// <summary>
+		/// Project pages
+		/// </summary>
         public static readonly int Project = 4;
+		/// <summary>
+		/// Talk for project pages
+		/// </summary>
         public static readonly int ProjectTalk = 5;
+		/// <summary>
+		/// Media files
+		/// </summary>
         public static readonly int Image = 6;
+		/// <summary>
+		/// Media files' talk pages
+		/// </summary>
         public static readonly int ImageTalk = 7;
+		/// <summary>
+		/// MediaWiki messages
+		/// </summary>
         public static readonly int MediaWiki = 8;
+		/// <summary>
+		/// MediaWiki messages talk pages
+		/// </summary>
         public static readonly int MediaWikiTalk = 9;
+		/// <summary>
+		/// Templates
+		/// </summary>
         public static readonly int Template = 10;
+		/// <summary>
+		/// Templates' talk pages
+		/// </summary>
         public static readonly int TemplateTalk = 11;
+		/// <summary>
+		/// Help
+		/// </summary>
         public static readonly int Help = 12;
+		/// <summary>
+		/// Help's talk pages
+		/// </summary>
         public static readonly int HelpTalk = 13;
+		/// <summary>
+		/// Categories
+		/// </summary>
         public static readonly int Category = 14;
+		/// <summary>
+		/// Categories' talk pages
+		/// </summary>
         public static readonly int CategoryTalk = 15;
 
 		#region Load and save
@@ -248,6 +302,11 @@ namespace WikiTools.Access
             return GetNamespaceByTitle(title) > 0 && GetNamespaceByTitle(title) % 2 == 1;
         }
 
+		/// <summary>
+		/// Removes namespace prefix from 
+		/// </summary>
+		/// <param name="pgname">Page name</param>
+		/// <returns>Page name without namespace</returns>
 		public string RemoveNamespace(string pgname)
 		{
 			pgname = pgname.Trim();

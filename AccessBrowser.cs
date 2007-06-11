@@ -36,7 +36,6 @@ namespace WikiTools.Access
 		Wiki wiki;
 		string cpagename = "";
 		//public bool Shutdown = false;
-        private bool complete = false;
 
         Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
 
@@ -49,14 +48,7 @@ namespace WikiTools.Access
 			wb = new WebBrowser();
 			this.wiki = wiki;
 			wb.ScriptErrorsSuppressed = true;
-            wb.DocumentCompleted += new WebBrowserDocumentCompletedEventHandler(wb_DocumentCompleted);
-            wb.Navigated += new WebBrowserNavigatedEventHandler(wb_Navigated);
 		}
-
-        void wb_Navigated(object sender, WebBrowserNavigatedEventArgs e)
-        {
-            complete = true;
-        }
 
         /// <summary>
         /// Allows to change current page
@@ -73,7 +65,6 @@ namespace WikiTools.Access
                 {
                     cpagename = value;
                     wb.AllowNavigation = true;
-                    complete = false;
                     wb.Navigate(wiki.WikiURI + "/" + cpagename);
                     Wait();
                 }
@@ -134,16 +125,10 @@ namespace WikiTools.Access
 		public bool ClickButton(string name)
 		{
 			if (wb.Document.GetElementById(name) == null) return false;
-            complete = false;
 			wb.Document.GetElementById(name).InvokeMember("click");
 			Wait();
 			return true;
 		}
-
-        void wb_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            complete = true;
-        }
 
 		/// <summary>
 		/// Waits until page loaded
@@ -182,9 +167,13 @@ namespace WikiTools.Access
 		/// <returns>Page content</returns>
         public string DownloadPage(string pgname)
         {
+			string result;
             WebRequest rq = WebRequest.Create(wiki.WikiURI + "/" + pgname);
             rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-            return new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			Utils.DoEvents();
+            result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			Utils.DoEvents();
+			return result;
         }
 
 		/// <summary>
@@ -201,6 +190,7 @@ namespace WikiTools.Access
             while ((cbyte = rpstream.ReadByte()) != -1)
             {
                 result.Add((byte)cbyte);
+				if (DateTime.Now.Ticks % 10 == 0) Utils.DoEvents();
             }
             return result.ToArray();
         }
@@ -251,7 +241,6 @@ namespace WikiTools.Access
 		/// </summary>
         public void Update()
         {
-            complete = false;
             wb.Update();
             Wait();
         }

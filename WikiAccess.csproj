@@ -67,6 +67,7 @@
   <ItemGroup>
     <Content Include="Notes\CodeFileHeader.txt" />
     <Content Include="Notes\PageListGenerators.txt" />
+    <Content Include="Readme.txt" />
     <None Include="CHANGEGLOG" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
