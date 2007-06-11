@@ -99,8 +99,7 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Retrieves all pages list from wiki, that starts from specified prefix
 		/// </summary>
-		/// <param name="startfrom">Starts enumerating from this pages</param>
-		/// <param name="limit">Limit of pages to get</param>
+		/// <param name="prefix">Prefix</param>
 		/// <param name="filter">Redirects filter</param>
 		/// <param name="namespaceID">Namespace to enumerate</param>
 		/// <returns>All pages list</returns>
@@ -113,27 +112,6 @@ namespace WikiTools.Access
 			{
 				rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
 					+ "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID + "&apprefix=" + prefix;
-				result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
-			} while (!String.IsNullOrEmpty(next));
-			return result.ToArray();
-		}
-
-		/// <summary>
-		/// Retrieves all pages list from wiki, that starts from specified prefix
-		/// </summary>
-		/// <param name="startfrom">Starts enumerating from this pages</param>
-		/// <param name="limit">Limit of pages to get</param>
-		/// <param name="filter">Redirects filter</param>
-		/// <returns>All pages list</returns>
-		public string[] GetPrefixIndex(string prefix, PageTypes filter)
-		{
-			string rq_uri;
-			string next = "";
-			List<string> result = new List<string>();
-			do
-			{
-				rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
-					+ "&apfrom=" + ab.EncodeUrl(next) + "&apprefix=" + prefix;
 				result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
 			} while (!String.IsNullOrEmpty(next));
 			return result.ToArray();
