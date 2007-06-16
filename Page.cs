@@ -40,7 +40,7 @@ namespace WikiTools.Access
         //Loadable variables & Load flags
         string text; bool textLoaded = false;
 
-        int pgid; DateTime lastedit; int lastrevision; bool redirect; bool exists;
+		int pgid; DateTime touched; int lastrevision; bool redirect; bool exists; int length;
         bool propsLoaded = false;
 
         string redirectsOn; bool redirectsOnLoaded = false;
@@ -126,9 +126,10 @@ namespace WikiTools.Access
             if (!exists)
                 return;
             pgid = Int32.Parse(pageElem.Attributes["pageid"].Value);
-            lastedit = ab.ParseAPITimestamp(pageElem.Attributes["touched"].Value);
+            touched = ab.ParseAPITimestamp(pageElem.Attributes["touched"].Value);
             lastrevision = Int32.Parse(pageElem.Attributes["lastrevid"].Value);
             redirect = Utils.ContainsAttribure(pageElem, "redirect");
+			length = Int32.Parse(pageElem.Attributes["length"].Value);
         }
 
         /// <summary>
@@ -431,13 +432,13 @@ namespace WikiTools.Access
         /// <summary>
         /// Gets last edit time. Automatically calls LoadInfo() on first usage
         /// </summary>
-        public DateTime LastEditDateTime
+        public DateTime Touched
         {
             get
             {
                 if (!propsLoaded) LoadInfo();
                 if (!exists) return DateTime.MinValue;
-                else return lastedit;
+                else return touched;
             }
         }
 
@@ -478,6 +479,20 @@ namespace WikiTools.Access
                 return exists;
             }
         }
+
+		/// <summary>
+		/// Gets length of article in bytes using either API or page text
+		/// </summary>
+		public int Length
+		{
+			get
+			{
+				if (!propsLoaded && !textLoaded) LoadInfo();
+				if (propsLoaded) return length;
+				if (textLoaded) return Encoding.UTF8.GetByteCount(text);
+				throw new Exception();
+			}
+		}
 
 #endregion
 
