@@ -1,3 +1,7 @@
+== Current ==
+* Added Page.Length property
+
+== Version 0.2 ==
 * New method: Utils.Swap<T>
 * LoadHistory method upgraded to new API version
 * Added Namespace constants (Namespaces.Main, Namespaces.Talk, etc.)
