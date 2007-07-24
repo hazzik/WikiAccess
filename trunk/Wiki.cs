@@ -102,7 +102,7 @@ namespace WikiTools.Access
 		/// <param name="username">User name</param>
 		/// <param name="password">User password</param>
 		/// <returns>Succes</returns>
-        public bool Login(string username, string password)
+        /*public bool Login(string username, string password)
 		{
 			ab.PageName = "index.php?title=Special:Userlogin";
 			ab.SetTextboxField("wpName1", username);
@@ -111,7 +111,7 @@ namespace WikiTools.Access
 			ab.ClickButton("wpLoginattempt");
             ab.PageName = "index.php";
 			return ab.IsLoggedIn();
-		}
+		}*/
 
 		/// <summary>
 		/// Logs out

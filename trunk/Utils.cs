@@ -139,14 +139,6 @@ namespace WikiTools.Access
             return result.ToArray();
         }
 
-        /// <summary>
-        /// Process events in application to avoid context deadlock
-        /// </summary>
-        public static void DoEvents()
-        {
-            System.Windows.Forms.Application.DoEvents();
-        }
-
 		/// <summary>
 		/// Swaps values of 2 variables
 		/// </summary>
@@ -167,7 +159,7 @@ namespace WikiTools.Access
         public static void Wait(TimeSpan ts)
         {
             DateTime start = DateTime.Now;
-            while (DateTime.Now - start < ts) DoEvents();
+			while (DateTime.Now - start < ts) ;
         }
     }
 }

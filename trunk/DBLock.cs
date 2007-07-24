@@ -24,7 +24,7 @@ namespace WikiTools.Access
 {
     partial class Wiki
     {
-        /// <summary>
+        /*/// <summary>
         /// Locks DB using Special:Lockdb
         /// </summary>
         /// <param name="reason">Reason, that will be shown when user tries to modify something</param>
@@ -44,6 +44,6 @@ namespace WikiTools.Access
             ab.PageName = "index.php?title=Special:Unlockdb";
             ab.SetCheckbox("wpLockConfirm", true);
             ab.ClickButton("wpLock");
-        }
+        }*/
     }
 }

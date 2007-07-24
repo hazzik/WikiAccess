@@ -586,12 +586,13 @@ namespace WikiTools.Access
         /// <param name="watch">Add this page to watchlist</param>
 		public void SetText(string newText, string summary, bool minor, bool watch)
 		{
+			throw new NotImplementedException();
             ab.PageName = "index.php?action=edit&title=" + HttpUtility.UrlEncode(name);
-            ab.SetTextboxField("wpTextbox1", newText);
+            /*ab.SetTextboxField("wpTextbox1", newText);
             ab.SetTextboxField("wpSummary", summary);
             ab.SetCheckbox("wpMinoredit", minor);
             ab.SetCheckbox("wpWatchthis", watch);
-            ab.ClickButton("wpSave");
+            ab.ClickButton("wpSave");*/
         }
         #endregion
 
@@ -600,12 +601,13 @@ namespace WikiTools.Access
         /// </summary>
         public void LoadTextWritePrepared()
         {
+			throw new NotImplementedException();
             ab.PageName = "index.php?action=edit&title=" + ab.EncodeUrl(name);
-            text = ab.GetTextboxField("wpTextbox1");
+            //text = ab.GetTextboxField("wpTextbox1");
             textLoaded = true;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Deletes this page
         /// </summary>
         /// <param name="reason">Reason of deletion</param>
@@ -635,7 +637,7 @@ namespace WikiTools.Access
             ab.SetTextboxField("wpNewTitle", NewName);
             ab.SetTextboxField("wpReason", Reason);
             ab.ClickButton("wpMove");
-        }
+        }*/
 
         /// <summary>
         /// Cleans cahce of this page
@@ -643,7 +645,6 @@ namespace WikiTools.Access
         public void Purge()
         {
             ab.PageName = "index.php?action=purge&title=" + ab.EncodeUrl(name);
-            ab.ClickButton("submit");   //needed if we haven't got purge permission
         }
 
 		/// <summary>
