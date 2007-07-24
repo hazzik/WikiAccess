@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.Web;
 using System.IO;
 
@@ -32,9 +31,9 @@ namespace WikiTools.Access
     /// </summary>
 	public class AccessBrowser : IDisposable
 	{
-		WebBrowser wb;
 		Wiki wiki;
 		string cpagename = "";
+		string cpagetext = "";
 		//public bool Shutdown = false;
 
         Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
@@ -45,9 +44,9 @@ namespace WikiTools.Access
         /// <param name="wiki">Wiki to work with</param>
 		public AccessBrowser(Wiki wiki)
 		{
-			wb = new WebBrowser();
+			//wb = new WebBrowser();
 			this.wiki = wiki;
-			wb.ScriptErrorsSuppressed = true;
+			//wb.ScriptErrorsSuppressed = true;
 		}
 
         /// <summary>
@@ -64,9 +63,7 @@ namespace WikiTools.Access
                 if (cpagename != value)
                 {
                     cpagename = value;
-                    wb.AllowNavigation = true;
-                    wb.Navigate(wiki.WikiURI + "/" + cpagename);
-                    Wait();
+					cpagetext = DownloadPage(value);
                 }
 			}
 		}
@@ -77,7 +74,7 @@ namespace WikiTools.Access
         /// <returns>Login status</returns>
 		public bool IsLoggedIn()
 		{
-			return !wb.DocumentText.Contains("var wgUserName = null;");
+			return !cpagetext.Contains("var wgUserName = null;");
 		}
 
 		/// <summary>
@@ -86,23 +83,23 @@ namespace WikiTools.Access
 		/// <param name="name">Name (ID of textbox)</param>
 		/// <param name="value">Vaule to set</param>
 		/// <returns>Existance of textbox</returns>
-		public bool SetTextboxField(string name, string value)
+		/*public bool SetTextboxField(string name, string value)
 		{
 			if (wb.Document.GetElementById(name) == null) return false;
             wb.Document.GetElementById(name).InnerText = value;
 			return true;
-		}
+		}*/
 
 		/// <summary>
 		/// Gets textbox field content
 		/// </summary>
 		/// <param name="name">Name (ID of textbox)</param>
 		/// <returns>Vaule of textbox (null if textbox doesn't exist)</returns>
-		public string GetTextboxField(string name)
+		/*public string GetTextboxField(string name)
 		{
 			if (wb.Document.GetElementById(name) == null) return null;
 			return wb.Document.GetElementById(name).InnerText;
-		}
+		}*/
 
 		/// <summary>
 		/// Sets checkbox value
@@ -110,33 +107,33 @@ namespace WikiTools.Access
 		/// <param name="name">Name (ID of checkbox)</param>
 		/// <param name="value">Vaule of checkbox</param>
 		/// <returns>Existance of checkbox</returns>
-		public bool SetCheckbox(string name, bool value)
+		/*public bool SetCheckbox(string name, bool value)
 		{
 			if (wb.Document.GetElementById(name) == null) return false;
 			wb.Document.GetElementById(name).SetAttribute("checked", (value ? "checked" : ""));
 			return true;
-		}
+		}*/
 
 		/// <summary>
 		/// Click th specified button
 		/// </summary>
 		/// <param name="name">Name of button</param>
 		/// <returns>Existance of button</returns>
-		public bool ClickButton(string name)
+		/*public bool ClickButton(string name)
 		{
 			if (wb.Document.GetElementById(name) == null) return false;
 			wb.Document.GetElementById(name).InvokeMember("click");
 			Wait();
 			return true;
-		}
+		}*/
 
 		/// <summary>
 		/// Waits until page loaded
 		/// </summary>
-		public void Wait()
+		/*public void Wait()
 		{
             while (wb.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-		}
+		}*/
 
 		/// <summary>
 		/// Current page text
@@ -145,7 +142,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				return wb.DocumentText;
+				return cpagetext;
 			}
 		}
 
@@ -168,11 +165,10 @@ namespace WikiTools.Access
         public string DownloadPage(string pgname)
         {
 			string result;
-            WebRequest rq = WebRequest.Create(wiki.WikiURI + "/" + pgname);
+			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
             rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-			Utils.DoEvents();
+			rq.UserAgent = "WikiAccess library";
             result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
-			Utils.DoEvents();
 			return result;
         }
 
@@ -190,20 +186,8 @@ namespace WikiTools.Access
             while ((cbyte = rpstream.ReadByte()) != -1)
             {
                 result.Add((byte)cbyte);
-				if (DateTime.Now.Ticks % 10 == 0) Utils.DoEvents();
             }
             return result.ToArray();
-        }
-
-		/// <summary>
-		/// Instance of WebBrowser
-		/// </summary>
-        public WebBrowser WebBrowser
-        {
-            get 
-            { 
-                return wb; 
-            }
         }
 
 		#region IDisposable Members
@@ -213,7 +197,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Dispose()
 		{
-			wb.Dispose();
+			//wb.Dispose();
 		}
 
 		#endregion
@@ -234,15 +218,6 @@ namespace WikiTools.Access
                int.Parse(match.Groups[5].Value),
                int.Parse(match.Groups[6].Value)
             );
-        }
-
-		/// <summary>
-		/// Updates current page
-		/// </summary>
-        public void Update()
-        {
-            wb.Update();
-            Wait();
         }
     }
 }
