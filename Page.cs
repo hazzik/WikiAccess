@@ -587,7 +587,7 @@ namespace WikiTools.Access
 		public void SetText(string newText, string summary, bool minor, bool watch)
 		{
 			throw new NotImplementedException();
-            ab.PageName = "index.php?action=edit&title=" + HttpUtility.UrlEncode(name);
+            ab.PageName = "index.php?action=edit&title=" + ab.EncodeUrl(name);
             /*ab.SetTextboxField("wpTextbox1", newText);
             ab.SetTextboxField("wpSummary", summary);
             ab.SetCheckbox("wpMinoredit", minor);

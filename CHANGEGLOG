@@ -1,5 +1,7 @@
 == Current ==
 * Added Page.Length property
+* STARTED REWRITING CODE FOR MONO-COMPATIBILITY
+* Rewrote Category class using MediaWiki API
 
 == Version 0.2 ==
 * New method: Utils.Swap<T>

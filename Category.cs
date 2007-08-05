@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace WikiTools.Access
 {
@@ -31,11 +32,6 @@ namespace WikiTools.Access
         Wiki wiki;
         string name;
         AccessBrowser ab;
-
-        Regex re_subcat = new Regex
-            ("<a class=\"CategoryTreeLabel  CategoryTreeLabelNs14 CategoryTreeLabelCategory\" href=\".+?\">(.+?)</a></div>");
-        Regex re_catpage = new Regex
-            ("<li><a href=\".+?\" title=\"(.+?)\">\\1</a></li>");
 
         bool loaded;
         string[] subcats;
@@ -58,32 +54,49 @@ namespace WikiTools.Access
         /// </summary>
         public void Load()
         {
-            ab.PageName = "index.php?title=Category:" + ab.EncodeUrl(name);
-            MatchCollection subcatmatches = re_subcat.Matches(ab.PageText);
-            List<String> subcatslst = new List<string>();
-            foreach (Match cmatch in subcatmatches)
-            {
-                subcatslst.Add(cmatch.Groups[1].Value.Trim());
-            }
-            subcats = subcatslst.ToArray();
-            Regex re_hasmore = new Regex(Regex.Escape(wiki.Messages.GetMessage("nextn").Replace("$1", "~D")).Replace("~D", "\\d+") + "\\)");
-            string nextpageuri = "index.php?title=Category:" + ab.EncodeUrl(name);
-            List<String> catpageslst = new List<string>();
+            ab.PageName = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + ab.EncodeUrl(name);
+            List<string> subcats_tmp = new List<string>();
+            List<string> pages_tmp = new List<string>();
+            string cmcontinue;
             do
             {
-                ab.PageName = nextpageuri;
-                MatchCollection catpagematches = re_catpage.Matches(ab.PageText);
-                foreach (Match cmatch in catpagematches)
-                {
-                    if (!catpageslst.Contains(cmatch.Groups[1].Value.Trim()))
-                        catpageslst.Add(cmatch.Groups[1].Value.Trim());
-                }
-                if (catpageslst.Count < 1) break;
-                nextpageuri = "index.php?title=Category:" + ab.EncodeUrl(name) + "&from=" +
-                    ab.EncodeUrl(catpageslst[catpageslst.Count - 1]);
-            } while (!re_hasmore.Match(ab.PageText).Success);
-            pagesincat = catpageslst.ToArray();
+                string[] cur_subcats, cur_pages;
+                cmcontinue = ExtractCategoriesFromXML(ab.PageText, out cur_subcats, out cur_pages);
+                subcats_tmp.AddRange(cur_subcats);
+                pages_tmp.AddRange(cur_pages);
+                if (!String.IsNullOrEmpty(cmcontinue))
+                    ab.PageName = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + ab.EncodeUrl(name)
+                        + "&cmcontinue=" + ab.EncodeUrl(cmcontinue);
+                else break;
+            } while (true);
             loaded = true;
+            subcats = subcats_tmp.ToArray();
+            pagesincat = pages_tmp.ToArray();
+        }
+
+        private string ExtractCategoriesFromXML(string xml, out string[] subcats, out string[] pages)
+        {
+            List<string> subcats_tmp = new List<string>();
+            List<string> pages_tmp = new List<string>();
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xml);
+            XmlNodeList cmnodes = doc.GetElementsByTagName("cm");
+            foreach (XmlNode cnode in cmnodes)
+            {
+                XmlElement celem = (XmlElement)cnode;
+                if (celem.Attributes["ns"].Value == "14")
+                    subcats_tmp.Add(wiki.NamespacesUtils.RemoveNamespace(celem.Attributes["title"].Value));
+                else
+                    pages_tmp.Add(celem.Attributes["title"].Value);
+            }
+            subcats = subcats_tmp.ToArray();
+            pages = pages_tmp.ToArray();
+            if (doc.GetElementsByTagName("query-continue").Count <= 0) return null;
+            else
+            {
+                XmlElement elem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
+                return elem.Attributes["cmcontinue"].Value;
+            }
         }
 
         /// <summary>

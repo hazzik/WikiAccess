@@ -31,6 +31,7 @@ namespace WikiTools.Access
             ab.PageName = "index.php?title=Special:Version";
             string vesionPage = ab.PageText;
             result.HasCheckUser = vesionPage.Contains("<i>CheckUser</i>");
+            result.HasExpandTemplates = vesionPage.Contains("<i>ExpandTemplates</i>");
             result.HasFilePath = vesionPage.Contains("<i>Filepath</i>");
             result.HasMakeBot = vesionPage.Contains("<i>MakeBot</i>");
             result.HasMakeSysop = vesionPage.Contains("<i>Makesysop</i>");
