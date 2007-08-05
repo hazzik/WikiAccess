@@ -32,6 +32,14 @@ namespace WikiTools.Access
 		string mcachetext;
         string[] months, months_gen;
 
+        public string this[string str]
+        {
+            get
+            {
+                return GetMessage(str);
+            }
+        }
+
 		/// <summary>
 		/// Loads message cache from files
 		/// </summary>
@@ -87,6 +95,7 @@ namespace WikiTools.Access
 		public string GetMessage(string name)
 		{
 			Regex regex = new Regex(@"'" + Regex.Escape(name) + @"' =&gt; '([^\0]+?[^\\])',", RegexOptions.Singleline & RegexOptions.IgnoreCase);
+            if (!regex.Match(mcachetext).Success) return null;
 			string str = regex.Match(mcachetext).Groups[1].Value;
 			while (Regex.Matches(str, @"([^\\])(\\')").Count > 0) str = Regex.Replace(str, @"([^\\])(\\')", "$1'");
 			while (Regex.Matches(str, @"&lt;").Count > 0) str = Regex.Replace(str, @"&lt;", "$1'");

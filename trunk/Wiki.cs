@@ -32,6 +32,7 @@ namespace WikiTools.Access
     {
 		string wikiURI;
         internal AccessBrowser ab;
+        internal CookieContainer cookies;
 		MessageCache mcache;
         string mcachepath, nscachepath, urcachepath, capacachepath;
 		internal Namespaces ns;
@@ -92,6 +93,7 @@ namespace WikiTools.Access
 				capabilities = LoadCapabilities();
 				File.WriteAllText(capacachepath, capabilities.ToString());
 			}
+            cookies = new CookieContainer();
         }
 
         #region Login Functions
@@ -102,23 +104,24 @@ namespace WikiTools.Access
 		/// <param name="username">User name</param>
 		/// <param name="password">User password</param>
 		/// <returns>Succes</returns>
-        /*public bool Login(string username, string password)
-		{
-			ab.PageName = "index.php?title=Special:Userlogin";
-			ab.SetTextboxField("wpName1", username);
-			ab.SetTextboxField("wpPassword1", password);
-			ab.SetCheckbox("wpRemember", true);
-			ab.ClickButton("wpLoginattempt");
-            ab.PageName = "index.php";
+        public bool Login(string username, string password)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>();
+            data.Add("wpName", "Vasiliev02");
+            data.Add("wpPassword", "wikipass");
+            data.Add("wpRemember", "1");
+            data.Add("wpLoginAttempt", mcache["login"]);
+            ab.PostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login", data);
+            cookies.Add(ab.cookiesGotInLastQuery);
 			return ab.IsLoggedIn();
-		}*/
+		}
 
 		/// <summary>
 		/// Logs out
 		/// </summary>
 		public void Logout()
 		{
-			ab.PageName = "index.php?title=Special:Userlogout";
+            cookies = new CookieContainer();
 		}
 
 		/// <summary>

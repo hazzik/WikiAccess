@@ -34,6 +34,7 @@ namespace WikiTools.Access
 		Wiki wiki;
 		string cpagename = "";
 		string cpagetext = "";
+        internal CookieCollection cookiesGotInLastQuery = new CookieCollection();
 		//public bool Shutdown = false;
 
         Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
@@ -78,64 +79,6 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Sets textbox field content
-		/// </summary>
-		/// <param name="name">Name (ID of textbox)</param>
-		/// <param name="value">Vaule to set</param>
-		/// <returns>Existance of textbox</returns>
-		/*public bool SetTextboxField(string name, string value)
-		{
-			if (wb.Document.GetElementById(name) == null) return false;
-            wb.Document.GetElementById(name).InnerText = value;
-			return true;
-		}*/
-
-		/// <summary>
-		/// Gets textbox field content
-		/// </summary>
-		/// <param name="name">Name (ID of textbox)</param>
-		/// <returns>Vaule of textbox (null if textbox doesn't exist)</returns>
-		/*public string GetTextboxField(string name)
-		{
-			if (wb.Document.GetElementById(name) == null) return null;
-			return wb.Document.GetElementById(name).InnerText;
-		}*/
-
-		/// <summary>
-		/// Sets checkbox value
-		/// </summary>
-		/// <param name="name">Name (ID of checkbox)</param>
-		/// <param name="value">Vaule of checkbox</param>
-		/// <returns>Existance of checkbox</returns>
-		/*public bool SetCheckbox(string name, bool value)
-		{
-			if (wb.Document.GetElementById(name) == null) return false;
-			wb.Document.GetElementById(name).SetAttribute("checked", (value ? "checked" : ""));
-			return true;
-		}*/
-
-		/// <summary>
-		/// Click th specified button
-		/// </summary>
-		/// <param name="name">Name of button</param>
-		/// <returns>Existance of button</returns>
-		/*public bool ClickButton(string name)
-		{
-			if (wb.Document.GetElementById(name) == null) return false;
-			wb.Document.GetElementById(name).InvokeMember("click");
-			Wait();
-			return true;
-		}*/
-
-		/// <summary>
-		/// Waits until page loaded
-		/// </summary>
-		/*public void Wait()
-		{
-            while (wb.ReadyState != WebBrowserReadyState.Complete) Application.DoEvents();
-		}*/
-
-		/// <summary>
 		/// Current page text
 		/// </summary>
 		public string PageText
@@ -157,8 +100,7 @@ namespace WikiTools.Access
         }
 
 		/// <summary>
-		/// Downloads page via WebRequest.
-		/// Note: this method is blocking
+		/// Downloads page via WebRequest
 		/// </summary>
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
@@ -167,9 +109,49 @@ namespace WikiTools.Access
 			string result;
 			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
             rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-			rq.UserAgent = "WikiAccess library";
+            rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+            rq.CookieContainer = wiki.cookies;
             result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			return result;
+        }
+
+        /// <summary>
+        /// Sends a HTTP request using POST method and multipart/form-data content type
+        /// </summary>
+        /// <param name="pgname">Page name</param>
+        /// <param name="data">Post data</param>
+        /// <returns>HTTP response</returns>
+        public string PostQuery(string pgname, Dictionary<string, string> data)
+        {
+            string result;
+            HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
+            rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
+            rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+            rq.CookieContainer = wiki.cookies;
+            rq.AllowAutoRedirect = false;
+            rq.Method = "POST";
+            Random rnd = new Random(); byte[] rndbytes = new byte[1024]; rnd.NextBytes(rndbytes);
+            string boundary = "-------" + Image.CalculateMD5Hash(rndbytes);
+            rq.ContentType = "multipart/form-data; boundary=" + boundary;
+            string postdata = "";
+            foreach (KeyValuePair<string, string> kvp in data)
+            {
+                string ckey = kvp.Key;
+                string cvalue = kvp.Value;
+                postdata += "--" + boundary + "\r\n";
+                postdata += "Content-Disposition: form-data; name=\"" + ckey + "\"\r\n";
+                postdata += "Content-Type: text/plain; charset=utf-8\r\n";
+                postdata += "\r\n";
+                postdata += cvalue + "\r\n";
+            }
+            postdata = postdata.Substring(0, postdata.Length - 2);
+            rq.ContentLength = Encoding.UTF8.GetByteCount(postdata);
+            Stream str = rq.GetRequestStream();
+            str.Write(Encoding.UTF8.GetBytes(postdata), 0, Encoding.UTF8.GetByteCount(postdata));
+            HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
+            result = new StreamReader(resp.GetResponseStream(), Encoding.UTF8).ReadToEnd();
+            cookiesGotInLastQuery = resp.Cookies;
+            return result;
         }
 
 		/// <summary>
