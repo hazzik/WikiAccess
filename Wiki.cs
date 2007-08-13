@@ -65,10 +65,10 @@ namespace WikiTools.Access
         {
             wikiURI = uri;
 			ab = new AccessBrowser(this);
-			mcachepath = cachedir + "\\" + MessageCache.MkName(uri);
-			nscachepath = cachedir + "\\" + Namespaces.MkName(uri);
-            urcachepath = cachedir + "\\" + new Uri(uri).Host + ".userflags";
-			capacachepath = cachedir + "\\" + new Uri(uri).Host + ".capabilities";
+			mcachepath = cachedir + "/" + MessageCache.MkName(uri);
+			nscachepath = cachedir + "/" + Namespaces.MkName(uri);
+            urcachepath = cachedir + "/" + new Uri(uri).Host + ".userflags";
+			capacachepath = cachedir + "/" + new Uri(uri).Host + ".capabilities";
 			if (File.Exists(mcachepath)) mcache = new MessageCache(mcachepath);
 			else
 			{
@@ -107,8 +107,8 @@ namespace WikiTools.Access
         public bool Login(string username, string password)
         {
             Dictionary<string, string> data = new Dictionary<string, string>();
-            data.Add("wpName", "Vasiliev02");
-            data.Add("wpPassword", "wikipass");
+            data.Add("wpName", username);
+            data.Add("wpPassword", password);
             data.Add("wpRemember", "1");
             data.Add("wpLoginAttempt", mcache["login"]);
             ab.PostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login", data);
