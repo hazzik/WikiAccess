@@ -1,4 +1,4 @@
-﻿/**********************************************************************************
+/**********************************************************************************
  * Capabilities loader for WikiAcces Library                                      *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
@@ -23,24 +23,24 @@ using System.Text.RegularExpressions;
 
 namespace WikiTools.Access
 {
-    partial class Wiki
-    {
-        private WikiCapabilities LoadCapabilities()
-        {
-            WikiCapabilities result = new WikiCapabilities();
-            ab.PageName = "index.php?title=Special:Version";
-            string vesionPage = ab.PageText;
-            result.HasCheckUser = vesionPage.Contains("<i>CheckUser</i>");
-            result.HasExpandTemplates = vesionPage.Contains("<i>ExpandTemplates</i>");
-            result.HasFilePath = vesionPage.Contains("<i>Filepath</i>");
-            result.HasMakeBot = vesionPage.Contains("<i>MakeBot</i>");
-            result.HasMakeSysop = vesionPage.Contains("<i>Makesysop</i>");
-            result.HasNewUserLog = vesionPage.Contains("<i>Newuserlog</i>");
-            result.HasOversight = vesionPage.Contains("<i>Oversight</i>");
-            result.HasRenameUser = vesionPage.Contains("<i>Renameuser</i>");
-            Match match = Regex.Match(vesionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
-            result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
-            return result;
-        }
-    }
+	partial class Wiki
+	{
+		private WikiCapabilities LoadCapabilities()
+		{
+			WikiCapabilities result = new WikiCapabilities();
+			ab.PageName = "index.php?title=Special:Version";
+			string vesionPage = ab.PageText;
+			result.HasCheckUser = vesionPage.Contains("<i>CheckUser</i>");
+			result.HasExpandTemplates = vesionPage.Contains("<i>ExpandTemplates</i>");
+			result.HasFilePath = vesionPage.Contains("<i>Filepath</i>");
+			result.HasMakeBot = vesionPage.Contains("<i>MakeBot</i>");
+			result.HasMakeSysop = vesionPage.Contains("<i>Makesysop</i>");
+			result.HasNewUserLog = vesionPage.Contains("<i>Newuserlog</i>");
+			result.HasOversight = vesionPage.Contains("<i>Oversight</i>");
+			result.HasRenameUser = vesionPage.Contains("<i>Renameuser</i>");
+			Match match = Regex.Match(vesionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
+			result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
+			return result;
+		}
+	}
 }
