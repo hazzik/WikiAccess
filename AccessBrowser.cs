@@ -26,23 +26,23 @@ using System.IO;
 
 namespace WikiTools.Access
 {
-    /// <summary>
-    /// Provides access to wiki via IE and WebRequest
-    /// </summary>
+	/// <summary>
+	/// Provides access to wiki via IE and WebRequest
+	/// </summary>
 	public class AccessBrowser : IDisposable
 	{
 		Wiki wiki;
 		string cpagename = "";
 		string cpagetext = "";
-      	internal CookieCollection cookiesGotInLastQuery = new CookieCollection();
+		internal CookieCollection cookiesGotInLastQuery = new CookieCollection();
 		//public bool Shutdown = false;
 
-        	Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
+		Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
 
-        	/// <summary>
-        	/// Initializes new instance of AccessBrowser
-        	/// </summary>
-        	/// <param name="wiki">Wiki to work with</param>
+		/// <summary>
+		/// Initializes new instance of AccessBrowser
+		/// </summary>
+		/// <param name="wiki">Wiki to work with</param>
 		public AccessBrowser(Wiki wiki)
 		{
 			//wb = new WebBrowser();
@@ -50,9 +50,9 @@ namespace WikiTools.Access
 			//wb.ScriptErrorsSuppressed = true;
 		}
 
-        	/// <summary>
-        	/// Allows to change current page
-        	/// </summary>
+		/// <summary>
+		/// Allows to change current page
+		/// </summary>
 		public string PageName
 		{
 			get
@@ -61,18 +61,18 @@ namespace WikiTools.Access
 			}
 			set
 			{
-	            	if (cpagename != value)
+				if (cpagename != value)
       	      	{
-            			cpagename = value;
+					cpagename = value;
 					cpagetext = DownloadPage(value);
-            		}
+				}
 			}
 		}
 
-        	/// <summary>
-       	/// Checks if we are currently logged in
-        	/// </summary>
-        	/// <returns>Login status</returns>
+		/// <summary>
+		/// Checks if we are currently logged in
+		/// </summary>
+		/// <returns>Login status</returns>
 		public bool IsLoggedIn()
 		{
 			return !cpagetext.Contains("var wgUserName = null;");
@@ -94,48 +94,48 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="str">String to encode</param>
 		/// <returns>Encoded URL</returns>
-        	public string EncodeUrl(string str)
-        	{
-        	    return HttpUtility.UrlEncode(str);
-        	}
+		public string EncodeUrl(string str)
+		{
+			return HttpUtility.UrlEncode(str);
+		}
 
 		/// <summary>
 		/// Downloads page via WebRequest
 		/// </summary>
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
-        	public string DownloadPage(string pgname)
+		public string DownloadPage(string pgname)
 		{
 			string result;
 			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
-            	rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-            	rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
-            	rq.CookieContainer = wiki.cookies;
-            	result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.CookieContainer = wiki.cookies;
+			result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			return result;
-        	}
+		}
 
-        	/// <summary>
-        	/// Sends a HTTP request using POST method and multipart/form-data content type
-        	/// </summary>
-        	/// <param name="pgname">Page name</param>
-        	/// <param name="data">Post data</param>
-        	/// <returns>HTTP response</returns>
-        	public string PostQuery(string pgname, Dictionary<string, string> data)
-        	{
-            	string result;
-            	HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
-            	rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-            	rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
-            	rq.CookieContainer = wiki.cookies;
-            	rq.AllowAutoRedirect = false;
-            	rq.Method = "POST";
-            	Random rnd = new Random(); byte[] rndbytes = new byte[1024]; rnd.NextBytes(rndbytes);
-            	string boundary = "-------" + Image.CalculateMD5Hash(rndbytes);
-            	rq.ContentType = "multipart/form-data; boundary=" + boundary;
-            	string postdata = "";
-            	foreach (KeyValuePair<string, string> kvp in data)
-            	{
+		/// <summary>
+		/// Sends a HTTP request using POST method and multipart/form-data content type
+		/// </summary>
+		/// <param name="pgname">Page name</param>
+		/// <param name="data">Post data</param>
+		/// <returns>HTTP response</returns>
+		public string PostQuery(string pgname, Dictionary<string, string> data)
+		{
+			string result;
+			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
+			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.CookieContainer = wiki.cookies;
+			rq.AllowAutoRedirect = false;
+			rq.Method = "POST";
+			Random rnd = new Random(); byte[] rndbytes = new byte[1024]; rnd.NextBytes(rndbytes);
+			string boundary = "-------" + Image.CalculateMD5Hash(rndbytes);
+			rq.ContentType = "multipart/form-data; boundary=" + boundary;
+			string postdata = "";
+			foreach (KeyValuePair<string, string> kvp in data)
+			{
 				string ckey = kvp.Key;
 				string cvalue = kvp.Value;
 				postdata += "--" + boundary + "\r\n";
