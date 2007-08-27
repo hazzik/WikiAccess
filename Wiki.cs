@@ -1,11 +1,11 @@
 /**********************************************************************************
- * Wiki class of WikiAcces Library                                                *
+ * Wiki class of WikiAccess Library                                               *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
- * This program is free software; you can redistribute it and/or                  *
- * modify it under the terms of the GNU General Public License                    *
- * as published by the Free Software Foundation; either version 2                 *
- * of the License, or (at your option) any later version.                         *
+ * This program is free software: you can redistribute it and/or modify           *
+ * it under the terms of the GNU General Public License as published by           *
+ * the Free Software Foundation, either version 3 of the License, or              *
+ * (at your option) any later version.                                            *
  *                                                                                *
  * This program is distributed in the hope that it will be useful,                *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of                 *
@@ -13,8 +13,7 @@
  * GNU General Public License for more details.                                   *
  *                                                                                *
  * You should have received a copy of the GNU General Public License              *
- * along with this program; if not, write to the Free Software                    *
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -28,25 +27,25 @@ namespace WikiTools.Access
 	/// <summary>
 	/// Provides access to wiki
 	/// </summary>
-    public partial class Wiki : IDisposable
-    {
+	public partial class Wiki : IDisposable
+	{
 		string wikiURI;
-        internal AccessBrowser ab;
-        internal CookieContainer cookies;
+		internal AccessBrowser ab;
+		internal CookieContainer cookies;
 		MessageCache mcache;
-        string mcachepath, nscachepath, urcachepath, capacachepath;
+		string mcachepath, nscachepath, urcachepath, capacachepath;
 		internal Namespaces ns;
-        string[] userflags;
 		WikiCapabilities capabilities;
+		CurrentUser cu;
 
 		/// <summary>
 		/// URI of wiki in format http://mediawiki.org/w
 		/// </summary>
-        public string WikiURI
-        {
-            get { return wikiURI; }
-            //set { wikiuri = value; }
-        }
+		public string WikiURI
+		{
+			get { return wikiURI; }
+			//set { wikiuri = value; }
+		}
 
 		/// <summary>
 		/// Initializes new instance of wiki object. Message cache will be stored in current directory
@@ -61,13 +60,12 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="uri">URI of wiki. <see cref="Wiki.WikiURI"/></param>
 		/// <param name="cachedir">Folder where Message cache will be stored</param>
-        public Wiki(string uri, string cachedir)
-        {
-            wikiURI = uri;
+		public Wiki(string uri, string cachedir)
+		{
+			wikiURI = uri;
 			ab = new AccessBrowser(this);
 			mcachepath = cachedir + "/" + MessageCache.MkName(uri);
 			nscachepath = cachedir + "/" + Namespaces.MkName(uri);
-            urcachepath = cachedir + "/" + new Uri(uri).Host + ".userflags";
 			capacachepath = cachedir + "/" + new Uri(uri).Host + ".capabilities";
 			if (File.Exists(mcachepath)) mcache = new MessageCache(mcachepath);
 			else
@@ -81,22 +79,17 @@ namespace WikiTools.Access
 				ns = new Namespaces(this);
 				ns.SaveToFile(nscachepath);
 			}
-            if (File.Exists(urcachepath)) userflags = File.ReadAllLines(urcachepath);
-            else
-            {
-                userflags = User.GetAvailableFlags(this);
-                File.WriteAllLines(urcachepath, userflags);
-            }
 			if (File.Exists(capacachepath)) capabilities.FromString(File.ReadAllText(capacachepath));
 			else
 			{
 				capabilities = LoadCapabilities();
 				File.WriteAllText(capacachepath, capabilities.ToString());
 			}
-            cookies = new CookieContainer();
-        }
+			cookies = new CookieContainer();
+			cu = new CurrentUser(this);
+		}
 
-        #region Login Functions
+		#region Login Functions
 
 		/// <summary>
 		/// Logs in
@@ -104,15 +97,16 @@ namespace WikiTools.Access
 		/// <param name="username">User name</param>
 		/// <param name="password">User password</param>
 		/// <returns>Succes</returns>
-        public bool Login(string username, string password)
-        {
-            Dictionary<string, string> data = new Dictionary<string, string>();
-            data.Add("wpName", username);
-            data.Add("wpPassword", password);
-            data.Add("wpRemember", "1");
-            data.Add("wpLoginAttempt", mcache["login"]);
-            ab.PostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login", data);
-            cookies.Add(ab.cookiesGotInLastQuery);
+		public bool Login(string username, string password)
+		{
+			Dictionary<string, string> data = new Dictionary<string, string>();
+			data.Add("wpName", username);
+			data.Add("wpPassword", password);
+			data.Add("wpRemember", "1");
+			data.Add("wpLoginAttempt", mcache["login"]);
+			ab.PostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login", data);
+			cookies.Add(ab.cookiesGotInLastQuery);
+			cu.Reload();
 			return ab.IsLoggedIn();
 		}
 
@@ -121,7 +115,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Logout()
 		{
-            cookies = new CookieContainer();
+			cookies = new CookieContainer();
 		}
 
 		/// <summary>
@@ -131,13 +125,13 @@ namespace WikiTools.Access
 		public bool IsLoggedIn()
 		{
 			return ab.IsLoggedIn();
-        }
+		}
 
-        #endregion
+		#endregion
 
-        #region Cache Functions
+		#region Cache Functions
 
-        /// <summary>
+		/// <summary>
 		/// Gets message from message cache
 		/// </summary>
 		/// <param name="messageName">Message name</param>
@@ -147,19 +141,17 @@ namespace WikiTools.Access
 			return mcache.GetMessage(messageName);
 		}
 
-        /// <summary>
-        /// Updates Message Cache
-        /// </summary>
+		/// <summary>
+		/// Updates Message Cache
+		/// </summary>
 		public void UpdateMessageCache()
 		{
 			mcache = new MessageCache(this);
 			mcache.SaveToFile(mcachepath);
-            Namespaces.SaveToFile(nscachepath, Namespaces.GetNamespaces(this));
-            userflags = User.GetAvailableFlags(this);
-            File.WriteAllLines(urcachepath, userflags);
-        }
+			Namespaces.SaveToFile(nscachepath, Namespaces.GetNamespaces(this));
+		}
 
-        #endregion
+		#endregion
 
 		/// <summary>
 		/// Returns wiki capabilities (version and extensions)
@@ -173,62 +165,51 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// User flags available on this wiki
-		/// </summary>
-        public string[] UserFlags
-        {
-            get
-            {
-                return userflags;
-            }
-        }
-
-		/// <summary>
 		/// Instance of Namespaces class
 		/// </summary>
 		/// <seealso cref="Namespaces"/>
-        public Namespaces NamespacesUtils
-        {
-            get
-            {
-                return ns;
-            }
-        }
+		public Namespaces NamespacesUtils
+		{
+			get
+			{
+				return ns;
+			}
+		}
 
 		/// <summary>
 		/// Message cache
 		/// </summary>
-        public MessageCache Messages
-        {
-            get
-            {
-                return mcache;
-            }
-        }
+		public MessageCache Messages
+		{
+			get
+			{
+				return mcache;
+			}
+		}
 
 		/// <summary>
 		/// Statistics for this site (see Special:Statistics?action=raw)
 		/// </summary>
-        public Statistics Statistics
-        {
-            get
-            {
-                Access.Statistics result = new Statistics();
-                string statstr = ab.DownloadPage("index.php?title=Special:Statistics&action=raw");
-                string[] _stats = statstr.Split(';');
-                Dictionary<string, int> stats = new Dictionary<string,int>();
-                for (int i = 0; i < _stats.Length; i++)
-                    stats.Add(_stats[i].Split('=')[0], Int32.Parse(_stats[i].Split('=')[1]));
-                result.Admins = stats["admins"];
-                result.Edits = stats["edits"];
-                result.GoodPages = stats["good"];
-                result.Images = stats["images"];
-                result.Jobs = stats["jobs"];
-                result.TotalPages = stats["total"];
-                result.Users = stats["users"];
-                result.Views = stats["views"];
-                return result;
-            }
+		public Statistics Statistics
+		{
+			get
+			{
+				Access.Statistics result = new Statistics();
+				string statstr = ab.DownloadPage("index.php?title=Special:Statistics&action=raw");
+				string[] _stats = statstr.Split(';');
+				Dictionary<string, int> stats = new Dictionary<string,int>();
+				for (int i = 0; i < _stats.Length; i++)
+					stats.Add(_stats[i].Split('=')[0], Int32.Parse(_stats[i].Split('=')[1]));
+				result.Admins = stats["admins"];
+				result.Edits = stats["edits"];
+				result.GoodPages = stats["good"];
+				result.Images = stats["images"];
+				result.Jobs = stats["jobs"];
+				result.TotalPages = stats["total"];
+				result.Users = stats["users"];
+				result.Views = stats["views"];
+				return result;
+			}
 		}
 		#region CreatePage versions
 
@@ -282,30 +263,27 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Returns true if page contains new message notification
-		/// </summary>
-		public bool HasNewMessages
-		{
-			get
-			{
-				return ab.PageText.Contains("<div class=\"usermessage\">");
-			}
-		}
-
-		/// <summary>
 		/// Reads user talk page to remove new message notification
 		/// </summary>
 		public void ReadNewMessages()
 		{
 			ab.PageName = "index.php?title=Special:Mytalk";
 		}
+		
+		public CurrentUser CurrentUserInfo
+		{
+			get
+			{
+				return cu;
+			}
+		}
 
-        #region IDisposable Members
+		#region IDisposable Members
 
 		/// <summary>
 		/// Release all resources used by Wiki object
 		/// </summary>
-        public void Dispose()
+		public void Dispose()
 		{
 			ab.Dispose();
 			ab = null;

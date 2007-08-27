@@ -1,11 +1,11 @@
 /**********************************************************************************
- * Page Class of WikiAcces Library                                                *
+ * Page class of WikiAccess Library                                               *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
- * This program is free software; you can redistribute it and/or                  *
- * modify it under the terms of the GNU General Public License                    *
- * as published by the Free Software Foundation; either version 2                 *
- * of the License, or (at your option) any later version.                         *
+ * This program is free software: you can redistribute it and/or modify           *
+ * it under the terms of the GNU General Public License as published by           *
+ * the Free Software Foundation, either version 3 of the License, or              *
+ * (at your option) any later version.                                            *
  *                                                                                *
  * This program is distributed in the hope that it will be useful,                *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of                 *
@@ -13,8 +13,7 @@
  * GNU General Public License for more details.                                   *
  *                                                                                *
  * You should have received a copy of the GNU General Public License              *
- * along with this program; if not, write to the Free Software                    *
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -124,13 +123,13 @@ namespace WikiTools.Access
 			doc.LoadXml(opts);
 			XmlElement pageElem = (XmlElement)doc.GetElementsByTagName("page")[0];
 			propsLoaded = true;
-			exists = !Utils.ContainsAttribure(pageElem, "missing");
+			exists = pageElem.HasAttribute("missing");
 			if (!exists)
 				return;
 			pgid = Int32.Parse(pageElem.Attributes["pageid"].Value);
 			touched = ab.ParseAPITimestamp(pageElem.Attributes["touched"].Value);
 			lastrevision = Int32.Parse(pageElem.Attributes["lastrevid"].Value);
-			redirect = Utils.ContainsAttribure(pageElem, "redirect");
+			redirect =pageElem.HasAttribute("redirect");
 			length = Int32.Parse(pageElem.Attributes["length"].Value);
 		}
 
@@ -241,7 +240,7 @@ namespace WikiTools.Access
 				string revsxml = ab.DownloadPage(uri);
 				XmlDocument doc = new XmlDocument();
 				doc.LoadXml(revsxml);
-				if (Utils.ContainsAttribure((XmlElement)doc.GetElementsByTagName("page")[0], "missing"))
+				if (((XmlElement)doc.GetElementsByTagName("page")[0]).HasAttribute("missing"))
 					throw new WikiPageNotFoundExcecption();
 				XmlElement revsroot = (XmlElement)doc.GetElementsByTagName("revisions")[0];
 				foreach (XmlNode node in revsroot.ChildNodes)
@@ -250,7 +249,7 @@ namespace WikiTools.Access
 					{
 						XmlElement celem = (XmlElement)node;
 						Revision crev = new Revision();
-						crev.Minor = Utils.ContainsAttribure(celem, "minor");
+						crev.Minor = celem.HasAttribute("minor");
 						crev.ID = Int32.Parse(celem.Attributes["revid"].Value);
 						crev.Page = name;
 						crev.Author = celem.Attributes["user"].Value;
@@ -681,7 +680,7 @@ namespace WikiTools.Access
 			catch (WikiPageNotFoundExcecption e)
 			{
 				lastedit = starttime;
-				edittoken = GetToken(wiki.GetAllPages("!", 1, PageTypes.All, 0)[0], "edit");
+				edittoken = GetToken(wiki.GetAllPages("", 1, PageTypes.All, 0)[0], "edit");
 			}
 			editPrepared = true;
 		}
