@@ -35,7 +35,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -45,6 +44,7 @@
     <Compile Include="CapabilitiesLoader.cs" />
     <Compile Include="Category.cs" />
     <Compile Include="CommonTypes.cs" />
+    <Compile Include="CurrentUser.cs" />
     <Compile Include="DBLock.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExpandTemplates.cs" />
@@ -67,7 +67,11 @@
     <Content Include="Notes\CodeFileHeader.txt" />
     <Content Include="Notes\PageListGenerators.txt" />
     <Content Include="Readme.txt" />
-    <None Include="CHANGEGLOG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="COPYING" />
+    <None Include="HISTORY" />
+    <None Include="RELEASE-NOTES" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

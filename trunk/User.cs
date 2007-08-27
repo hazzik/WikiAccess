@@ -1,11 +1,11 @@
 ﻿/**********************************************************************************
- * User class of WikiAcces Library                                                *
+ * User class of WikiAccess Library                                               *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
- * This program is free software; you can redistribute it and/or                  *
- * modify it under the terms of the GNU General Public License                    *
- * as published by the Free Software Foundation; either version 2                 *
- * of the License, or (at your option) any later version.                         *
+ * This program is free software: you can redistribute it and/or modify           *
+ * it under the terms of the GNU General Public License as published by           *
+ * the Free Software Foundation, either version 3 of the License, or              *
+ * (at your option) any later version.                                            *
  *                                                                                *
  * This program is distributed in the hope that it will be useful,                *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of                 *
@@ -13,8 +13,7 @@
  * GNU General Public License for more details.                                   *
  *                                                                                *
  * You should have received a copy of the GNU General Public License              *
- * along with this program; if not, write to the Free Software                    *
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -46,69 +45,10 @@ namespace WikiTools.Access
             this.wiki = wiki;
             this.name = name;
             ab = this.wiki.ab;
-            LoadRights();
         }
 
         #region Rights loader and interface
-        /// <summary>
-        /// Loads user rights. 
-        /// Note: when you call Right property for first time, this method will ba automatically called.
-        /// </summary>
-        public void LoadRights()
-        {
-            ab.PageName = "index.php?title=Special:Listusers&limit=1&username=" + ab.EncodeUrl(name);
-            List<string> result = new List<string>();
-            string cuserrights = Regex.Match(ab.PageText, @"<li><a href=.+?>.+?</a>([^(]*?\(?.*?\)?)</li>").Groups[1].Value;
-            foreach (string cflag in wiki.UserFlags)
-            {
-                if (cuserrights.Contains(wiki.GetMessage("group-" + cflag + "-member")) || cuserrights.Contains(cflag)) result.Add(cflag);
-            }
-            flags = result.ToArray();
-            flagsLoaded = true;
-        }
-
-        /// <summary>
-        /// Checks if user has specified flag
-        /// </summary>
-        /// <param name="right">User flag to check</param>
-        /// <returns>User flag availability</returns>
-        public bool HasRight(string right)
-        {
-            if (!flagsLoaded)
-                LoadRights();
-            return Array.IndexOf(flags, right) != -1;
-        }
-
-        /// <summary>
-        /// Load all available user flags in wiki
-        /// </summary>
-        /// <param name="wiki"></param>
-        /// <returns></returns>
-        public static string[] GetAvailableFlags(Wiki wiki)
-        {
-            AccessBrowser ab = wiki.ab;
-            ab.PageName = "index.php?title=Special:Listusers&limit=0";
-            string txt = ab.PageText;
-            MatchCollection matches = UserGroup.Matches(txt);
-            List<string> result = new List<string>();
-            foreach (Match cmatch in matches)
-                if (cmatch.Groups[1].Value != wiki.GetMessage("group-all") & cmatch.Groups[1].Value != "")
-                    result.Add(cmatch.Groups[1].Value);
-            return result.ToArray();
-        }
-
-        /// <summary>
-        /// Gets user flags
-        /// </summary>
-        public string[] Rights
-        {
-            get
-            {
-                if (!flagsLoaded)
-                    LoadRights();
-                return flags;
-            }
-        }
+        
         #endregion
 
         /// <summary>
