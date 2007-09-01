@@ -61,7 +61,7 @@ namespace WikiTools.Access
 			set
 			{
 				if (cpagename != value)
-      	      	{
+				{
 					cpagename = value;
 					cpagetext = DownloadPage(value);
 				}

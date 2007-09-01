@@ -249,6 +249,7 @@ namespace WikiTools.Access
 					{
 						XmlElement celem = (XmlElement)node;
 						Revision crev = new Revision();
+						crev.Wiki = wiki;
 						crev.Minor = celem.HasAttribute("minor");
 						crev.ID = Int32.Parse(celem.Attributes["revid"].Value);
 						crev.Page = name;

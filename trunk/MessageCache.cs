@@ -1,11 +1,11 @@
 /**********************************************************************************
- * Message cahce of WikiAcces Library                                             *
+ * Message cache of WikiAccess Library                                            *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
- * This program is free software; you can redistribute it and/or                  *
- * modify it under the terms of the GNU General Public License                    *
- * as published by the Free Software Foundation; either version 2                 *
- * of the License, or (at your option) any later version.                         *
+ * This program is free software: you can redistribute it and/or modify           *
+ * it under the terms of the GNU General Public License as published by           *
+ * the Free Software Foundation, either version 3 of the License, or              *
+ * (at your option) any later version.                                            *
  *                                                                                *
  * This program is distributed in the hope that it will be useful,                *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of                 *
@@ -13,8 +13,7 @@
  * GNU General Public License for more details.                                   *
  *                                                                                *
  * You should have received a copy of the GNU General Public License              *
- * along with this program; if not, write to the Free Software                    *
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.*
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -30,15 +29,15 @@ namespace WikiTools.Access
 	public class MessageCache
 	{
 		string mcachetext;
-        string[] months, months_gen;
+		string[] months, months_gen;
 
-        public string this[string str]
-        {
-            get
-            {
-                return GetMessage(str);
-            }
-        }
+		public string this[string str]
+		{
+			get
+			{
+				return GetMessage(str);
+			}
+		}
 
 		/// <summary>
 		/// Loads message cache from files
@@ -47,7 +46,7 @@ namespace WikiTools.Access
 		public MessageCache(string fname)
 		{
 			mcachetext = File.ReadAllText(fname);
-            LoadMonths();
+			LoadMonths();
 		}
 
 		/// <summary>
@@ -59,7 +58,7 @@ namespace WikiTools.Access
 			AccessBrowser ab = wiki.ab;
 			ab.PageName = "index.php?title=Special:Allmessages&ot=php";
 			mcachetext = ab.PageText;
-            LoadMonths();
+			LoadMonths();
 		}
 
 		/// <summary>
@@ -95,7 +94,7 @@ namespace WikiTools.Access
 		public string GetMessage(string name)
 		{
 			Regex regex = new Regex(@"'" + Regex.Escape(name) + @"' =&gt; '([^\0]+?[^\\])',", RegexOptions.Singleline & RegexOptions.IgnoreCase);
-            if (!regex.Match(mcachetext).Success) return null;
+			if (!regex.Match(mcachetext).Success) return null;
 			string str = regex.Match(mcachetext).Groups[1].Value;
 			while (Regex.Matches(str, @"([^\\])(\\')").Count > 0) str = Regex.Replace(str, @"([^\\])(\\')", "$1'");
 			while (Regex.Matches(str, @"&lt;").Count > 0) str = Regex.Replace(str, @"&lt;", "$1'");
@@ -103,60 +102,60 @@ namespace WikiTools.Access
 			return str;
 		}
 
-        private void LoadMonths()
-        {
-            List<string> results = new List<string>();
-            results.Add(GetMessage("january"));
-            results.Add(GetMessage("february"));
-            results.Add(GetMessage("march"));
-            results.Add(GetMessage("april"));
-            results.Add(GetMessage("may"));
-            results.Add(GetMessage("june"));
-            results.Add(GetMessage("july"));
-            results.Add(GetMessage("august"));
-            results.Add(GetMessage("september"));
-            results.Add(GetMessage("october"));
-            results.Add(GetMessage("november"));
-            results.Add(GetMessage("december"));
-            months = results.ToArray();
-            //-----------------------------------------
-            List<string> results_gen = new List<string>();
-            results_gen.Add(GetMessage("january-gen"));
-            results_gen.Add(GetMessage("february-gen"));
-            results_gen.Add(GetMessage("march-gen"));
-            results_gen.Add(GetMessage("april-gen"));
-            results_gen.Add(GetMessage("may-gen"));
-            results_gen.Add(GetMessage("june-gen"));
-            results_gen.Add(GetMessage("july-gen"));
-            results_gen.Add(GetMessage("august-gen"));
-            results_gen.Add(GetMessage("september-gen"));
-            results_gen.Add(GetMessage("october-gen"));
-            results_gen.Add(GetMessage("november-gen"));
-            results_gen.Add(GetMessage("december-gen"));
-            months_gen = results_gen.ToArray();
-        }
+		private void LoadMonths()
+		{
+			List<string> results = new List<string>();
+			results.Add(GetMessage("january"));
+			results.Add(GetMessage("february"));
+			results.Add(GetMessage("march"));
+			results.Add(GetMessage("april"));
+			results.Add(GetMessage("may"));
+			results.Add(GetMessage("june"));
+			results.Add(GetMessage("july"));
+			results.Add(GetMessage("august"));
+			results.Add(GetMessage("september"));
+			results.Add(GetMessage("october"));
+			results.Add(GetMessage("november"));
+			results.Add(GetMessage("december"));
+			months = results.ToArray();
+			//-----------------------------------------
+			List<string> results_gen = new List<string>();
+			results_gen.Add(GetMessage("january-gen"));
+			results_gen.Add(GetMessage("february-gen"));
+			results_gen.Add(GetMessage("march-gen"));
+			results_gen.Add(GetMessage("april-gen"));
+			results_gen.Add(GetMessage("may-gen"));
+			results_gen.Add(GetMessage("june-gen"));
+			results_gen.Add(GetMessage("july-gen"));
+			results_gen.Add(GetMessage("august-gen"));
+			results_gen.Add(GetMessage("september-gen"));
+			results_gen.Add(GetMessage("october-gen"));
+			results_gen.Add(GetMessage("november-gen"));
+			results_gen.Add(GetMessage("december-gen"));
+			months_gen = results_gen.ToArray();
+		}
 
 		/// <summary>
 		/// Months
 		/// </summary>
-        public string[] Months
-        {
-            get
-            {
-                return months;
-            }
-        }
+		public string[] Months
+		{
+			get
+			{
+				return months;
+			}
+		}
 
 		/// <summary>
 		/// Months that used in date
 		/// </summary>
-        public string[] MonthsGen
-        {
-            get
-            {
-                return months_gen;
-            }
-        }
+		public string[] MonthsGen
+		{
+			get
+			{
+				return months_gen;
+			}
+		}
 
 		/// <summary>
 		/// Regular expression for month
