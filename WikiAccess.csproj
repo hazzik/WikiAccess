@@ -45,7 +45,6 @@
     <Compile Include="Category.cs" />
     <Compile Include="CommonTypes.cs" />
     <Compile Include="CurrentUser.cs" />
-    <Compile Include="DBLock.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExpandTemplates.cs" />
     <Compile Include="Logs\BlockLog.cs" />

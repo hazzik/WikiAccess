@@ -22,75 +22,75 @@ using System.Text.RegularExpressions;
 
 namespace WikiTools.Access
 {
-    /// <summary>
-    /// Provides interface to user-related functions
-    /// </summary>
-    public class User
-    {
-        static Regex UserGroup = new Regex("<option value=\"(.*?)\">", RegexOptions.Compiled);
+	/// <summary>
+	/// Provides interface to user-related functions
+	/// </summary>
+	public class User
+	{
+		static Regex UserGroup = new Regex("<option value=\"(.*?)\">", RegexOptions.Compiled);
 
-        string name;
-        Wiki wiki;
-        AccessBrowser ab;
-        string[] flags;
-        bool flagsLoaded = false;
+		string name;
+		Wiki wiki;
+		AccessBrowser ab;
+		string[] flags;
+		bool flagsLoaded = false;
 
-        /// <summary>
-        /// Initializes new instance of User class
-        /// </summary>
-        /// <param name="wiki">Site, where user exists</param>
-        /// <param name="name">User name</param>
-        public User(Wiki wiki, string name)
-        {
-            this.wiki = wiki;
-            this.name = name;
-            ab = this.wiki.ab;
-        }
+		/// <summary>
+		/// Initializes new instance of User class
+		/// </summary>
+		/// <param name="wiki">Site, where user exists</param>
+		/// <param name="name">User name</param>
+		public User(Wiki wiki, string name)
+		{
+			this.wiki = wiki;
+			this.name = name;
+			ab = this.wiki.ab;
+		}
 
-        #region Rights loader and interface
-        
-        #endregion
-
-        /// <summary>
-        /// Renames user. Needs buraeucrat rights and Renameuser extension
-        /// </summary>
-        /// <param name="newname">New user name</param>
-        /// <param name="movepages">If true, user pages will be also renamed</param>
-        /*public void Rename(string newname, bool movepages)
-        {
-			if (!wiki.Capabilities.HasRenameUser) throw new WikiNotSupportedException();
-            ab.PageName = "index.php?title=Special:Renameuser";
-            ab.SetTextboxField("oldusername", name);
-            ab.SetTextboxField("newusername", newname);
-            ab.SetCheckbox("movepages", movepages);
-            ab.ClickButton("submit");
-        }*/
+		#region Rights loader and interface
 		
-        /*private void MakeBot(string reason, bool make)
-        {
-            if (!wiki.Capabilities.HasMakeBot) throw new WikiNotSupportedException();
-            ab.PageName = "index.php?title=Special:Makebot&username=" + ab.EncodeUrl(name);
-            ab.SetTextboxField("comment", reason);
-            ab.ClickButton(make ? "grant" : "revoke");
-        }*/
+		#endregion
 
-        /// <summary>
-        /// Grants bot flag to user
-        /// </summary>
-        /// <param name="comment">Reason</param>
-        /*public void GrantBotFlag(string comment)
-        {
-            MakeBot(comment, true);
-        }*/
+		/// <summary>
+		/// Renames user. Needs buraeucrat rights and Renameuser extension
+		/// </summary>
+		/// <param name="newname">New user name</param>
+		/// <param name="movepages">If true, user pages will be also renamed</param>
+		/*public void Rename(string newname, bool movepages)
+		{
+			if (!wiki.Capabilities.HasRenameUser) throw new WikiNotSupportedException();
+			ab.PageName = "index.php?title=Special:Renameuser";
+			ab.SetTextboxField("oldusername", name);
+			ab.SetTextboxField("newusername", newname);
+			ab.SetCheckbox("movepages", movepages);
+			ab.ClickButton("submit");
+		}*/
+		
+		/*private void MakeBot(string reason, bool make)
+		{
+			if (!wiki.Capabilities.HasMakeBot) throw new WikiNotSupportedException();
+			ab.PageName = "index.php?title=Special:Makebot&username=" + ab.EncodeUrl(name);
+			ab.SetTextboxField("comment", reason);
+			ab.ClickButton(make ? "grant" : "revoke");
+		}*/
 
-        /// <summary>
-        /// Revokes user flag from user
-        /// </summary>
-        /// <param name="comment">Reason</param>
-        /*public void RevokeBotFlag(string comment)
-        {
-            MakeBot(comment, false);
-        }*/
+		/// <summary>
+		/// Grants bot flag to user
+		/// </summary>
+		/// <param name="comment">Reason</param>
+		/*public void GrantBotFlag(string comment)
+		{
+			MakeBot(comment, true);
+		}*/
+
+		/// <summary>
+		/// Revokes user flag from user
+		/// </summary>
+		/// <param name="comment">Reason</param>
+		/*public void RevokeBotFlag(string comment)
+		{
+			MakeBot(comment, false);
+		}*/
 
 		/// <summary>
 		/// Sends email to the user via Special:Emailuser
@@ -104,5 +104,5 @@ namespace WikiTools.Access
 			ab.SetTextboxField("wpText", text);
 			ab.ClickButton("wpSend");
 		}*/
-    }
+	}
 }

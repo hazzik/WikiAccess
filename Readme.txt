@@ -1,4 +1,4 @@
-WikiAccess is the library for .NET Framework v2.0. Here is some short notes to it.
+WikiAccess is the library for .NET Framework v2.0. Here is some short notes about it.
 
 == Notes ==
 * Examples and docs are coming soon (maybe in 1.0)

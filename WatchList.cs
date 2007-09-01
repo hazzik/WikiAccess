@@ -26,59 +26,59 @@ using System.Web;
 
 namespace WikiTools.Access
 {
-    /// <summary>
-    /// Provides access to watch list
-    /// </summary>
+	/// <summary>
+	/// Provides access to watch list
+	/// </summary>
 	public class WatchList
 	{
 		Wiki wiki;
 		AccessBrowser ab;
 
-        string[] contents; bool contentsLoaded = false;
-        
-        /// <summary>
-        /// Initializes new instance of WatchList class
-        /// </summary>
-        /// <param name="site">Wiki, from which you need access to watch list</param>
+		string[] contents; bool contentsLoaded = false;
+		
+		/// <summary>
+		/// Initializes new instance of WatchList class
+		/// </summary>
+		/// <param name="site">Wiki, from which you need access to watch list</param>
 		public WatchList(Wiki site)
 		{
 			wiki = site;
 			ab = wiki.ab;
 		}
 
-        /// <summary>
-        /// Loads watchlist
-        /// </summary>
-        public void LoadPages()
-        {
-            ab.PageName = "index.php?title=Special:Watchlist/edit";
-            string resp = ab.PageText;
-            File.WriteAllText(@"C:\a.html", resp);
-            MatchCollection mc = Regex.Matches(resp, "<input type=\"checkbox\" name=\"id\\[\\]\" value=\"(.*?)\" />", RegexOptions.IgnoreCase);
-            List<String> result = new List<string>();
-            foreach (Match cmatch in mc)
-            {
-                int startIdx, endIdx;
-                startIdx = cmatch.Value.IndexOf("value=") + 7;
-                endIdx = cmatch.Value.IndexOf('"', startIdx);
-                result.Add(cmatch.Groups[0].Value.Substring(startIdx, endIdx - startIdx));
-            }
-            contents = result.ToArray();
-            contentsLoaded = true;
-        }
+		/// <summary>
+		/// Loads watchlist
+		/// </summary>
+		public void LoadPages()
+		{
+			ab.PageName = "index.php?title=Special:Watchlist/edit";
+			string resp = ab.PageText;
+			File.WriteAllText(@"C:\a.html", resp);
+			MatchCollection mc = Regex.Matches(resp, "<input type=\"checkbox\" name=\"id\\[\\]\" value=\"(.*?)\" />", RegexOptions.IgnoreCase);
+			List<String> result = new List<string>();
+			foreach (Match cmatch in mc)
+			{
+				int startIdx, endIdx;
+				startIdx = cmatch.Value.IndexOf("value=") + 7;
+				endIdx = cmatch.Value.IndexOf('"', startIdx);
+				result.Add(cmatch.Groups[0].Value.Substring(startIdx, endIdx - startIdx));
+			}
+			contents = result.ToArray();
+			contentsLoaded = true;
+		}
 
-        /// <summary>
-        /// Gets page in watch list
-        /// </summary>
-        public string[] Pages
-        {
-            get
-            {
-                if (!contentsLoaded)
-                    LoadPages();
-                return contents;
-            }
-        }
+		/// <summary>
+		/// Gets page in watch list
+		/// </summary>
+		public string[] Pages
+		{
+			get
+			{
+				if (!contentsLoaded)
+					LoadPages();
+				return contents;
+			}
+		}
 
 		/// <summary>
 		/// Add pages to watchlist
