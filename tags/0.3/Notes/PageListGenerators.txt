@@ -1,0 +1,21 @@
+= Page List generators =
+Since bot nees to know, on what page it should work, WikiAccess library needs a lot of
+page list generators.
+TODO: Allow to make page lists from:
+* Category (done)
+** Recursive category
+* Links on page (done)
+* Backlinks
+* Pages, which transcludes template
+* Text files:
+** AWB format (* [[Page Name]])
+** Plain list
+* Search (Google and wiki)
+* User contribs
+* Several special pages
+* Image usage links
+* Watchlist (done)
+* Redirects on
+* Used images
+* Used templates
+* All pages (done)
