@@ -1,4 +1,4 @@
-Following changes was made from v0.2:
+Following changes was made since v0.2:
 * Added Page.Length property
 * Code is rewritten for Mono-compatibility:
 ** Created AccessBrowser.PostQuery() method
@@ -11,3 +11,4 @@ Following changes was made from v0.2:
 * .userflags file in message cache is now obsolete
 * Revision.GetContent() now doesn't need an argument with wiki, it's now passed via construct
 * User class is reimplemented
+* Removed sep11 from Wikimedia projects list

@@ -70,10 +70,6 @@ namespace WikiTools.Access.Wikimedia
 		/// </summary>
 		Incubator,
 		/// <summary>
-		/// September 11 Memories
-		/// </summary>
-		Sep11,
-		/// <summary>
 		/// Wikisource central wiki
 		/// </summary>
 		Sources,
@@ -139,8 +135,6 @@ namespace WikiTools.Access.Wikimedia
 			{
 				switch (proj)
 				{
-					case WikimediaProjects.Sep11:
-						return "http://sep11memories.org/w";
 					case WikimediaProjects.Test:
 						return "http://test.wikipedia.org/w";
 					case WikimediaProjects.Foundation:
