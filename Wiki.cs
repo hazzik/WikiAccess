@@ -194,7 +194,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				Access.Statistics result = new Statistics();
+				Statistics result = new Statistics();
 				string statstr = ab.DownloadPage("index.php?title=Special:Statistics&action=raw");
 				string[] _stats = statstr.Split(';');
 				Dictionary<string, int> stats = new Dictionary<string,int>();

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace WikiTools.Access
 {
@@ -33,7 +34,9 @@ namespace WikiTools.Access
 		Wiki wiki;
 		AccessBrowser ab;
 		string[] flags;
-		bool flagsLoaded = false;
+		int editcount;
+		string[] groups;
+		bool propsLoaded = false;
 
 		/// <summary>
 		/// Initializes new instance of User class
@@ -46,17 +49,67 @@ namespace WikiTools.Access
 			this.name = name;
 			ab = this.wiki.ab;
 		}
-
-		#region Rights loader and interface
 		
-		#endregion
+		public void LoadProps()
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(ab.DownloadPage("api.php?format=xml&action=query&&list=allusers&aulimit=1&auprop=editcount|groups&aufrom="
+				+ ab.EncodeUrl(name)));
+			if (doc.GetElementsByTagName("u").Count < 1) throw new WikiPageNotFoundExcecption();
+			XmlElement u = (XmlElement)doc.GetElementsByTagName("u")[0];
+			if (u.Attributes["name"].Value != name) throw new WikiPageNotFoundExcecption();
+			editcount = Int32.Parse(u.Attributes["editcount"].Value);
+			List<string> groups_tmp = new List<string>();
+			foreach (XmlNode node in u.ChildNodes)
+			{
+				if (node.Name == "groups")
+				{
+					XmlElement groups = (XmlElement) node;
+					foreach (XmlNode cnode in groups.ChildNodes)
+					{
+						if (cnode.Name == "g")
+						{
+							groups_tmp.Add(cnode.InnerText);
+						}
+					}
+				}
+			}
+			this.groups = groups_tmp.ToArray();
+		}
+		
+		public string Name
+		{
+			get
+			{
+				return name;
+			}
+		}
+		
+		public int Editcount
+		{
+			get
+			{
+				if (!propsLoaded)
+					LoadProps();
+				return editcount;
+			}
+		}
+		
+		public string[] Groups
+		{
+			get
+			{
+				return groups;
+			}
+		}
 
+		/*
 		/// <summary>
 		/// Renames user. Needs buraeucrat rights and Renameuser extension
 		/// </summary>
 		/// <param name="newname">New user name</param>
 		/// <param name="movepages">If true, user pages will be also renamed</param>
-		/*public void Rename(string newname, bool movepages)
+		public void Rename(string newname, bool movepages)
 		{
 			if (!wiki.Capabilities.HasRenameUser) throw new WikiNotSupportedException();
 			ab.PageName = "index.php?title=Special:Renameuser";
@@ -64,45 +117,46 @@ namespace WikiTools.Access
 			ab.SetTextboxField("newusername", newname);
 			ab.SetCheckbox("movepages", movepages);
 			ab.ClickButton("submit");
-		}*/
+		}
 		
-		/*private void MakeBot(string reason, bool make)
+		private void MakeBot(string reason, bool make)
 		{
 			if (!wiki.Capabilities.HasMakeBot) throw new WikiNotSupportedException();
 			ab.PageName = "index.php?title=Special:Makebot&username=" + ab.EncodeUrl(name);
 			ab.SetTextboxField("comment", reason);
 			ab.ClickButton(make ? "grant" : "revoke");
-		}*/
+		}
 
 		/// <summary>
 		/// Grants bot flag to user
 		/// </summary>
 		/// <param name="comment">Reason</param>
-		/*public void GrantBotFlag(string comment)
+		public void GrantBotFlag(string comment)
 		{
 			MakeBot(comment, true);
-		}*/
+		}
 
 		/// <summary>
 		/// Revokes user flag from user
 		/// </summary>
 		/// <param name="comment">Reason</param>
-		/*public void RevokeBotFlag(string comment)
+		public void RevokeBotFlag(string comment)
 		{
 			MakeBot(comment, false);
-		}*/
+		}
 
 		/// <summary>
 		/// Sends email to the user via Special:Emailuser
 		/// </summary>
 		/// <param name="subject">Subject of email</param>
 		/// <param name="text">Email text</param>
-		/*public void SendEmail(string subject, string text)
+		public void SendEmail(string subject, string text)
 		{
 			ab.PageName = "index.php?title=Special:Emailuser/" + ab.EncodeUrl(name);
 			ab.SetTextboxField("wpSubject", subject);
 			ab.SetTextboxField("wpText", text);
 			ab.ClickButton("wpSend");
-		}*/
+		}
+		*/
 	}
 }
