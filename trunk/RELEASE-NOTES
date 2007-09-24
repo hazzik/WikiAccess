@@ -10,3 +10,4 @@ Following changes was made from v0.2:
 * License is now GNU General Public Lincense v3
 * .userflags file in message cache is now obsolete
 * Revision.GetContent() now doesn't need an argument with wiki, it's now passed via construct
+* User class is reimplemented
