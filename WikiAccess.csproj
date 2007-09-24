@@ -28,10 +28,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>out\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>out\WikiAccess.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -47,7 +48,6 @@
     <Compile Include="CurrentUser.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExpandTemplates.cs" />
-    <Compile Include="Logs\BlockLog.cs" />
     <Compile Include="MessageCache.cs" />
     <Compile Include="Namespace.cs" />
     <Compile Include="Page.cs" />
@@ -63,8 +63,6 @@
     <Compile Include="Wikimedia\WikimediaProjects.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Notes\CodeFileHeader.txt" />
-    <Content Include="Notes\PageListGenerators.txt" />
     <Content Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>

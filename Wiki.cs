@@ -33,7 +33,7 @@ namespace WikiTools.Access
 		internal AccessBrowser ab;
 		internal CookieContainer cookies;
 		MessageCache mcache;
-		string mcachepath, nscachepath, urcachepath, capacachepath;
+		string mcachepath, nscachepath, capacachepath;
 		internal Namespaces ns;
 		WikiCapabilities capabilities;
 		CurrentUser cu;
@@ -270,6 +270,9 @@ namespace WikiTools.Access
 			ab.PageName = "index.php?title=Special:Mytalk";
 		}
 		
+		/// <summary>
+		/// Returns info about current user
+		/// </summary>
 		public CurrentUser CurrentUserInfo
 		{
 			get

@@ -613,6 +613,7 @@ namespace WikiTools.Access
 			if (watch) postdata.Add("wpWatchthis", "1");
 			
 			ab.PostQuery("index.php?action=submit&title=" + ab.EncodeUrl(name), postdata);
+			editPrepared = false;
 		}
 		#endregion
 
@@ -638,8 +639,8 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Renames this name
 		/// </summary>
-		/// <param name="NewName">New page name</param>
-		/// <param name="Reason">Reason of name change</param>
+		/// <param name="newName">New page name</param>
+		/// <param name="reason">Reason of name change</param>
 		public void Rename(string newName, string reason)
 		{
 			Dictionary<string, string> postdata = new Dictionary<string, string>();
@@ -670,6 +671,9 @@ namespace WikiTools.Access
 			LoadInfo();
 		}
 		
+		/// <summary>
+		/// Initializes variables to prevent edit confilcts
+		/// </summary>
 		public void PrepareToEdit()
 		{
 			starttime = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
@@ -678,7 +682,7 @@ namespace WikiTools.Access
 				lastedit = GetLastEdit().ToString("yyyyMMddHHmmss");
 				edittoken = GetToken(name, "edit");
 			}
-			catch (WikiPageNotFoundExcecption e)
+			catch (WikiPageNotFoundExcecption)
 			{
 				lastedit = starttime;
 				edittoken = GetToken(wiki.GetAllPages("", 1, PageTypes.All, 0)[0], "edit");
@@ -686,6 +690,10 @@ namespace WikiTools.Access
 			editPrepared = true;
 		}
 		
+		/// <summary>
+		/// Returns the date of last edit
+		/// </summary>
+		/// <returns></returns>
 		public DateTime GetLastEdit()
 		{
 			string xml = ab.DownloadPage(
