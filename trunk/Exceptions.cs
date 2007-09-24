@@ -26,7 +26,14 @@ namespace WikiTools.Access
 	/// </summary>
 	public class WikiException : Exception
 	{
+		/// <summary>
+		/// Initializes new instance of WikiException object
+		/// </summary>
 		public WikiException() : base() {}
+		/// <summary>
+		/// Initializes new instance of WikiException object
+		/// </summary>
+		/// <param name="message">Message of exception</param>
 		public WikiException(string message) : base(message) {}
 	}
 
@@ -35,7 +42,14 @@ namespace WikiTools.Access
 	/// </summary>
 	public class WikiNotSupportedException : WikiException
 	{
+		/// <summary>
+		/// Initializes new instance of WikiNotSupportedException object
+		/// </summary>
 		public WikiNotSupportedException() : base() {}
+		/// <summary>
+		/// Initializes new instance of WikiNotSupportedException object
+		/// </summary>
+		/// <param name="message">Message of exception</param>
 		public WikiNotSupportedException(string message) : base(message) { }
 	}
 
@@ -44,7 +58,14 @@ namespace WikiTools.Access
 	/// </summary>
 	public class WikiPermissionsExpection : WikiException
 	{
+		/// <summary>
+		/// Initializes new instance of WikiPermissionsExpection object
+		/// </summary>
 		public WikiPermissionsExpection() : base() {}
+		/// <summary>
+		/// Initializes new instance of WikiPermissionsExpection object
+		/// </summary>
+		/// <param name="message">Message of exception</param>
 		public WikiPermissionsExpection(string message) : base(message) {}
 	}
 
@@ -53,7 +74,14 @@ namespace WikiTools.Access
 	/// </summary>
 	public class WikiPageNotFoundExcecption : WikiException
 	{
+		/// <summary>
+		/// Initializes new instance of WikiPageNotFoundExcecption object
+		/// </summary>
 		public WikiPageNotFoundExcecption() : base() {}
+		/// <summary>
+		/// Initializes new instance of WikiPageNotFoundExcecption object
+		/// </summary>
+		/// <param name="message">Message of exception</param>
 		public WikiPageNotFoundExcecption(string message) : base(message) { }
 	}
 }

@@ -31,6 +31,11 @@ namespace WikiTools.Access
 		string mcachetext;
 		string[] months, months_gen;
 
+		/// <summary>
+		/// Returns message cache messages
+		/// </summary>
+		/// <param name="str">Message name</param>
+		/// <returns>Message contents</returns>
 		public string this[string str]
 		{
 			get

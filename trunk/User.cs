@@ -33,7 +33,6 @@ namespace WikiTools.Access
 		string name;
 		Wiki wiki;
 		AccessBrowser ab;
-		string[] flags;
 		int editcount;
 		string[] groups;
 		bool propsLoaded = false;
@@ -50,6 +49,9 @@ namespace WikiTools.Access
 			ab = this.wiki.ab;
 		}
 		
+		/// <summary>
+		/// Loads properties (groups, editcount) for user
+		/// </summary>
 		public void LoadProps()
 		{
 			XmlDocument doc = new XmlDocument();
@@ -77,6 +79,9 @@ namespace WikiTools.Access
 			this.groups = groups_tmp.ToArray();
 		}
 		
+		/// <summary>
+		/// User's name
+		/// </summary>
 		public string Name
 		{
 			get
@@ -85,6 +90,9 @@ namespace WikiTools.Access
 			}
 		}
 		
+		/// <summary>
+		/// Count of all edits made by this user
+		/// </summary>
 		public int Editcount
 		{
 			get
@@ -95,6 +103,9 @@ namespace WikiTools.Access
 			}
 		}
 		
+		/// <summary>
+		/// Flags which this user has
+		/// </summary>
 		public string[] Groups
 		{
 			get
