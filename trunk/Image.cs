@@ -50,13 +50,15 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Downloads image from wiki. Needs Special:Filepath
+		/// Downloads image from wiki.
 		/// </summary>
 		/// <returns>Image</returns>
 		public byte[] Download()
 		{
-			if (!wiki.Capabilities.HasFilePath) throw new WikiNotSupportedException("FilePath extension is needed");
-			return ab.DownloadBinary("index.php?title=Special:Filepath/" + ab.EncodeUrl(name));
+			if (wiki.Capabilities.HasFilePath)
+				return ab.DownloadBinary("index.php?title=Special:Filepath/" + ab.EncodeUrl(name));
+			else
+				return CurrentRevision.Download();
 		}
 		
 		/// <summary>
