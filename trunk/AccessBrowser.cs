@@ -17,11 +17,12 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.IO;
+using System.Xml;
 
 namespace WikiTools.Access
 {
@@ -111,6 +112,8 @@ namespace WikiTools.Access
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
 			rq.CookieContainer = wiki.cookies;
 			result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			cpagename = pgname;
+			cpagetext = result;
 			return result;
 		}
 
@@ -150,6 +153,8 @@ namespace WikiTools.Access
 			HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
 			result = new StreamReader(resp.GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			cookiesGotInLastQuery = resp.Cookies;
+			cpagename = pgname;
+			cpagetext = result;
 			return result;
 		}
 
@@ -161,8 +166,11 @@ namespace WikiTools.Access
 		/// <returns>Page content</returns>
 		public byte[] DownloadBinary(string pgname)
 		{
-			WebRequest rq = WebRequest.Create(wiki.WikiURI + "/" + pgname);
+			HttpWebRequest rq = (HttpWebRequest) WebRequest.Create(wiki.WikiURI + "/" + pgname);
 			List<Byte> result = new List<byte>();
+			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.CookieContainer = wiki.cookies;
 			int cbyte; Stream rpstream = rq.GetResponse().GetResponseStream();
 			while ((cbyte = rpstream.ReadByte()) != -1)
 			{

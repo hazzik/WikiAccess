@@ -86,7 +86,6 @@ namespace WikiTools.Access
 				File.WriteAllText(capacachepath, capabilities.ToString());
 			}
 			cookies = new CookieContainer();
-			cu = new CurrentUser(this);
 		}
 
 		#region Login Functions
@@ -106,7 +105,8 @@ namespace WikiTools.Access
 			data.Add("wpLoginAttempt", mcache["login"]);
 			ab.PostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login", data);
 			cookies.Add(ab.cookiesGotInLastQuery);
-			cu.Reload();
+			if (cu != null)
+				LoadCurrentUserInfo();
 			return ab.IsLoggedIn();
 		}
 
@@ -277,8 +277,15 @@ namespace WikiTools.Access
 		{
 			get
 			{
+				if (cu == null)
+					LoadCurrentUserInfo();
 				return cu;
 			}
+		}
+
+		private void LoadCurrentUserInfo()
+		{
+			cu = new CurrentUser(this);
 		}
 
 		#region IDisposable Members
