@@ -34,7 +34,8 @@ namespace WikiTools.Access
 		private string name;
 		private bool infoLoaded = false;
 		private ImageRepositoryType repotype = ImageRepositoryType.Local;
-		private bool existsLocally = false;
+		private bool existsLocaly = false;
+		private ImageRevision[] revs = null;
 
 		/// <summary>
 		/// Initializes Image object
@@ -58,16 +59,41 @@ namespace WikiTools.Access
 			return ab.DownloadBinary("index.php?title=Special:Filepath/" + ab.EncodeUrl(name));
 		}
 		
+		/// <summary>
+		/// Loads information about image. Called automatically, you should use it only for reloading info,
+		/// </summary>
 		public void LoadInfo()
 		{
 			string page_text 
 				= ab.DownloadPage("api.php?action=query&prop=imageinfo&titles=Image:" + ab.EncodeUrl(name) +
-				"&iiprop=timestamp|user|comment|url|size|sha1|metadata&iihistory&format=xml");
+				"&iiprop=timestamp|user|comment|url|size|sha1&iihistory&format=xml");
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml(page_text);
 			XmlElement pageelem = (XmlElement)doc.GetElementsByTagName("page")[0];
-			existsLocally = !pageelem.HasAttribute("missing");
+			existsLocaly = !pageelem.HasAttribute("missing");
 			repotype = ParseRepoType(pageelem.Attributes["imagerepository"].Value);
+
+			XmlElement iielem = (XmlElement)pageelem.GetElementsByTagName("imageinfo")[0];
+			XmlNodeList revs_ii = pageelem.GetElementsByTagName("ii");
+			List<ImageRevision> revs_temp = new List<ImageRevision>();
+			foreach (XmlNode cnode in revs_ii)
+			{
+				XmlElement celem = (XmlElement)cnode;
+				ImageRevision crev = new ImageRevision();
+				crev.Wiki = wiki;
+				crev.Image = name;
+				crev.Time = ab.ParseAPITimestamp(celem.Attributes["timestamp"].Value);
+				crev.Author = celem.Attributes["user"].Value;
+				crev.Size = UInt64.Parse(celem.Attributes["size"].Value);
+				crev.Width = Int32.Parse(celem.Attributes["width"].Value);
+				crev.Height = Int32.Parse(celem.Attributes["height"].Value);
+				crev.Url = celem.Attributes["url"].Value;
+				crev.Comment = celem.Attributes["comment"].Value;
+				crev.Sha1 = celem.Attributes["sha1"].Value;
+				revs_temp.Add(crev);
+			}
+			revs = revs_temp.ToArray();
+			
 			infoLoaded = true;
 		}
 		
@@ -132,6 +158,9 @@ namespace WikiTools.Access
 			return result;
 		}
 		
+		/// <summary>
+		/// Repository where image is stored
+		/// </summary>
 		public ImageRepositoryType RepositoryType
 		{
 			get
@@ -141,26 +170,107 @@ namespace WikiTools.Access
 				return repotype;
 			}
 		}
+		
+		/// <summary>
+		/// Indicates if image exists localy
+		/// </summary>
+		public bool ExistsLocaly
+		{
+			get
+			{
+				if (!infoLoaded)
+					LoadInfo();
+				return existsLocally;
+			}
+		}
+		
+		/// <summary>
+		/// Revsions of this image
+		/// </summary>
+		public ImageRevision[] Revisions
+		{
+			get
+			{
+				return revs;
+			}
+		}
+		
+		/// <summary>
+		/// Current revision of image
+		/// </summary>
+		public ImageRevision CurrentRevision
+		{
+			get
+			{
+				return revs[0];
+			}
+		}
 	}
 	
+	/// <summary>
+	/// Image repository type
+	/// </summary>
 	public enum ImageRepositoryType
 	{
+		/// <summary>
+		/// Image is stored on local wiki
+		/// </summary>
 		Local,
+		/// <summary>
+		/// Image is stored on shared repository, like Wikimedia Commons
+		/// </summary>
 		Shared
 	}
 	
+	/// <summary>
+	/// Image revison
+	/// </summary>
 	public struct ImageRevision
 	{
+		/// <summary>
+		/// Wiki that contains image
+		/// </summary>
 		public Wiki Wiki;
+		/// <summary>
+		/// Image name
+		/// </summary>
 		public string Image;
+		/// <summary>
+		/// Version upload Time
+		/// </summary>
 		public DateTime Time;
+		/// <summary>
+		/// Uploader
+		/// </summary>
 		public string Author;
+		/// <summary>
+		/// Image size
+		/// </summary>
 		public ulong Size;
+		/// <summary>
+		/// Image width (0 for non-images)
+		/// </summary>
 		public int Width;
+		/// <summary>
+		/// Image height (0 for non-images)
+		/// </summary>
 		public int Height;
+		/// <summary>
+		/// Image raw url
+		/// </summary>
 		public string Url;
+		/// <summary>
+		/// Revision comment
+		/// </summary>
 		public string Comment;
+		/// <summary>
+		/// SHA1 hash of image
+		/// </summary>
 		public string Sha1;
-		public string Metadata;
+		
+		public byte[] Download()
+		{
+			return Wiki.ab.DownloadBinaryFullUrl(Url);
+		}
 	}
 }
