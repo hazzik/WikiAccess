@@ -158,15 +158,20 @@ namespace WikiTools.Access
 			return result;
 		}
 
+		public byte[] DownloadBinary(string pgname)
+		{
+			return DownloadBinaryFullUrl(wiki.WikiURI + "/" + pgname);
+		}
+
 		/// <summary>
 		/// Downloads page via WebRequest.
 		/// Note: this method is blocking
 		/// </summary>
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
-		public byte[] DownloadBinary(string pgname)
+		public byte[] DownloadBinaryFullUrl(string pgname)
 		{
-			HttpWebRequest rq = (HttpWebRequest) WebRequest.Create(wiki.WikiURI + "/" + pgname);
+			HttpWebRequest rq = (HttpWebRequest) WebRequest.Create(pgname);
 			List<Byte> result = new List<byte>();
 			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
