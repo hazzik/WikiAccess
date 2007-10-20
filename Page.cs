@@ -123,7 +123,7 @@ namespace WikiTools.Access
 			doc.LoadXml(opts);
 			XmlElement pageElem = (XmlElement)doc.GetElementsByTagName("page")[0];
 			propsLoaded = true;
-			exists = pageElem.HasAttribute("missing");
+			exists = !pageElem.HasAttribute("missing");
 			if (!exists)
 				return;
 			pgid = Int32.Parse(pageElem.Attributes["pageid"].Value);
@@ -713,7 +713,6 @@ namespace WikiTools.Access
 			XmlDocument doc = new XmlDocument(); doc.LoadXml(xml);
 			XmlElement elem = (XmlElement)doc.GetElementsByTagName("page")[0];
 			if (elem == null || !elem.HasAttribute(type + "token")) throw new WikiPermissionsExpection();
-			if (elem.HasAttribute("missing")) throw new WikiPageNotFoundExcecption();
 			return elem.Attributes[type + "token"].Value;
 		}
 

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Xml;
 
 namespace WikiTools.Access
 {
@@ -31,6 +32,9 @@ namespace WikiTools.Access
 		private AccessBrowser ab;
 		private Wiki wiki;
 		private string name;
+		private bool infoLoaded = false;
+		private ImageRepositoryType repotype = ImageRepositoryType.Local;
+		private bool existsLocally = false;
 
 		/// <summary>
 		/// Initializes Image object
@@ -50,8 +54,33 @@ namespace WikiTools.Access
 		/// <returns>Image</returns>
 		public byte[] Download()
 		{
-			if (!wiki.Capabilities.HasFilePath) throw new WikiNotSupportedException();
+			if (!wiki.Capabilities.HasFilePath) throw new WikiNotSupportedException("FilePath extension is needed");
 			return ab.DownloadBinary("index.php?title=Special:Filepath/" + ab.EncodeUrl(name));
+		}
+		
+		public void LoadInfo()
+		{
+			string page_text 
+				= ab.DownloadPage("api.php?action=query&prop=imageinfo&titles=Image:" + ab.EncodeUrl(name) +
+				"&iiprop=timestamp|user|comment|url|size|sha1|metadata&iihistory&format=xml");
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(page_text);
+			XmlElement pageelem = (XmlElement)doc.GetElementsByTagName("page")[0];
+			existsLocally = !pageelem.HasAttribute("missing");
+			repotype = ParseRepoType(pageelem.Attributes["imagerepository"].Value);
+			infoLoaded = true;
+		}
+		
+		ImageRepositoryType ParseRepoType(string type)
+		{
+			switch(type)
+			{
+				case "shared":
+					return ImageRepositoryType.Shared;
+				case "local":
+				default:
+					return ImageRepositoryType.Local;
+			}
 		}
 
 		#region Unimplemented Upload method
@@ -88,5 +117,50 @@ namespace WikiTools.Access
 			foreach (byte cbyte in hash) result += cbyte.ToString("X");
 			return result;
 		}
+
+		/// <summary>
+		/// Computes SHA1 hash using .NET and converts it to string
+		/// </summary>
+		/// <param name="img">Image content</param>
+		/// <returns>String-formatted SHA1 hash</returns>
+		public static string CalculateSHA1Hash(byte[] img)
+		{
+			SHA1CryptoServiceProvider scsp = new SHA1CryptoServiceProvider();
+			byte[] hash = scsp.ComputeHash(img);
+			string result = "";
+			foreach (byte cbyte in hash) result += cbyte.ToString("X");
+			return result;
+		}
+		
+		public ImageRepositoryType RepositoryType
+		{
+			get
+			{
+				if (!infoLoaded)
+					LoadInfo();
+				return repotype;
+			}
+		}
+	}
+	
+	public enum ImageRepositoryType
+	{
+		Local,
+		Shared
+	}
+	
+	public struct ImageRevision
+	{
+		public Wiki Wiki;
+		public string Image;
+		public DateTime Time;
+		public string Author;
+		public ulong Size;
+		public int Width;
+		public int Height;
+		public string Url;
+		public string Comment;
+		public string Sha1;
+		public string Metadata;
 	}
 }
