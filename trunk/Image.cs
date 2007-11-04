@@ -182,7 +182,7 @@ namespace WikiTools.Access
 			{
 				if (!infoLoaded)
 					LoadInfo();
-				return existsLocally;
+				return this.existsLocaly;
 			}
 		}
 		

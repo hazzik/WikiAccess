@@ -107,7 +107,7 @@ namespace WikiTools.Access.Wikimedia
 	/// <summary>
 	/// Provides utils for wikimedia projects
 	/// </summary>
-	public class WikimediaUtils
+	public static class WikimediaUtils
 	{
 		/// <summary>
 		/// Makes URI for specified Wikimedia project
