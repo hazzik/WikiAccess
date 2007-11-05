@@ -18,29 +18,38 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
+using System.Xml.XPath;
 
 namespace WikiTools.Access
 {
 	partial class Wiki
 	{
-		/* TODO: doesn't work
-		 * public string ExpandTemplates(string text, string pagetitle, bool removeComments)
+		string ExpandTemplatesOrRender(string action, string text, string pagetitle)
 		{
-			ab.PageName = "index.php?title=Special:Expandtemplates";
-			ab.SetTextboxField("contexttitle", pagetitle);
-			ab.SetTextboxField("input", text);
-			ab.SetCheckbox("removecomments", removeComments);
-			HtmlElementCollection hec = ab.WebBrowser.Document.GetElementsByTagName("input");
-			foreach (HtmlElement helem in hec)
-			{
-				if (helem.GetAttribute("type") == "submit")
-				{
-					helem.InvokeMember("click");
-					ab.Wait();
-					break;
-				}
-			}
-			return ab.GetTextboxField("output");
-		 */
+			Dictionary<string, string> postData = new Dictionary<string, string>();
+			postData.Add("action", action);
+			postData.Add("format", "xml");
+			postData.Add("text", text);
+			postData.Add("title", pagetitle);
+			
+			string response = ab.PostQuery("api.php", postData);
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(response);
+			XPathNodeIterator xpni = (XPathNodeIterator)doc.CreateNavigator().Evaluate("/api/" + action);
+			foreach (XPathItem i in xpni)
+				return i.Value;
+			return null;
+		}
+		
+		public string ExpandTemplates(string text, string pagetitle)
+		{
+			return ExpandTemplatesOrRender("expandtemplates", text, pagetitle);
+		}
+		
+		public string RenderText(string text, string pagetitle)
+		{
+			return ExpandTemplatesOrRender("render", text, pagetitle);
+		}
 	}
 }
