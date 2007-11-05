@@ -86,7 +86,7 @@ namespace WikiTools.Access
 				crev.Image = name;
 				crev.Time = ab.ParseAPITimestamp(celem.Attributes["timestamp"].Value);
 				crev.Author = celem.Attributes["user"].Value;
-				crev.Size = UInt64.Parse(celem.Attributes["size"].Value);
+				crev.Size = Int64.Parse(celem.Attributes["size"].Value);
 				crev.Width = Int32.Parse(celem.Attributes["width"].Value);
 				crev.Height = Int32.Parse(celem.Attributes["height"].Value);
 				crev.Url = celem.Attributes["url"].Value;
@@ -248,7 +248,7 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Image size
 		/// </summary>
-		public ulong Size;
+		public long Size;
 		/// <summary>
 		/// Image width (0 for non-images)
 		/// </summary>
