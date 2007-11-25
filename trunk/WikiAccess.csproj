@@ -61,6 +61,7 @@
     <Compile Include="CurrentUser.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExpandTemplates.cs" />
+    <Compile Include="InterwikiMap.cs" />
     <Compile Include="Logs\BlockLog.cs" />
     <Compile Include="MessageCache.cs" />
     <Compile Include="Namespace.cs" />
