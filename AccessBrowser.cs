@@ -106,8 +106,19 @@ namespace WikiTools.Access
 		/// <returns>Page content</returns>
 		public string DownloadPage(string pgname)
 		{
+			return DownloadPageFullUrl(wiki.WikiURI + "/" + pgname);
+		}
+
+		
+		/// <summary>
+		/// Downloads page via WebRequest
+		/// </summary>
+		/// <param name="pgname">URL</param>
+		/// <returns>Page content</returns>
+		public string DownloadPageFullUrl(string pgname)
+		{
 			string result;
-			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
+			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(pgname);
 			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
 			rq.CookieContainer = wiki.cookies;
