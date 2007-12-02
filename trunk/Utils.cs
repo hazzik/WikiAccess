@@ -143,5 +143,9 @@ namespace WikiTools.Access
 			DateTime start = DateTime.Now;
 			while (DateTime.Now - start < ts) ;
 		}
+		
+		public static string UCFisrt(string s) {
+			return new string( Char.ToUpper( s[0] ), 1 ) + s.Substring(1);
+		}
 	}
 }
