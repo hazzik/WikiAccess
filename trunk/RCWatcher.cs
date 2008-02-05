@@ -103,7 +103,7 @@ namespace WikiTools.Access
 		Thread t;
 		int lastrc = 0;
 		
-		public RecentchangesWatcher(Wiki w)
+		public RecentChangesWatcher(Wiki w)
 		{
 			this.w = w;
 			t = new Thread( new ThreadStart( ThreadProc ) );
@@ -170,7 +170,7 @@ namespace WikiTools.Access
 				change.OldSize = int.Parse( elem.GetAttribute( "oldlen" ) );
 				change.NewSize = int.Parse( elem.GetAttribute( "newlen" ) );
 				change.User = elem.GetAttribute( "user" );
-				change.Time = w.ab.ParseAPITimestamp( elem.GetAttribute( "timestamp" ) );
+				change.Time = DateTime.Parse(elem.GetAttribute("timestamp")).ToUniversalTime();
 				if( elem.HasAttribute( "comment" ) )
 					change.Comment = elem.GetAttribute( "comment" );
 				else

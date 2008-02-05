@@ -84,7 +84,7 @@ namespace WikiTools.Access
 				ImageRevision crev = new ImageRevision();
 				crev.Wiki = wiki;
 				crev.Image = name;
-				crev.Time = ab.ParseAPITimestamp(celem.Attributes["timestamp"].Value);
+				crev.Time = DateTime.Parse(celem.Attributes["timestamp"].Value).ToUniversalTime();
 				crev.Author = celem.Attributes["user"].Value;
 				crev.Size = Int64.Parse(celem.Attributes["size"].Value);
 				crev.Width = Int32.Parse(celem.Attributes["width"].Value);
