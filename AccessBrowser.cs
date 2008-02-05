@@ -37,8 +37,6 @@ namespace WikiTools.Access
 		internal CookieCollection cookiesGotInLastQuery = new CookieCollection();
 		//public bool Shutdown = false;
 
-		Regex APITimestamp = new Regex(@"(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z", RegexOptions.Compiled);
-
 		/// <summary>
 		/// Initializes new instance of AccessBrowser
 		/// </summary>
@@ -109,7 +107,7 @@ namespace WikiTools.Access
 			return DownloadPageFullUrl(wiki.WikiURI + "/" + pgname);
 		}
 
-		
+
 		/// <summary>
 		/// Downloads page via WebRequest
 		/// </summary>
@@ -119,9 +117,11 @@ namespace WikiTools.Access
 		{
 			string result;
 			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(pgname);
-			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+			rq.UseDefaultCredentials = true;
 			rq.CookieContainer = wiki.cookies;
+
 			result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			cpagename = pgname;
 			cpagetext = result;
@@ -138,11 +138,13 @@ namespace WikiTools.Access
 		{
 			string result;
 			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
-			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
-			rq.CookieContainer = wiki.cookies;
+			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+			rq.UseDefaultCredentials = true;
 			rq.AllowAutoRedirect = false;
 			rq.Method = "POST";
+			rq.CookieContainer = wiki.cookies;
+
 			Random rnd = new Random(); byte[] rndbytes = new byte[1024]; rnd.NextBytes(rndbytes);
 			string boundary = "-------" + Image.CalculateMD5Hash(rndbytes);
 			rq.ContentType = "multipart/form-data; boundary=" + boundary;
@@ -182,12 +184,15 @@ namespace WikiTools.Access
 		/// <returns>Page content</returns>
 		public byte[] DownloadBinaryFullUrl(string pgname)
 		{
-			HttpWebRequest rq = (HttpWebRequest) WebRequest.Create(pgname);
-			List<Byte> result = new List<byte>();
-			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(pgname);
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+			rq.UseDefaultCredentials = true;
 			rq.CookieContainer = wiki.cookies;
+
 			int cbyte; Stream rpstream = rq.GetResponse().GetResponseStream();
+
+			List<Byte> result = new List<byte>();
 			while ((cbyte = rpstream.ReadByte()) != -1)
 			{
 				result.Add((byte)cbyte);
@@ -212,17 +217,10 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="p">API timestamp in string</param>
 		/// <returns>Result in DateTime</returns>
+		[Obsolete("Please use DateTime.Parse(p).ToUniversalTime() instead.")]
 		public DateTime ParseAPITimestamp(string p)
 		{
-			Match match = APITimestamp.Match(p);
-			return new DateTime(
-				int.Parse(match.Groups[1].Value),
-				int.Parse(match.Groups[2].Value),
-				int.Parse(match.Groups[3].Value),
-				int.Parse(match.Groups[4].Value),
-				int.Parse(match.Groups[5].Value),
-				int.Parse(match.Groups[6].Value)
-			);
+			return DateTime.Parse(p).ToUniversalTime();
 		}
 	}
 }

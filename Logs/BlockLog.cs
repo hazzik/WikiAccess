@@ -44,7 +44,7 @@ namespace WikiTools.Access
 				BlockLogEntry centry = new BlockLogEntry();
 				centry.Action = StringToBlockAction(celem.Attributes["action"].Value);
 				centry.BlockedBy = celem.Attributes["user"].Value;
-				centry.BlockTime = ab.ParseAPITimestamp(celem.Attributes["timestamp"].Value);
+				centry.BlockTime = DateTime.Parse(celem.Attributes["timestamp"].Value).ToUniversalTime();
 				if (centry.Action == BlockAction.Block) centry.Duration = celem.FirstChild.FirstChild.Value;
 				centry.UserName = celem.Attributes["title"].Value.Split(new char[] { ":"[0] }, 2)[1];
 				if (celem.HasAttribute("comment")) centry.Comment = celem.Attributes["comment"].Value;

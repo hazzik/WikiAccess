@@ -127,7 +127,7 @@ namespace WikiTools.Access
 			if (!exists)
 				return;
 			pgid = Int32.Parse(pageElem.Attributes["pageid"].Value);
-			touched = ab.ParseAPITimestamp(pageElem.Attributes["touched"].Value);
+			touched = DateTime.Parse(pageElem.Attributes["touched"].Value).ToUniversalTime();
 			lastrevision = Int32.Parse(pageElem.Attributes["lastrevid"].Value);
 			redirect =pageElem.HasAttribute("redirect");
 			length = Int32.Parse(pageElem.Attributes["length"].Value);
@@ -254,7 +254,7 @@ namespace WikiTools.Access
 						crev.ID = Int32.Parse(celem.Attributes["revid"].Value);
 						crev.Page = name;
 						crev.Author = celem.Attributes["user"].Value;
-						crev.Time = ab.ParseAPITimestamp(celem.Attributes["timestamp"].Value);
+						crev.Time = DateTime.Parse(celem.Attributes["timestamp"].Value).ToUniversalTime();
 						crev.Comment = (celem.HasAttribute("comment") ? celem.Attributes["comment"].Value : "");
 						tmp.Add(crev);
 					}
@@ -703,7 +703,7 @@ namespace WikiTools.Access
 			XmlElement pageelem = (XmlElement)doc.GetElementsByTagName("page")[0];
 			if (pageelem.HasAttribute("missing")) throw new WikiPageNotFoundExcecption();
 			XmlElement revelem = (XmlElement)doc.GetElementsByTagName("rev")[0];
-			return ab.ParseAPITimestamp(revelem.Attributes["timestamp"].Value);
+			return DateTime.Parse(revelem.Attributes["timestamp"].Value).ToUniversalTime();
 		}
 		
 		private string GetToken(string page, string type)
