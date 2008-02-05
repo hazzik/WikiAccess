@@ -118,8 +118,8 @@ namespace WikiTools.Access
 			string result;
 			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(pgname);
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			rq.UseDefaultCredentials = true;
 			rq.CookieContainer = wiki.cookies;
 
 			result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
@@ -139,8 +139,8 @@ namespace WikiTools.Access
 			string result;
 			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			rq.UseDefaultCredentials = true;
 			rq.AllowAutoRedirect = false;
 			rq.Method = "POST";
 			rq.CookieContainer = wiki.cookies;
@@ -186,8 +186,8 @@ namespace WikiTools.Access
 		{
 			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(pgname);
 			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			rq.UseDefaultCredentials = true;
 			rq.CookieContainer = wiki.cookies;
 
 			int cbyte; Stream rpstream = rq.GetResponse().GetResponseStream();
