@@ -67,11 +67,29 @@ namespace WikiTools.Access
 		/// Old revision ID
 		/// </summary>
 		public int OldRevisionID;
+		/// <summary>
+		/// Timestamp
+		/// </summary>
 		public DateTime Time;
+		/// <summary>
+		/// Username
+		/// </summary>
 		public string User;
+		/// <summary>
+		/// Comment
+		/// </summary>
 		public string Comment;
+		/// <summary>
+		/// Is new page
+		/// </summary>
 		public bool New;
+		/// <summary>
+		/// Is minor edit
+		/// </summary>
 		public bool Minor;
+		/// <summary>
+		/// Is bot edit
+		/// </summary>
 		public bool Bot;
 		public int OldSize, NewSize;
 		
