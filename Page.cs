@@ -99,7 +99,7 @@ namespace WikiTools.Access
 		{
 			try
 			{
-				text = ab.DownloadPage("index.php?action=raw&title=" + ab.EncodeUrl(name));
+				text = ab.DownloadPage("index.php?action=raw&title=" + ab.EncodeUrl(name).Replace("%3a", ":"));
 			}
 			catch (WebException we)
 			{
