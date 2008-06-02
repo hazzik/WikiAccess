@@ -1,0 +1,29 @@
+== Version 0.3 ==
+* Added Page.Length property
+* Code is rewritten for Mono-compatibility:
+** Created AccessBrowser.PostQuery() method
+** Wiki.Login(), Page.SetText(), Page.Rename() now uses PostQuery
+** Implemented PrepareToEdit() and GetLastEdit() for write API. LoadTextWritePrepared is removed
+* Rewrote Category class using MediaWiki API
+* File paths are now Unix-compatible
+* Added new CurrentUser class
+* License is now GNU General Public Lincense v3
+* .userflags file in message cache is now obsolete
+* Revision.GetContent() now doesn't need an argument with wiki, it's now passed via construct
+* User class is reimplemented
+* Removed sep11 from Wikimedia projects list
+== Version 0.2 ==
+* New method: Utils.Swap<T>
+* LoadHistory method upgraded to new API version
+* Added Namespace constants (Namespaces.Main, Namespaces.Talk, etc.)
+* Added GetPrefixIndex(), Page.Subpages
+* New methods: WatchList.Add() and WatchList.Delete()
+* New method: Wiki.CreatePage()
+* Added email support (see User.SendEmail())
+* Fully integrated capabilities system:
+** Added property Wiki.Capabilities
+** New cahce file: <site>.capabilities
+* Added Page.Templates, Page.Images properties
+* Added Utils.Wait() method (specially adoptated)
+* Added "Prepared get" - Page.LoadTextWritePrepared()
+* Added new message(s) notification support
