@@ -48,7 +48,7 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Initializes new instance of wiki object. Message cache will be stored in current directory
+		/// Initializes new instance of a Wiki object. Message cache will be stored in current directory.
 		/// </summary>
 		/// <param name="uri">URI of wiki. <see cref="Wiki.WikiURI"/></param>
 		public Wiki(string uri) : this(uri, ".")
@@ -56,9 +56,9 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Initializes new instance of wiki object.
+		/// Initializes new instance of a Wiki object.
 		/// </summary>
-		/// <param name="uri">URI of wiki. <see cref="Wiki.WikiURI"/></param>
+		/// <param name="uri">URI of Wiki. <see cref="Wiki.WikiURI"/></param>
 		/// <param name="cachedir">Folder where Message cache will be stored</param>
 		public Wiki(string uri, string cachedir)
 		{
@@ -211,6 +211,7 @@ namespace WikiTools.Access
 				return result;
 			}
 		}
+
 		#region CreatePage versions
 
 		/// <summary>

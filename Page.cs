@@ -27,7 +27,7 @@ using System.Xml;
 namespace WikiTools.Access
 {
 	/// <summary>
-	/// Represents wikipage
+	/// Represents wiki page
 	/// </summary>
 	public partial class Page
 	{
@@ -61,7 +61,7 @@ namespace WikiTools.Access
 		string edittoken; string lastedit; string starttime; bool editPrepared = false;
 
 		/// <summary>
-		/// Initializes new instance of page
+		/// Initializes new instance of Page
 		/// </summary>
 		/// <param name="wiki">Wiki to use</param>
 		/// <param name="pgname">Page name</param>
@@ -653,7 +653,7 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Cleans cahce of this page
+		/// Cleans cache of this page
 		/// </summary>
 		public void Purge()
 		{
@@ -672,7 +672,7 @@ namespace WikiTools.Access
 		}
 		
 		/// <summary>
-		/// Initializes variables to prevent edit confilcts
+		/// Initializes variables to prevent edit conflicts
 		/// </summary>
 		public void PrepareToEdit()
 		{
