@@ -38,7 +38,16 @@ namespace WikiTools.Access
 			result.HasOversight = vesionPage.Contains("<i>Oversight</i>");
 			result.HasRenameUser = vesionPage.Contains("<i>Renameuser</i>");
 			Match match = Regex.Match(vesionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
-			result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
+            // 2008-11-16 BL - Ticket 2300889 - Modified to work with newer versions of the Special:Version page.
+            if (match.Length > 0)
+            {
+                result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
+            }
+            else
+            {
+                match = Regex.Match(vesionPage, @"MediaWiki</a></td>\s*<td>(\d).(\d{1,2})");
+                result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
+            }
 			return result;
 		}
 	}
