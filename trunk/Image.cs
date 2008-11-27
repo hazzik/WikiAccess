@@ -139,11 +139,8 @@ namespace WikiTools.Access
 		/// <returns>String-formatted MD5 hash</returns>
 		public static string CalculateMD5Hash(byte[] img)
 		{
-			MD5CryptoServiceProvider mcsp = new MD5CryptoServiceProvider();
-			byte[] hash = mcsp.ComputeHash(img);
-			string result = "";
-			foreach (byte cbyte in hash) result += cbyte.ToString("X");
-			return result;
+			MD5 md5 = MD5.Create();
+			return Utils.BinaryToHexString(md5.ComputeHash(img));
 		}
 
 		/// <summary>
@@ -153,11 +150,8 @@ namespace WikiTools.Access
 		/// <returns>String-formatted SHA1 hash</returns>
 		public static string CalculateSHA1Hash(byte[] img)
 		{
-			SHA1CryptoServiceProvider scsp = new SHA1CryptoServiceProvider();
-			byte[] hash = scsp.ComputeHash(img);
-			string result = "";
-			foreach (byte cbyte in hash) result += cbyte.ToString("X");
-			return result;
+			SHA1 sha1 = SHA1.Create();
+            return Utils.BinaryToHexString(sha1.ComputeHash(img));
 		}
 		
 		/// <summary>
