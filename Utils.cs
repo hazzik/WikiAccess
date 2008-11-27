@@ -143,9 +143,21 @@ namespace WikiTools.Access
 			DateTime start = DateTime.Now;
 			while (DateTime.Now - start < ts) ;
 		}
-		
-		public static string UCFisrt(string s) {
-			return new string( Char.ToUpper( s[0] ), 1 ) + s.Substring(1);
-		}
+
+        public static string UCFisrt(string s)
+        {
+            return Char.ToUpper(s[0]) + s.Substring(1);
+        }
+
+        public static string BinaryToHexString(byte[] bytes)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (byte b in bytes)
+            {
+                builder.AppendFormat("{0:X2}", b);
+            }
+            return builder.ToString();
+        }
+
 	}
 }
