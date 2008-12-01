@@ -29,7 +29,9 @@ namespace WikiTools.Access
 	/// </summary>
 	public class Image
 	{
-		private AccessBrowser ab;
+		private AccessBrowser ab {
+			get { return wiki.ab; }
+		}
 		private Wiki wiki;
 		private string name;
 		private bool infoLoaded = false;
@@ -46,7 +48,6 @@ namespace WikiTools.Access
 		{
 			this.wiki = wiki;
 			this.name = name;
-			ab = wiki.ab;
 		}
 
 		/// <summary>

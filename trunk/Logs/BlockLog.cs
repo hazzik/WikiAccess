@@ -8,14 +8,14 @@ namespace WikiTools.Access
 	public class BlockLog
 	{
 		Wiki wiki;
-		AccessBrowser ab;
-		List<BlockLogEntry> entries;
+		AccessBrowser ab {
+			get { return wiki.ab; }
+		}
+		List<BlockLogEntry> entries = new List<BlockLogEntry>();
 
 		public BlockLog(Wiki wiki)
 		{
 			this.wiki = wiki;
-			ab = wiki.ab;
-			entries = new List<BlockLogEntry>();
 		}
 
 		public void Load(string adminname)

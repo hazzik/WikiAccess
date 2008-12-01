@@ -32,7 +32,9 @@ namespace WikiTools.Access
 	public class WatchList
 	{
 		Wiki wiki;
-		AccessBrowser ab;
+		AccessBrowser ab {
+			get { return wiki.ab; }
+		}
 
 		string[] contents; bool contentsLoaded = false;
 		
@@ -43,7 +45,6 @@ namespace WikiTools.Access
 		public WatchList(Wiki site)
 		{
 			wiki = site;
-			ab = wiki.ab;
 		}
 
 		/// <summary>
