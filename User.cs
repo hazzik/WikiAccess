@@ -32,7 +32,9 @@ namespace WikiTools.Access
 
 		string name;
 		Wiki wiki;
-		AccessBrowser ab;
+		AccessBrowser ab {
+			get { return wiki.ab; }
+		}
 		int editcount;
 		string[] groups;
 		bool propsLoaded = false;
@@ -46,7 +48,6 @@ namespace WikiTools.Access
 		{
 			this.wiki = wiki;
 			this.name = name;
-			ab = this.wiki.ab;
 		}
 		
 		/// <summary>

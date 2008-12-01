@@ -34,7 +34,9 @@ namespace WikiTools.Access
 		//Permanent variables
 		Wiki wiki;
 		string name;
-		AccessBrowser ab;
+		AccessBrowser ab {
+			get { return wiki.ab; }
+		}
 
 		//Loadable variables & Load flags
 		string text; bool textLoaded = false;
@@ -69,7 +71,6 @@ namespace WikiTools.Access
 		{
 			this.wiki = wiki;
 			name = pgname;
-			ab = wiki.ab;
 		}
 
 		#region Text Property

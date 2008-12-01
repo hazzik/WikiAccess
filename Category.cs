@@ -30,7 +30,9 @@ namespace WikiTools.Access
 	{
 		Wiki wiki;
 		string name;
-		AccessBrowser ab;
+		AccessBrowser ab {
+			get { return wiki.ab; }
+		}
 
 		bool loaded;
 		string[] subcats;
@@ -45,7 +47,6 @@ namespace WikiTools.Access
 		{
 			this.wiki = wiki;
 			this.name = name;
-			this.ab = wiki.ab;
 		}
 
 		/// <summary>
