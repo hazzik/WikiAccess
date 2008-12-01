@@ -51,7 +51,6 @@ namespace WikiTools.Access
 		public MessageCache(string fname)
 		{
 			mcachetext = File.ReadAllText(fname);
-			LoadMonths();
 		}
 
 		/// <summary>
@@ -63,7 +62,6 @@ namespace WikiTools.Access
 			AccessBrowser ab = wiki.ab;
 			ab.PageName = "index.php?title=Special:Allmessages&ot=php";
 			mcachetext = ab.PageText;
-			LoadMonths();
 		}
 
 		/// <summary>
@@ -107,8 +105,7 @@ namespace WikiTools.Access
 			return str;
 		}
 
-		private void LoadMonths()
-		{
+		private string[] GetMonths() {
 			List<string> results = new List<string>();
 			results.Add(GetMessage("january"));
 			results.Add(GetMessage("february"));
@@ -122,8 +119,10 @@ namespace WikiTools.Access
 			results.Add(GetMessage("october"));
 			results.Add(GetMessage("november"));
 			results.Add(GetMessage("december"));
-			months = results.ToArray();
-			//-----------------------------------------
+			return results.ToArray();
+		}
+
+		private string[] GetMonthsGen() {
 			List<string> results_gen = new List<string>();
 			results_gen.Add(GetMessage("january-gen"));
 			results_gen.Add(GetMessage("february-gen"));
@@ -137,7 +136,7 @@ namespace WikiTools.Access
 			results_gen.Add(GetMessage("october-gen"));
 			results_gen.Add(GetMessage("november-gen"));
 			results_gen.Add(GetMessage("december-gen"));
-			months_gen = results_gen.ToArray();
+			return results_gen.ToArray();
 		}
 
 		/// <summary>
@@ -147,6 +146,10 @@ namespace WikiTools.Access
 		{
 			get
 			{
+				if(months == null) 
+				{
+					months = GetMonths();
+				}
 				return months;
 			}
 		}
@@ -156,8 +159,11 @@ namespace WikiTools.Access
 		/// </summary>
 		public string[] MonthsGen
 		{
-			get
-			{
+			get {
+				if(months_gen == null) 
+				{
+					months_gen = GetMonthsGen();
+				}
 				return months_gen;
 			}
 		}
