@@ -27,7 +27,7 @@ using System.Xml;
 namespace WikiTools.Access
 {
 	/// <summary>
-	/// Provides access to wiki via IE and WebRequest
+	/// Provides access to wiki via WebRequest
 	/// </summary>
 	public class AccessBrowser : IDisposable
 	{
@@ -35,7 +35,6 @@ namespace WikiTools.Access
 		string cpagename = "";
 		string cpagetext = "";
 		internal CookieCollection cookiesGotInLastQuery = new CookieCollection();
-		//public bool Shutdown = false;
 
 		/// <summary>
 		/// Initializes new instance of AccessBrowser
@@ -43,9 +42,7 @@ namespace WikiTools.Access
 		/// <param name="wiki">Wiki to work with</param>
 		public AccessBrowser(Wiki wiki)
 		{
-			//wb = new WebBrowser();
 			this.wiki = wiki;
-			//wb.ScriptErrorsSuppressed = true;
 		}
 
 		/// <summary>
@@ -115,14 +112,8 @@ namespace WikiTools.Access
 		/// <returns>Page content</returns>
 		public string DownloadPageFullUrl(string pgname)
 		{
-			string result;
-			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(pgname);
-			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
-			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			rq.CookieContainer = wiki.cookies;
-
-			result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			HttpWebRequest rq = CreateGetRequest(pgname);
+			string result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			cpagename = pgname;
 			cpagetext = result;
 			return result;
@@ -134,41 +125,60 @@ namespace WikiTools.Access
 		/// <param name="pgname">Page name</param>
 		/// <param name="data">Post data</param>
 		/// <returns>HTTP response</returns>
-		public string PostQuery(string pgname, Dictionary<string, string> data)
+		//TODO: need refactor this, via "replace method with class method" refactoring
+		public string PostQuery(string pgname, Dictionary<string, string> data) 
 		{
-			string result;
-			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(wiki.WikiURI + "/" + pgname);
-			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
-			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			rq.AllowAutoRedirect = false;
-			rq.Method = "POST";
-			rq.CookieContainer = wiki.cookies;
-
-			Random rnd = new Random(); byte[] rndbytes = new byte[1024]; rnd.NextBytes(rndbytes);
-			string boundary = "-------" + Image.CalculateMD5Hash(rndbytes);
+			HttpWebRequest rq = CreatePostRequest(wiki.WikiURI + "/" + pgname);
+			string boundary = CreateBoundary();
 			rq.ContentType = "multipart/form-data; boundary=" + boundary;
+
 			string postdata = "";
-			foreach (KeyValuePair<string, string> kvp in data)
-			{
-				string ckey = kvp.Key;
-				string cvalue = kvp.Value;
-				postdata += "--" + boundary + "\r\n";
-				postdata += "Content-Disposition: form-data; name=\"" + ckey + "\"\r\n";
-				postdata += "Content-Type: text/plain; charset=utf-8\r\n";
-				postdata += "\r\n";
-				postdata += cvalue + "\r\n";
+			foreach(KeyValuePair<string, string> kvp in data) {
+				postdata += CommitValue(boundary, kvp.Key, kvp.Value);
 			}
 			postdata = postdata.Substring(0, postdata.Length - 2);
 			rq.ContentLength = Encoding.UTF8.GetByteCount(postdata);
 			Stream str = rq.GetRequestStream();
 			str.Write(Encoding.UTF8.GetBytes(postdata), 0, Encoding.UTF8.GetByteCount(postdata));
 			HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
-			result = new StreamReader(resp.GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			string result = new StreamReader(resp.GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			cookiesGotInLastQuery = resp.Cookies;
 			cpagename = pgname;
 			cpagetext = result;
 			return result;
+		}
+
+		private HttpWebRequest CreateGetRequest(string uri) 
+		{
+			HttpWebRequest result = (HttpWebRequest)WebRequest.Create(uri);
+			result.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
+			result.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			result.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+			result.CookieContainer = wiki.cookies;
+			return result;
+		}
+
+		private HttpWebRequest CreatePostRequest(string uri) 
+		{
+			HttpWebRequest result = CreateGetRequest(uri);
+			result.AllowAutoRedirect = false;
+			result.Method = "POST";
+			return result;
+		}
+
+		private static string CommitValue(string boundary, string key, string value) 
+		{
+			string result = "--" + boundary + "\r\n";
+			result += "Content-Disposition: form-data; name=\"" + key + "\"\r\n";
+			result += "Content-Type: text/plain; charset=utf-8\r\n";
+			result += "\r\n";
+			result += value + "\r\n";
+			return result;
+		}
+
+		private static string CreateBoundary() 
+		{
+			return "-------" + Image.CalculateMD5Hash(Rnd.RandomBytes(1024));
 		}
 
 		public byte[] DownloadBinary(string pgname)
@@ -184,11 +194,7 @@ namespace WikiTools.Access
 		/// <returns>Page content</returns>
 		public byte[] DownloadBinaryFullUrl(string pgname)
 		{
-			HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(pgname);
-			rq.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
-			rq.Proxy.Credentials = CredentialCache.DefaultCredentials;
-			rq.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			rq.CookieContainer = wiki.cookies;
+			HttpWebRequest rq = CreateGetRequest(pgname);
 
 			int cbyte; Stream rpstream = rq.GetResponse().GetResponseStream();
 
