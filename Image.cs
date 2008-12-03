@@ -81,23 +81,27 @@ namespace WikiTools.Access
 			List<ImageRevision> revs_temp = new List<ImageRevision>();
 			foreach (XmlNode cnode in revs_ii)
 			{
-				XmlElement celem = (XmlElement)cnode;
-				ImageRevision crev = new ImageRevision();
-				crev.Wiki = wiki;
-				crev.Image = name;
-				crev.Time = DateTime.Parse(celem.Attributes["timestamp"].Value).ToUniversalTime();
-				crev.Author = celem.Attributes["user"].Value;
-				crev.Size = Int64.Parse(celem.Attributes["size"].Value);
-				crev.Width = Int32.Parse(celem.Attributes["width"].Value);
-				crev.Height = Int32.Parse(celem.Attributes["height"].Value);
-				crev.Url = celem.Attributes["url"].Value;
-				crev.Comment = celem.Attributes["comment"].Value;
-				crev.Sha1 = celem.Attributes["sha1"].Value;
-				revs_temp.Add(crev);
+				revs_temp.Add(ParseImageRevision((XmlElement)cnode));
 			}
 			revs = revs_temp.ToArray();
 			
 			infoLoaded = true;
+		}
+
+		private ImageRevision ParseImageRevision(XmlElement element) 
+		{
+			ImageRevision result = new ImageRevision();
+			result.Wiki = wiki;
+			result.Image = name;
+			result.Time = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
+			result.Author = element.Attributes["user"].Value;
+			result.Size = Int64.Parse(element.Attributes["size"].Value);
+			result.Width = Int32.Parse(element.Attributes["width"].Value);
+			result.Height = Int32.Parse(element.Attributes["height"].Value);
+			result.Url = element.Attributes["url"].Value;
+			result.Comment = element.Attributes["comment"].Value;
+			result.Sha1 = element.Attributes["sha1"].Value;
+			return result;
 		}
 		
 		ImageRepositoryType ParseRepoType(string type)
@@ -152,7 +156,7 @@ namespace WikiTools.Access
 		public static string CalculateSHA1Hash(byte[] img)
 		{
 			SHA1 sha1 = SHA1.Create();
-            return Utils.BinaryToHexString(sha1.ComputeHash(img));
+			return Utils.BinaryToHexString(sha1.ComputeHash(img));
 		}
 		
 		/// <summary>

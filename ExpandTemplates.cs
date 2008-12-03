@@ -25,7 +25,7 @@ namespace WikiTools.Access
 {
 	partial class Wiki
 	{
-		string ExpandTemplatesOrRender(string action, string text, string pagetitle)
+		private string ExpandTemplatesOrRender(string action, string text, string pagetitle)
 		{
 			Dictionary<string, string> postData = new Dictionary<string, string>();
 			postData.Add("action", action);
