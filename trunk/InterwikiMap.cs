@@ -38,14 +38,18 @@ namespace WikiTools.Access
 			XmlNodeList nl = doc.GetElementsByTagName("iw");
 			List<InterwikiMapEntry> entries_pre = new List<InterwikiMapEntry>();
 			foreach( XmlNode node in nl ) {
-				XmlElement elem = node as XmlElement;
-				InterwikiMapEntry entry = new InterwikiMapEntry();
-				entry.Prefix = elem.Attributes["prefix"].Value;
-				entry.Uri = elem.Attributes["url"].Value;
-				entry.Local = elem.HasAttribute("local");
-				entries_pre.Add(entry);
+				entries_pre.Add(ParseInterwikiMapEntry((XmlElement)node));
 			}
 			entries = entries_pre.ToArray();
+		}
+
+		private static InterwikiMapEntry ParseInterwikiMapEntry(XmlElement element) 
+		{
+			InterwikiMapEntry result = new InterwikiMapEntry();
+			result.Prefix = element.Attributes["prefix"].Value;
+			result.Uri = element.Attributes["url"].Value;
+			result.Local = element.HasAttribute("local");
+			return result;
 		}
 		
 		public InterwikiMapEntry[] Entries {

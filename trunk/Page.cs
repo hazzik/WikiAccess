@@ -248,20 +248,11 @@ namespace WikiTools.Access
 				{
 					if (node.NodeType == XmlNodeType.Element && node.Name == "rev")
 					{
-						XmlElement celem = (XmlElement)node;
-						Revision crev = new Revision();
-						crev.Wiki = wiki;
-						crev.Minor = celem.HasAttribute("minor");
-						crev.ID = Int32.Parse(celem.Attributes["revid"].Value);
-						crev.Page = name;
-						crev.Author = celem.Attributes["user"].Value;
-						crev.Time = DateTime.Parse(celem.Attributes["timestamp"].Value).ToUniversalTime();
-						crev.Comment = (celem.HasAttribute("comment") ? celem.Attributes["comment"].Value : "");
-						tmp.Add(crev);
+						tmp.Add(ParseRevision((XmlElement)node));
 					}
 				}
 				if (doc.GetElementsByTagName("query-continue").Count > 0)
-				{
+				{	
 					XmlElement qcelem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
 					uri = "api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles=" +
 						ab.EncodeUrl(name) + "&rvstartid=" + qcelem.Attributes["rvstartid"].Value;
@@ -271,6 +262,18 @@ namespace WikiTools.Access
 					needNext = false;
 			} while (needNext);
 			history = tmp.ToArray();
+		}
+
+		private Revision ParseRevision(XmlElement element) {
+			Revision result = new Revision();
+			result.Wiki = wiki;
+			result.Minor = element.HasAttribute("minor");
+			result.ID = Int32.Parse(element.Attributes["revid"].Value);
+			result.Page = name;
+			result.Author = element.Attributes["user"].Value;
+			result.Time = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
+			result.Comment = (element.HasAttribute("comment") ? element.Attributes["comment"].Value : "");
+			return result;
 		}
 
 		/// <summary>

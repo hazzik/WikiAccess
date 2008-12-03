@@ -173,29 +173,33 @@ namespace WikiTools.Access
 			XmlNodeList nodes = doc.GetElementsByTagName("rc");
 			
 			List<RecentChange> changes = new List<RecentChange>();
-			foreach( XmlNode node in nodes ) {
-				XmlElement elem = node as XmlElement;
-				RecentChange change = new RecentChange();
-				change.Type = (RecentChangeType)
-					Enum.Parse( typeof(RecentChangeType), Utils.UCFisrt( elem.GetAttribute( "type" ) ) );
-				change.Page = elem.Attributes["title"].Value;
-				change.RCID = int.Parse( elem.GetAttribute("rcid") );
-				change.OldRevisionID = int.Parse( elem.GetAttribute("old_revid") );
-				change.RevisionID = int.Parse( elem.GetAttribute("revid") );
-				change.Bot = elem.HasAttribute( "bot" );
-				change.Minor = elem.HasAttribute( "minor" );
-				change.New = elem.HasAttribute( "new" );
-				change.OldSize = int.Parse( elem.GetAttribute( "oldlen" ) );
-				change.NewSize = int.Parse( elem.GetAttribute( "newlen" ) );
-				change.User = elem.GetAttribute( "user" );
-				change.Time = DateTime.Parse(elem.GetAttribute("timestamp")).ToUniversalTime();
-				if( elem.HasAttribute( "comment" ) )
-					change.Comment = elem.GetAttribute( "comment" );
-				else
-					change.Comment = "";
-				changes.Add(change);
+			foreach( XmlNode node in nodes ) 
+			{
+				changes.Add(ParseReventChange((XmlElement)node));
 			}
 			return changes.ToArray();
+		}
+
+		private static RecentChange ParseReventChange(XmlElement element) 
+		{
+			RecentChange result = new RecentChange();
+			result.Type = (RecentChangeType)Enum.Parse(typeof(RecentChangeType), element.GetAttribute("type"), true);
+			result.Page = element.Attributes["title"].Value;
+			result.RCID = int.Parse(element.GetAttribute("rcid"));
+			result.OldRevisionID = int.Parse(element.GetAttribute("old_revid"));
+			result.RevisionID = int.Parse(element.GetAttribute("revid"));
+			result.Bot = element.HasAttribute("bot");
+			result.Minor = element.HasAttribute("minor");
+			result.New = element.HasAttribute("new");
+			result.OldSize = int.Parse(element.GetAttribute("oldlen"));
+			result.NewSize = int.Parse(element.GetAttribute("newlen"));
+			result.User = element.GetAttribute("user");
+			result.Time = DateTime.Parse(element.GetAttribute("timestamp")).ToUniversalTime();
+			if(element.HasAttribute("comment"))
+				result.Comment = element.GetAttribute("comment");
+			else
+				result.Comment = "";
+			return result;
 		}
 		
 		public event EditEventHandler OnEdit;
