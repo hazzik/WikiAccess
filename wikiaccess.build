@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<project name="WikiAccess"
+			default="build"
+			xmlns="http://nant.sf.net/nightly/2008-06-02-0.86/nant.xsd">
+	<target name="build">
+		<csc target="library"
+			  output="bin/wikiaccess.dll"
+			  doc="bin/wikiaccess.xml">
+			<nowarn>
+				<warning number="1591"/>
+			</nowarn>
+			<sources>
+				<include name="**/*.cs"/>
+			</sources>
+			<references>
+				<include name="System.dll" />
+				<include name="System.Xml.dll" />
+				<include name="System.Web.dll" />
+			</references>
+		</csc>
+	</target>
+</project>
