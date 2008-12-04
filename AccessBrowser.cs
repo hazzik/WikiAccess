@@ -103,11 +103,12 @@ namespace WikiTools.Access
 		public string DownloadPageFullUrl(string pgname)
 		{
 			HttpWebRequest rq = CreateGetRequest(pgname);
-			string result = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			string result = ReadAllText(rq.GetResponse().GetResponseStream());
 			cpagename = pgname;
 			cpagetext = result;
 			return result;
 		}
+
 
 		/// <summary>
 		/// Sends a HTTP request using POST method and multipart/form-data content type
@@ -137,8 +138,9 @@ namespace WikiTools.Access
 			rq.ContentLength = Encoding.UTF8.GetByteCount(postdata);
 			Stream str = rq.GetRequestStream();
 			str.Write(Encoding.UTF8.GetBytes(postdata), 0, Encoding.UTF8.GetByteCount(postdata));
+			
 			HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
-			string result = new StreamReader(resp.GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			string result = ReadAllText(resp.GetResponseStream());
 			cookiesGotInLastQuery = resp.Cookies;
 			return result;
 		}
@@ -191,14 +193,22 @@ namespace WikiTools.Access
 		{
 			HttpWebRequest rq = CreateGetRequest(pgname);
 
-			int cbyte; Stream rpstream = rq.GetResponse().GetResponseStream();
+			return ReadAllBytes(rq.GetResponse().GetResponseStream());
+		}
 
+		private static byte[] ReadAllBytes(Stream stream) 
+		{
+			int cbyte;
 			List<Byte> result = new List<byte>();
-			while ((cbyte = rpstream.ReadByte()) != -1)
-			{
+			while((cbyte = stream.ReadByte()) != -1) {
 				result.Add((byte)cbyte);
 			}
 			return result.ToArray();
+		}
+		
+		private static string ReadAllText(Stream stream) 
+		{
+			return new StreamReader(stream, Encoding.UTF8).ReadToEnd();
 		}
 
 		#region IDisposable Members
