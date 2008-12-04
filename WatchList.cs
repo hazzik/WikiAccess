@@ -52,8 +52,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadPages()
 		{
-			ab.PageName = "index.php?title=Special:Watchlist/edit";
-			string resp = ab.PageText;
+			string resp = ab.DownloadPage("index.php?title=Special:Watchlist/edit");
 			MatchCollection mc = Regex.Matches(resp, "<input type=\"checkbox\" name=\"id\\[\\]\" value=\"(.*?)\" />", RegexOptions.IgnoreCase);
 			List<String> result = new List<string>();
 			foreach (Match cmatch in mc)

@@ -139,8 +139,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadRedirectsOn()
 		{
-			ab.PageName = "index.php?redirect=no&title=" + ab.EncodeUrl(name);
-			string pgtext = ab.PageText;
+			string pgtext = ab.DownloadPage("index.php?redirect=no&title=" + ab.EncodeUrl(name));
 			redirectsOnLoaded = true;
 			if (!Regexes.HTMLRedirect.Match(pgtext).Success)
 			{
@@ -661,7 +660,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Purge()
 		{
-			ab.PageName = "index.php?action=purge&title=" + ab.EncodeUrl(name);
+			ab.DownloadPage("index.php?action=purge&title=" + ab.EncodeUrl(name));
 		}
 
 		/// <summary>
@@ -727,7 +726,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Watch()
 		{
-			ab.PageName = "index.php?action=watch&title=" + name;
+			ab.DownloadPage("index.php?action=watch&title=" + name);
 		}
 
 		/// <summary>
@@ -735,7 +734,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Unwatch()
 		{
-			ab.PageName = "index.php?action=unwatch&title=" + name;
+			ab.DownloadPage("index.php?action=unwatch&title=" + name);
 		}
 
 		#endregion
