@@ -48,6 +48,7 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Allows to change current page
 		/// </summary>
+		[Obsolete]
 		public string PageName
 		{
 			get
@@ -76,6 +77,7 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Current page text
 		/// </summary>
+		[Obsolete]
 		public string PageText
 		{
 			get
