@@ -31,7 +31,6 @@ namespace WikiTools.Access
 	{
 		string wikiURI;
 		internal AccessBrowser ab;
-		internal CookieContainer cookies;
 		MessageCache mcache;
 		string mcachepath, nscachepath, capacachepath;
 		internal Namespaces ns;
@@ -63,7 +62,7 @@ namespace WikiTools.Access
 		public Wiki(string uri, string cachedir)
 		{
 			wikiURI = uri;
-			ab = new AccessBrowser(this);
+			ab = new AccessBrowser(uri);
 			mcachepath = cachedir + "/" + MessageCache.MkName(uri);
 			nscachepath = cachedir + "/" + Namespaces.MkName(uri);
 			capacachepath = cachedir + "/" + new Uri(uri).Host + ".capabilities";
@@ -85,7 +84,6 @@ namespace WikiTools.Access
 				capabilities = LoadCapabilities();
 				File.WriteAllText(capacachepath, capabilities.ToString());
 			}
-			cookies = new CookieContainer();
 		}
 
 		#region Login Functions
@@ -104,7 +102,6 @@ namespace WikiTools.Access
 			data.Add("wpRemember", "1");
 			data.Add("wpLoginAttempt", mcache["login"]);
 			ab.PostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login", data);
-			cookies.Add(ab.cookiesGotInLastQuery);
 			if (cu != null)
 				LoadCurrentUserInfo();
 			return ab.IsLoggedIn();
@@ -115,7 +112,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Logout()
 		{
-			cookies = new CookieContainer();
+			ab.ClearCookies();
 		}
 
 		/// <summary>
