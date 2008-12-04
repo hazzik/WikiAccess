@@ -71,7 +71,7 @@ namespace WikiTools.Access
 		public static T[] RemoveDuplicates<T>(T[] list)
 		{
 			List<T> lst = new List<T>(list);
-			lst = RemoveDuplicates<T>(lst);
+			lst = RemoveDuplicates(lst);
 			return lst.ToArray();
 		}
 
@@ -159,5 +159,19 @@ namespace WikiTools.Access
             return builder.ToString();
         }
 
+		public static byte[] ReadAllBytes(Stream stream) 
+		{
+			int cbyte;
+			List<Byte> result = new List<byte>();
+			while((cbyte = stream.ReadByte()) != -1) {
+				result.Add((byte)cbyte);
+			}
+			return result.ToArray();
+		}
+
+		public static string ReadAllText(Stream stream) 
+		{
+			return new StreamReader(stream, Encoding.UTF8).ReadToEnd();
+		}
 	}
 }

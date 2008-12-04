@@ -105,7 +105,7 @@ namespace WikiTools.Access
 		public string DownloadPageFullUrl(string pgname)
 		{
 			HttpWebRequest rq = CreateGetRequest(pgname);
-			string result = ReadAllText(rq.GetResponse().GetResponseStream());
+			string result = Utils.ReadAllText(rq.GetResponse().GetResponseStream());
 			cpagename = pgname;
 			cpagetext = result;
 			return result;
@@ -142,7 +142,7 @@ namespace WikiTools.Access
 			str.Write(Encoding.UTF8.GetBytes(postdata), 0, Encoding.UTF8.GetByteCount(postdata));
 			
 			HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
-			string result = ReadAllText(resp.GetResponseStream());
+			string result = Utils.ReadAllText(resp.GetResponseStream());
 			cookies.Add(resp.Cookies);
 			return result;
 		}
@@ -195,22 +195,7 @@ namespace WikiTools.Access
 		{
 			HttpWebRequest rq = CreateGetRequest(pgname);
 
-			return ReadAllBytes(rq.GetResponse().GetResponseStream());
-		}
-
-		private static byte[] ReadAllBytes(Stream stream) 
-		{
-			int cbyte;
-			List<Byte> result = new List<byte>();
-			while((cbyte = stream.ReadByte()) != -1) {
-				result.Add((byte)cbyte);
-			}
-			return result.ToArray();
-		}
-		
-		private static string ReadAllText(Stream stream) 
-		{
-			return new StreamReader(stream, Encoding.UTF8).ReadToEnd();
+			return Utils.ReadAllBytes(rq.GetResponse().GetResponseStream());
 		}
 
 		public void ClearCookies() 
