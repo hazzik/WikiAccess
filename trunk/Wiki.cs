@@ -265,7 +265,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void ReadNewMessages()
 		{
-			ab.PageName = "index.php?title=Special:Mytalk";
+			ab.DownloadPage("index.php?title=Special:Mytalk");
 		}
 		
 		/// <summary>
