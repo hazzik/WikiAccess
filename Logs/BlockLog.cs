@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 using System.Xml;
 
 namespace WikiTools.Access
@@ -21,7 +22,7 @@ namespace WikiTools.Access
 		public void Load(string adminname)
 		{
 			string pg = ab.DownloadPage("api.php?action=query&list=logevents&letype=block&leuser=" 
-				+ ab.EncodeUrl(adminname) + "&lelimit=500&format=xml");
+				+ HttpUtility.UrlEncode(adminname) + "&lelimit=500&format=xml");
 			LoadFromXML(pg);
 			for (; ; )
 			{

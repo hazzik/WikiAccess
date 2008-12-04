@@ -1,4 +1,4 @@
-﻿/**********************************************************************************
+/**********************************************************************************
  * Revision type of WikiAccess Library                                            *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 
 namespace WikiTools.Access
 {
@@ -63,7 +64,7 @@ namespace WikiTools.Access
 		public string GetContent()
 		{
 			AccessBrowser ab = Wiki.ab;
-			return ab.DownloadPage("index.php?action=raw&title=" + ab.EncodeUrl(Page) + "&oldid=" + ID);
+			return ab.DownloadPage("index.php?action=raw&title=" + HttpUtility.UrlEncode(Page) + "&oldid=" + ID);
 		}
 
 		/// <summary>

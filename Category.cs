@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml;
 
 namespace WikiTools.Access
@@ -54,7 +55,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Load()
 		{
-			string text = ab.DownloadPage("api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + ab.EncodeUrl(name));
+			string text = ab.DownloadPage("api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + HttpUtility.UrlEncode(name));
 			List<string> subcats_tmp = new List<string>();
 			List<string> pages_tmp = new List<string>();
 			string cmcontinue;
@@ -66,7 +67,7 @@ namespace WikiTools.Access
 				pages_tmp.AddRange(cur_pages);
 				if (!String.IsNullOrEmpty(cmcontinue)) {
 					text = ab.DownloadPage("api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
-					                       ab.EncodeUrl(name) + "&cmcontinue=" + ab.EncodeUrl(cmcontinue));
+					                       HttpUtility.UrlEncode(name) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue));
 				}
 				else break;
 			} while (true);

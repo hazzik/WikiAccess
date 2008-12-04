@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 using System.Xml;
 
 namespace WikiTools.Access
@@ -60,7 +61,7 @@ namespace WikiTools.Access
 			for (int i = 0; i < walks_count; i++)
 			{
 				rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
-					+ "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID;
+					+ "&apfrom=" + HttpUtility.UrlEncode(next) + "&apnamespace=" + namespaceID;
 				result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
 				if (String.IsNullOrEmpty(next)) return result.ToArray();
 			}
@@ -68,7 +69,7 @@ namespace WikiTools.Access
 			{
 				rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=" + adittional_walk + 
 					"&apfilterredir=" + filter.ToString().ToLower()
-					+ "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID;
+					+ "&apfrom=" + HttpUtility.UrlEncode(next) + "&apnamespace=" + namespaceID;
 				result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
 			}
 			return result.ToArray();
@@ -110,7 +111,7 @@ namespace WikiTools.Access
 			do
 			{
 				rq_uri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
-					+ "&apfrom=" + ab.EncodeUrl(next) + "&apnamespace=" + namespaceID + "&apprefix=" + prefix;
+					+ "&apfrom=" + HttpUtility.UrlEncode(next) + "&apnamespace=" + namespaceID + "&apprefix=" + prefix;
 				result.AddRange(ParseAllPages(ab.DownloadPage(rq_uri), out next));
 			} while (!String.IsNullOrEmpty(next));
 			return result.ToArray();
