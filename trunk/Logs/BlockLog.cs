@@ -40,16 +40,22 @@ namespace WikiTools.Access
 			foreach (XmlNode cnode in root.ChildNodes)
 			{
 				if (!(cnode.NodeType == XmlNodeType.Element && ((XmlElement)cnode).Name == "item")) continue;
-				XmlElement celem = (XmlElement)cnode;
-				BlockLogEntry centry = new BlockLogEntry();
-				centry.Action = StringToBlockAction(celem.Attributes["action"].Value);
-				centry.BlockedBy = celem.Attributes["user"].Value;
-				centry.BlockTime = DateTime.Parse(celem.Attributes["timestamp"].Value).ToUniversalTime();
-				if (centry.Action == BlockAction.Block) centry.Duration = celem.FirstChild.FirstChild.Value;
-				centry.UserName = celem.Attributes["title"].Value.Split(new char[] { ":"[0] }, 2)[1];
-				if (celem.HasAttribute("comment")) centry.Comment = celem.Attributes["comment"].Value;
-				entries.Add(centry);
+				entries.Add(ParseBlockLogEntry((XmlElement)cnode));
 			}
+		}
+
+		private BlockLogEntry ParseBlockLogEntry(XmlElement element) 
+		{
+			BlockLogEntry result = new BlockLogEntry();
+			result.Action = StringToBlockAction(element.Attributes["action"].Value);
+			result.BlockedBy = element.Attributes["user"].Value;
+			result.BlockTime = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
+			if(result.Action == BlockAction.Block)
+				result.Duration = element.FirstChild.FirstChild.Value;
+			result.UserName = element.Attributes["title"].Value.Split(new char[] { ":"[0] }, 2)[1];
+			if(element.HasAttribute("comment"))
+				result.Comment = element.Attributes["comment"].Value;
+			return result;
 		}
 
 		private BlockAction StringToBlockAction(String str)
