@@ -1,4 +1,4 @@
-﻿/**********************************************************************************
+/**********************************************************************************
  * Category class of WikiAccess Library                                           *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
@@ -54,19 +54,20 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Load()
 		{
-			ab.PageName = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + ab.EncodeUrl(name);
+			string text = ab.DownloadPage("api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + ab.EncodeUrl(name));
 			List<string> subcats_tmp = new List<string>();
 			List<string> pages_tmp = new List<string>();
 			string cmcontinue;
 			do
 			{
 				string[] cur_subcats, cur_pages;
-				cmcontinue = ExtractCategoriesFromXML(ab.PageText, out cur_subcats, out cur_pages);
+				cmcontinue = ExtractCategoriesFromXML(text, out cur_subcats, out cur_pages);
 				subcats_tmp.AddRange(cur_subcats);
 				pages_tmp.AddRange(cur_pages);
-				if (!String.IsNullOrEmpty(cmcontinue))
-					ab.PageName = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + ab.EncodeUrl(name)
-						+ "&cmcontinue=" + ab.EncodeUrl(cmcontinue);
+				if (!String.IsNullOrEmpty(cmcontinue)) {
+					text = ab.DownloadPage("api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
+					                       ab.EncodeUrl(name) + "&cmcontinue=" + ab.EncodeUrl(cmcontinue));
+				}
 				else break;
 			} while (true);
 			loaded = true;
