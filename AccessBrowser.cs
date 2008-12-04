@@ -31,18 +31,18 @@ namespace WikiTools.Access
 	/// </summary>
 	public class AccessBrowser : IDisposable
 	{
-		Wiki wiki;
-		string cpagename = "";
-		string cpagetext = "";
-		internal CookieCollection cookiesGotInLastQuery = new CookieCollection();
+		private string cpagename = "";
+		private string cpagetext = "";
+		private CookieContainer cookies = new CookieContainer();
+		private string baseUri;
 
 		/// <summary>
-		/// Initializes new instance of AccessBrowser
+		/// Initializes new instance of AccessBrowser for the specified URI
 		/// </summary>
-		/// <param name="wiki">Wiki to work with</param>
-		public AccessBrowser(Wiki wiki)
+		/// <param name="uri">Uniform Resource Identifier</param>
+		public AccessBrowser(string uri) 
 		{
-			this.wiki = wiki;
+			this.baseUri = uri;
 		}
 
 		/// <summary>
@@ -91,7 +91,7 @@ namespace WikiTools.Access
 		/// <returns>Page content</returns>
 		public string DownloadPage(string pgname)
 		{
-			return DownloadPageFullUrl(wiki.WikiURI + "/" + pgname);
+			return DownloadPageFullUrl(baseUri + "/" + pgname);
 		}
 
 
@@ -118,7 +118,7 @@ namespace WikiTools.Access
 		/// <returns>HTTP response</returns>
 		public string PostQuery(string pgname, IDictionary<string, string> data) 
 		{
-			string result = PostQueryFullUrl(wiki.WikiURI + "/" + pgname, data);
+			string result = PostQueryFullUrl(baseUri + "/" + pgname, data);
 			cpagename = pgname;
 			return cpagetext = result;
 		}
@@ -141,7 +141,7 @@ namespace WikiTools.Access
 			
 			HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
 			string result = ReadAllText(resp.GetResponseStream());
-			cookiesGotInLastQuery = resp.Cookies;
+			cookies.Add(resp.Cookies);
 			return result;
 		}
 
@@ -151,7 +151,7 @@ namespace WikiTools.Access
 			result.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
 			result.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			result.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			result.CookieContainer = wiki.cookies;
+			result.CookieContainer = cookies;
 			return result;
 		}
 
@@ -180,7 +180,7 @@ namespace WikiTools.Access
 
 		public byte[] DownloadBinary(string pgname)
 		{
-			return DownloadBinaryFullUrl(wiki.WikiURI + "/" + pgname);
+			return DownloadBinaryFullUrl(baseUri + "/" + pgname);
 		}
 
 		/// <summary>
@@ -211,6 +211,11 @@ namespace WikiTools.Access
 			return new StreamReader(stream, Encoding.UTF8).ReadToEnd();
 		}
 
+		public void ClearCookies() 
+		{
+			cookies = new CookieContainer();
+		}
+
 		#region IDisposable Members
 
 		/// <summary>
@@ -224,6 +229,15 @@ namespace WikiTools.Access
 		#endregion
 
 		#region Obsolete members, can be deleted anytime
+
+		/// <summary>
+		/// Initializes new instance of AccessBrowser
+		/// </summary>
+		/// <param name="wiki">Wiki to work with</param>
+		[Obsolete("Please use constructor with string argument")]
+		public AccessBrowser(Wiki wiki)
+			: this(wiki.WikiURI) {
+		}
 
 		/// <summary>
 		/// Parses API timestamp

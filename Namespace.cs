@@ -113,9 +113,8 @@ namespace WikiTools.Access
 		/// <returns>Namespace ID:Name list</returns>
 		public static SortedList<int, string> GetNamespaces(Wiki wiki)
 		{
-			string uri = wiki.WikiURI + "/api.php?action=query&meta=siteinfo&siprop=namespaces&format=xml";
-			WebRequest rq = WebRequest.Create(uri);
-			string str = new StreamReader(rq.GetResponse().GetResponseStream(), Encoding.UTF8).ReadToEnd();
+			string str = wiki.ab.DownloadPage("api.php?action=query&meta=siteinfo&siprop=namespaces&format=xml");
+
 			SortedList<int, string> result = new SortedList<int, string>();
 			result.Add(0, "");
 			MatchCollection matches = NamespaceFromMeta.Matches(str);
