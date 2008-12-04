@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using System.Xml;
 
 namespace WikiTools.Access
@@ -57,7 +58,7 @@ namespace WikiTools.Access
 		public byte[] Download()
 		{
 			if (wiki.Capabilities.HasFilePath)
-				return ab.DownloadBinary("index.php?title=Special:Filepath/" + ab.EncodeUrl(name));
+				return ab.DownloadBinary("index.php?title=Special:Filepath/" + HttpUtility.UrlEncode(name));
 			else
 				return CurrentRevision.Download();
 		}
@@ -68,7 +69,7 @@ namespace WikiTools.Access
 		public void LoadInfo()
 		{
 			string page_text 
-				= ab.DownloadPage("api.php?action=query&prop=imageinfo&titles=Image:" + ab.EncodeUrl(name) +
+				= ab.DownloadPage("api.php?action=query&prop=imageinfo&titles=Image:" + HttpUtility.UrlEncode(name) +
 				"&iiprop=timestamp|user|comment|url|size|sha1&iihistory&format=xml");
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml(page_text);

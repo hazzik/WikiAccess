@@ -32,6 +32,9 @@ namespace WikiTools.Access
 		private string cpagetext = "";
 		private CookieContainer cookies = new CookieContainer();
 		private string baseUri;
+		public string BaseUri {
+			get { return baseUri; }
+		}
 
 		/// <summary>
 		/// Initializes new instance of AccessBrowser for the specified URI
@@ -88,7 +91,7 @@ namespace WikiTools.Access
 		[Obsolete("Please use instance of GetQuery class instead")]
 		public string DownloadPage(string pgname)
 		{
-			return DownloadPageFullUrl(baseUri + "/" + pgname);
+			return DownloadPageFullUrl(BaseUri + "/" + pgname);
 		}
 
 
@@ -114,13 +117,13 @@ namespace WikiTools.Access
 		public string PostQuery(string pgname, IDictionary<string, string> data) 
 		{
 			cpagename = pgname;
-			return cpagetext = CreatePostQuery(baseUri + "/" + pgname, data).DownloadText();
+			return cpagetext = CreatePostQuery(BaseUri + "/" + pgname, data).DownloadText();
 		}
 
 		[Obsolete("Please use instance of GetQuery class instead")]
 		public byte[] DownloadBinary(string pgname)
 		{
-			return DownloadBinaryFullUrl(baseUri + "/" + pgname);
+			return DownloadBinaryFullUrl(BaseUri + "/" + pgname);
 		}
 
 		/// <summary>

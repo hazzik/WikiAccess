@@ -1,4 +1,4 @@
-﻿/**********************************************************************************
+/**********************************************************************************
  * User class of WikiAccess Library                                               *
  * Copyright (C) 2007 Vasiliev V. V.                                              *
  *                                                                                *
@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml;
 
 namespace WikiTools.Access
@@ -57,7 +58,7 @@ namespace WikiTools.Access
 		{
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml(ab.DownloadPage("api.php?format=xml&action=query&&list=allusers&aulimit=1&auprop=editcount|groups&aufrom="
-				+ ab.EncodeUrl(name)));
+				+ HttpUtility.UrlEncode(name)));
 			if (doc.GetElementsByTagName("u").Count < 1) throw new WikiPageNotFoundExcecption();
 			XmlElement u = (XmlElement)doc.GetElementsByTagName("u")[0];
 			if (u.Attributes["name"].Value != name) throw new WikiPageNotFoundExcecption();

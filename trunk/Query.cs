@@ -8,9 +8,9 @@ namespace WikiTools.Web
 {
 	public abstract class Query 
 	{
-		protected string _uri;
-		protected IDictionary<string, string> _data;
-		protected CookieContainer _cookies;
+		protected readonly string _uri;
+		protected readonly IDictionary<string, string> _data;
+		protected readonly CookieContainer _cookies;
 
 		protected Query(string uri)
 			: this(uri, new CookieContainer()) 
