@@ -17,12 +17,9 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
-using System.Xml;
+using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -42,28 +39,37 @@ namespace WikiTools.Access
 		/// <param name="uri">Uniform Resource Identifier</param>
 		public AccessBrowser(string uri) 
 		{
-			this.baseUri = uri;
+			baseUri = uri;
 		}
 
-		/// <summary>
-		/// Allows to change current page
-		/// </summary>
-		[Obsolete]
-		public string PageName
-		{
-			get
-			{
-				return cpagename;
-			}
-			set
-			{
-				if (cpagename != value)
-				{
-					cpagename = value;
-					cpagetext = DownloadPage(value);
-				}
-			}
+		public void ClearCookies() {
+			cookies = new CookieContainer();
 		}
+
+		public Query CreateGetQuery(string uri) {
+			return new GetQuery(uri, cookies);
+		}
+
+		public Query CreatePostQuery(string uri) {
+			return new PostQuery(uri, cookies);
+		}
+
+		public Query CreatePostQuery(string uri, IDictionary<string, string> data) {
+			return new PostQuery(uri, cookies, data);
+		}
+
+		#region IDisposable Members
+
+		/// <summary>
+		/// Release WebBrowser control
+		/// </summary>
+		public void Dispose() {
+			//wb.Dispose();
+		}
+
+		#endregion
+
+		#region Obsolete members, can be deleted anytime
 
 		/// <summary>
 		/// Checks if we are currently logged in
@@ -75,22 +81,11 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Current page text
-		/// </summary>
-		[Obsolete]
-		public string PageText
-		{
-			get
-			{
-				return cpagetext;
-			}
-		}
-
-		/// <summary>
 		/// Downloads page via WebRequest
 		/// </summary>
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
+		[Obsolete("Please use instance of GetQuery class instead")]
 		public string DownloadPage(string pgname)
 		{
 			return DownloadPageFullUrl(baseUri + "/" + pgname);
@@ -102,15 +97,12 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="pgname">URL</param>
 		/// <returns>Page content</returns>
+		[Obsolete("Please use instance of GetQuery class instead")]
 		public string DownloadPageFullUrl(string pgname)
 		{
-			HttpWebRequest rq = CreateGetRequest(pgname);
-			string result = Utils.ReadAllText(rq.GetResponse().GetResponseStream());
 			cpagename = pgname;
-			cpagetext = result;
-			return result;
+			return cpagetext = CreateGetQuery(pgname).DownloadText();
 		}
-
 
 		/// <summary>
 		/// Sends a HTTP request using POST method and multipart/form-data content type
@@ -118,68 +110,14 @@ namespace WikiTools.Access
 		/// <param name="pgname">Page name</param>
 		/// <param name="data">Post data</param>
 		/// <returns>HTTP response</returns>
+		[Obsolete("Please use instance of PostQuery class instead")]
 		public string PostQuery(string pgname, IDictionary<string, string> data) 
 		{
-			string result = PostQueryFullUrl(baseUri + "/" + pgname, data);
 			cpagename = pgname;
-			return cpagetext = result;
-		}
-		
-		//TODO: need refactor this, via "replace method with method object" refactoring
-		private string PostQueryFullUrl(string uri, IDictionary<string, string> data) 
-		{
-			HttpWebRequest rq = CreatePostRequest(uri);
-			string boundary = CreateBoundary(); //TODO: introduce field
-			rq.ContentType = "multipart/form-data; boundary=" + boundary;
-
-			string postdata = "";
-			foreach(KeyValuePair<string, string> kvp in data) {
-				postdata += CommitValue(boundary, kvp.Key, kvp.Value);
-			}
-			postdata = postdata.Substring(0, postdata.Length - 2);
-			rq.ContentLength = Encoding.UTF8.GetByteCount(postdata);
-			Stream str = rq.GetRequestStream();
-			str.Write(Encoding.UTF8.GetBytes(postdata), 0, Encoding.UTF8.GetByteCount(postdata));
-			
-			HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
-			string result = Utils.ReadAllText(resp.GetResponseStream());
-			cookies.Add(resp.Cookies);
-			return result;
+			return cpagetext = CreatePostQuery(baseUri + "/" + pgname, data).DownloadText();
 		}
 
-		private HttpWebRequest CreateGetRequest(string uri) 
-		{
-			HttpWebRequest result = (HttpWebRequest)WebRequest.Create(uri);
-			result.UserAgent = "WikiAccess library v" + Utils.Version.ToString();
-			result.Proxy.Credentials = CredentialCache.DefaultCredentials;
-			result.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			result.CookieContainer = cookies;
-			return result;
-		}
-
-		private HttpWebRequest CreatePostRequest(string uri) 
-		{
-			HttpWebRequest result = CreateGetRequest(uri);
-			result.AllowAutoRedirect = false;
-			result.Method = "POST";
-			return result;
-		}
-
-		private static string CommitValue(string boundary, string key, string value) 
-		{
-			string result = "--" + boundary + "\r\n";
-			result += "Content-Disposition: form-data; name=\"" + key + "\"\r\n";
-			result += "Content-Type: text/plain; charset=utf-8\r\n";
-			result += "\r\n";
-			result += value + "\r\n";
-			return result;
-		}
-
-		private static string CreateBoundary() 
-		{
-			return "-------" + Image.CalculateMD5Hash(Rnd.RandomBytes(1024));
-		}
-
+		[Obsolete("Please use instance of GetQuery class instead")]
 		public byte[] DownloadBinary(string pgname)
 		{
 			return DownloadBinaryFullUrl(baseUri + "/" + pgname);
@@ -191,31 +129,30 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
+		[Obsolete("Please use instance of GetQuery class instead")]
 		public byte[] DownloadBinaryFullUrl(string pgname)
 		{
-			HttpWebRequest rq = CreateGetRequest(pgname);
-
-			return Utils.ReadAllBytes(rq.GetResponse().GetResponseStream());
+			return CreateGetQuery(pgname).DownloadBinary();
 		}
-
-		public void ClearCookies() 
-		{
-			cookies = new CookieContainer();
-		}
-
-		#region IDisposable Members
 
 		/// <summary>
-		/// Release WebBrowser control
+		/// Allows to change current page
 		/// </summary>
-		public void Dispose()
-		{
-			//wb.Dispose();
+		[Obsolete]
+		public string PageName {
+			get { return cpagename; }
+			set { DownloadPage(value); }
 		}
 
-		#endregion
-
-		#region Obsolete members, can be deleted anytime
+		/// <summary>
+		/// Current page text
+		/// </summary>
+		[Obsolete]
+		public string PageText {
+			get {
+				return cpagetext;
+			}
+		}
 
 		/// <summary>
 		/// Initializes new instance of AccessBrowser
@@ -248,5 +185,6 @@ namespace WikiTools.Access
 		}
 
 		#endregion
+
 	}
 }
