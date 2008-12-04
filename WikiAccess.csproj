@@ -9,9 +9,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WikiTools.Access</RootNamespace>
     <AssemblyName>WikiAccess</AssemblyName>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>wikiaccess.snk</AssemblyOriginatorKeyFile>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
@@ -94,6 +93,7 @@
     <None Include="COPYING" />
     <None Include="HISTORY" />
     <None Include="RELEASE-NOTES" />
+    <None Include="wikiaccess.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

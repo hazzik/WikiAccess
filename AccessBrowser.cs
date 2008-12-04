@@ -85,16 +85,6 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Encodes URL
-		/// </summary>
-		/// <param name="str">String to encode</param>
-		/// <returns>Encoded URL</returns>
-		public string EncodeUrl(string str)
-		{
-			return HttpUtility.UrlEncode(str);
-		}
-
-		/// <summary>
 		/// Downloads page via WebRequest
 		/// </summary>
 		/// <param name="pgname">Page name</param>
@@ -125,11 +115,18 @@ namespace WikiTools.Access
 		/// <param name="pgname">Page name</param>
 		/// <param name="data">Post data</param>
 		/// <returns>HTTP response</returns>
-		//TODO: need refactor this, via "replace method with class method" refactoring
-		public string PostQuery(string pgname, Dictionary<string, string> data) 
+		public string PostQuery(string pgname, IDictionary<string, string> data) 
 		{
-			HttpWebRequest rq = CreatePostRequest(wiki.WikiURI + "/" + pgname);
-			string boundary = CreateBoundary();
+			string result = PostQueryFullUrl(wiki.WikiURI + "/" + pgname, data);
+			cpagename = pgname;
+			return cpagetext = result;
+		}
+		
+		//TODO: need refactor this, via "replace method with method object" refactoring
+		private string PostQueryFullUrl(string uri, IDictionary<string, string> data) 
+		{
+			HttpWebRequest rq = CreatePostRequest(uri);
+			string boundary = CreateBoundary(); //TODO: introduce field
 			rq.ContentType = "multipart/form-data; boundary=" + boundary;
 
 			string postdata = "";
@@ -143,8 +140,6 @@ namespace WikiTools.Access
 			HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
 			string result = new StreamReader(resp.GetResponseStream(), Encoding.UTF8).ReadToEnd();
 			cookiesGotInLastQuery = resp.Cookies;
-			cpagename = pgname;
-			cpagetext = result;
 			return result;
 		}
 
@@ -218,15 +213,29 @@ namespace WikiTools.Access
 
 		#endregion
 
+		#region Obsolete members, can be deleted anytime
+
 		/// <summary>
 		/// Parses API timestamp
 		/// </summary>
 		/// <param name="p">API timestamp in string</param>
 		/// <returns>Result in DateTime</returns>
-		[Obsolete("Please use DateTime.Parse(p).ToUniversalTime() instead.")]
+		[Obsolete("Please use DateTime.Parse(time).ToUniversalTime() instead.")]
 		public DateTime ParseAPITimestamp(string p)
 		{
 			return DateTime.Parse(p).ToUniversalTime();
 		}
+
+		/// <summary>
+		/// Encodes URL
+		/// </summary>
+		/// <param name="str">String to encode</param>
+		/// <returns>Encoded URL</returns>
+		[Obsolete("Please use HttpUtility.UrlEncode(url) instead")]
+		public string EncodeUrl(string str) {
+			return HttpUtility.UrlEncode(str);
+		}
+
+		#endregion
 	}
 }
