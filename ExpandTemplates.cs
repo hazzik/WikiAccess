@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Xml.XPath;
+using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -27,21 +28,19 @@ namespace WikiTools.Access
 	{
 		private string ExpandTemplatesOrRender(string action, string text, string pagetitle)
 		{
-			Dictionary<string, string> postData = new Dictionary<string, string>();
-			postData.Add("action", action);
-			postData.Add("format", "xml");
-			postData.Add("text", text);
-			postData.Add("title", pagetitle);
-			
-			string response = ab.PostQuery("api.php", postData);
+			Query query = ab.CreatePostQuery("api.php")
+				.Add("format", "xml")
+				.Add("action", action)
+				.Add("title", pagetitle)
+				.Add("text", text);
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(response);
+			doc.Load(query.GetResponseStream());
 			XPathNodeIterator xpni = (XPathNodeIterator)doc.CreateNavigator().Evaluate("/api/" + action);
 			foreach (XPathItem i in xpni)
 				return i.Value;
 			return null;
 		}
-		
+
 		public string ExpandTemplates(string text, string pagetitle)
 		{
 			return ExpandTemplatesOrRender("expandtemplates", text, pagetitle);

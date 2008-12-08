@@ -25,10 +25,9 @@ namespace WikiTools.Access
 	partial class Wiki
 	{
 		private WikiCapabilities LoadCapabilities()
-		{	
-			string vesionPage = ab.DownloadPage("index.php?title=Special:Version");
-
-			return ParseWikiCapabilities(vesionPage);
+		{
+			string page = "index.php?title=Special:Version";
+			return ParseWikiCapabilities(ab.CreateGetQuery(page).DownloadText());
 		}
 
 		private static WikiCapabilities ParseWikiCapabilities(string vesionPage) 

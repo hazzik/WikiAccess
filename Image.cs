@@ -68,11 +68,10 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadInfo()
 		{
-			string page_text 
-				= ab.DownloadPage("api.php?action=query&prop=imageinfo&titles=Image:" + HttpUtility.UrlEncode(name) +
-				"&iiprop=timestamp|user|comment|url|size|sha1&iihistory&format=xml");
+			string pgname = "api.php?action=query&prop=imageinfo&titles=Image:" + HttpUtility.UrlEncode(name) +
+			                "&iiprop=timestamp|user|comment|url|size|sha1&iihistory&format=xml";
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(page_text);
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlElement pageelem = (XmlElement)doc.GetElementsByTagName("page")[0];
 			existsLocaly = !pageelem.HasAttribute("missing");
 			repotype = ParseRepoType(pageelem.Attributes["imagerepository"].Value);

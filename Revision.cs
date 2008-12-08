@@ -63,8 +63,8 @@ namespace WikiTools.Access
 		/// <returns>Revision</returns>
 		public string GetContent()
 		{
-			AccessBrowser ab = Wiki.ab;
-			return ab.DownloadPage("index.php?action=raw&title=" + HttpUtility.UrlEncode(Page) + "&oldid=" + ID);
+			string pgname = "index.php?action=raw&title=" + HttpUtility.UrlEncode(Page) + "&oldid=" + ID;
+			return Wiki.ab.CreateGetQuery(pgname).DownloadText();
 		}
 
 		/// <summary>

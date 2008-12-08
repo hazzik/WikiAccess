@@ -21,6 +21,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Web;
+using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -96,12 +97,12 @@ namespace WikiTools.Access
 		/// <returns>Succes</returns>
 		public bool Login(string username, string password)
 		{
-			Dictionary<string, string> data = new Dictionary<string, string>();
-			data.Add("wpName", username);
-			data.Add("wpPassword", password);
-			data.Add("wpRemember", "1");
-			data.Add("wpLoginAttempt", mcache["login"]);
-			ab.PostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login", data);
+			Query query = ab.CreatePostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login")
+				.Add("wpName", username)
+				.Add("wpPassword", password)
+				.Add("wpRemember", "1")
+				.Add("wpLoginAttempt", mcache["login"]);
+			query.DownloadText();
 			if (cu != null)
 				LoadCurrentUserInfo();
 			return ab.IsLoggedIn();
@@ -192,7 +193,7 @@ namespace WikiTools.Access
 			get
 			{
 				Statistics result = new Statistics();
-				string statstr = ab.DownloadPage("index.php?title=Special:Statistics&action=raw");
+				string statstr = ab.CreateGetQuery("index.php?title=Special:Statistics&action=raw").DownloadText();
 				string[] _stats = statstr.Split(';');
 				Dictionary<string, int> stats = new Dictionary<string,int>();
 				for (int i = 0; i < _stats.Length; i++)
@@ -265,7 +266,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void ReadNewMessages()
 		{
-			ab.DownloadPage("index.php?title=Special:Mytalk");
+			ab.CreateGetQuery("index.php?title=Special:Mytalk").DownloadText();
 		}
 		
 		/// <summary>

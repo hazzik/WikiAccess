@@ -8,7 +8,7 @@ namespace WikiTools.Web
 {
 	public abstract class Query 
 	{
-		protected readonly string _uri;
+		private readonly string _uri;
 		protected readonly IDictionary<string, string> _data;
 		protected readonly CookieContainer _cookies;
 
