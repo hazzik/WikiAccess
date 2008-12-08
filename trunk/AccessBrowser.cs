@@ -32,9 +32,6 @@ namespace WikiTools.Access
 		private string cpagetext = "";
 		private CookieContainer cookies = new CookieContainer();
 		private string baseUri;
-		public string BaseUri {
-			get { return baseUri; }
-		}
 
 		/// <summary>
 		/// Initializes new instance of AccessBrowser for the specified URI
@@ -49,15 +46,27 @@ namespace WikiTools.Access
 			cookies = new CookieContainer();
 		}
 
-		public Query CreateGetQuery(string uri) {
-			return new GetQuery(uri, cookies);
+		public Query CreateGetQuery(string page) {
+			return new GetQuery(baseUri + '/' + page, cookies);
 		}
 
-		public Query CreatePostQuery(string uri) {
+		public Query CreateGetQueryFullUrl(string uri) {
+			return new GetQuery(uri, cookies);
+		}
+		
+		public Query CreatePostQuery(string page) {
+			return new PostQuery(baseUri + '/' + page, cookies);
+		}
+
+		public Query CreatePostQueryFullUrl(string uri) {
 			return new PostQuery(uri, cookies);
 		}
 
-		public Query CreatePostQuery(string uri, IDictionary<string, string> data) {
+		public Query CreatePostQuery(string page, IDictionary<string, string> data) {
+			return new PostQuery(baseUri + '/' + page, cookies, data);
+		}
+
+		public Query CreatePostQueryFullUrl(string uri, IDictionary<string, string> data) {
 			return new PostQuery(uri, cookies, data);
 		}
 
@@ -89,11 +98,10 @@ namespace WikiTools.Access
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
 		[Obsolete("Please use instance of GetQuery class instead")]
-		public string DownloadPage(string pgname)
+		public string DownloadPage(string pgname) 
 		{
-			return DownloadPageFullUrl(BaseUri + "/" + pgname);
+			return DownloadPageFullUrl(baseUri + "/" + pgname);
 		}
-
 
 		/// <summary>
 		/// Downloads page via WebRequest
@@ -104,7 +112,7 @@ namespace WikiTools.Access
 		public string DownloadPageFullUrl(string pgname)
 		{
 			cpagename = pgname;
-			return cpagetext = CreateGetQuery(pgname).DownloadText();
+			return cpagetext = CreateGetQueryFullUrl(pgname).DownloadText();
 		}
 
 		/// <summary>
@@ -117,13 +125,13 @@ namespace WikiTools.Access
 		public string PostQuery(string pgname, IDictionary<string, string> data) 
 		{
 			cpagename = pgname;
-			return cpagetext = CreatePostQuery(BaseUri + "/" + pgname, data).DownloadText();
+			return cpagetext = CreatePostQueryFullUrl(baseUri + "/" + pgname, data).DownloadText();
 		}
 
 		[Obsolete("Please use instance of GetQuery class instead")]
 		public byte[] DownloadBinary(string pgname)
 		{
-			return DownloadBinaryFullUrl(BaseUri + "/" + pgname);
+			return DownloadBinaryFullUrl(baseUri + "/" + pgname);
 		}
 
 		/// <summary>
@@ -135,7 +143,7 @@ namespace WikiTools.Access
 		[Obsolete("Please use instance of GetQuery class instead")]
 		public byte[] DownloadBinaryFullUrl(string pgname)
 		{
-			return CreateGetQuery(pgname).DownloadBinary();
+			return CreateGetQueryFullUrl(pgname).DownloadBinary();
 		}
 
 		/// <summary>
@@ -144,7 +152,11 @@ namespace WikiTools.Access
 		[Obsolete]
 		public string PageName {
 			get { return cpagename; }
-			set { DownloadPage(value); }
+			set
+			{
+				cpagename = baseUri + "/" + value;
+				cpagetext = CreateGetQuery(value).DownloadText();
+			}
 		}
 
 		/// <summary>

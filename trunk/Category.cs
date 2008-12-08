@@ -55,7 +55,8 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Load()
 		{
-			string text = ab.DownloadPage("api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + HttpUtility.UrlEncode(name));
+			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + HttpUtility.UrlEncode(name);
+			string text = ab.CreateGetQuery(pgname).DownloadText();
 			List<string> subcats_tmp = new List<string>();
 			List<string> pages_tmp = new List<string>();
 			string cmcontinue;
@@ -65,9 +66,11 @@ namespace WikiTools.Access
 				cmcontinue = ExtractCategoriesFromXML(text, out cur_subcats, out cur_pages);
 				subcats_tmp.AddRange(cur_subcats);
 				pages_tmp.AddRange(cur_pages);
-				if (!String.IsNullOrEmpty(cmcontinue)) {
-					text = ab.DownloadPage("api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
-					                       HttpUtility.UrlEncode(name) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue));
+				if (!String.IsNullOrEmpty(cmcontinue))
+				{
+					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
+					                 HttpUtility.UrlEncode(name) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue);
+					text = ab.CreateGetQuery(pgname1).DownloadText();
 				}
 				else break;
 			} while (true);

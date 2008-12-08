@@ -32,9 +32,9 @@ namespace WikiTools.Access
 		
 		public InterwikiMap(Wiki w)
 		{
-			string mapxml = w.ab.DownloadPage("api.php?format=xml&action=query&meta=siteinfo&siprop=interwikimap");
+			string page = "api.php?format=xml&action=query&meta=siteinfo&siprop=interwikimap";
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(mapxml);
+			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("iw");
 			List<InterwikiMapEntry> entries_pre = new List<InterwikiMapEntry>();
 			foreach( XmlNode node in nl ) {

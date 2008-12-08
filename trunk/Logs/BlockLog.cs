@@ -21,8 +21,9 @@ namespace WikiTools.Access
 
 		public void Load(string adminname)
 		{
-			string pg = ab.DownloadPage("api.php?action=query&list=logevents&letype=block&leuser=" 
-				+ HttpUtility.UrlEncode(adminname) + "&lelimit=500&format=xml");
+			string pgname = "api.php?action=query&list=logevents&letype=block&leuser=" 
+			                + HttpUtility.UrlEncode(adminname) + "&lelimit=500&format=xml";
+			string pg = ab.CreateGetQuery(pgname).DownloadText();
 			LoadFromXML(pg);
 			for (; ; )
 			{

@@ -164,12 +164,10 @@ namespace WikiTools.Access
 		}
 		
 		public RecentChange[] GetRecentChanges() {
-			string uri =
-				"api.php?format=xml&action=query&list=recentchanges"
-				+ "&rclimit=max&rcprop=user|comment|flags|timestamp|title|sizes|ids";
-			string xml = w.ab.DownloadPage(uri);
+			string page = "api.php?format=xml&action=query&list=recentchanges"
+			              + "&rclimit=max&rcprop=user|comment|flags|timestamp|title|sizes|ids";
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(xml);
+			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			XmlNodeList nodes = doc.GetElementsByTagName("rc");
 			
 			List<RecentChange> changes = new List<RecentChange>();

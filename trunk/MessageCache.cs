@@ -59,7 +59,7 @@ namespace WikiTools.Access
 		/// <param name="wiki">Wiki to load</param>
 		public MessageCache(Wiki wiki)
 		{
-			mcachetext = wiki.ab.DownloadPage("index.php?title=Special:Allmessages&ot=php");
+			mcachetext = wiki.ab.CreateGetQuery("index.php?title=Special:Allmessages&ot=php").DownloadText();
 		}
 
 		/// <summary>

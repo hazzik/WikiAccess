@@ -28,7 +28,6 @@ namespace WikiTools.Access
 	public class CurrentUser
 	{
 		Wiki w;
-		string xml;
 		bool hasnewmsg = false;
 		string[] usergroups = null;
 		string[] userrights = null;
@@ -51,9 +50,9 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Reload()
 		{
-			xml = w.ab.DownloadPage("api.php?action=query&format=xml&meta=userinfo&uiprop=blockinfo|groups|rights|hasmsg");
+			string page = "api.php?action=query&format=xml&meta=userinfo&uiprop=blockinfo|groups|rights|hasmsg";
 			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(xml);
+			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			XmlElement rootelem = (XmlElement)doc.GetElementsByTagName("userinfo")[0];
 			hasnewmsg = rootelem.HasAttribute("messages");
 			XmlElement rightselem = (XmlElement)rootelem.GetElementsByTagName("rights")[0];
