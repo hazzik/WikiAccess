@@ -23,26 +23,22 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&list=logevents&letype=block&leuser=" 
 			                + HttpUtility.UrlEncode(adminname) + "&lelimit=500&format=xml";
-			string pg = ab.CreateGetQuery(pgname).DownloadText();
-			LoadFromXML(pg);
+			XmlDocument doc = new XmlDocument();
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			XmlElement root = (XmlElement)doc.GetElementsByTagName("logevents")[0];
+			foreach (XmlNode cnode in root.ChildNodes)
+			{
+				if((cnode.NodeType == XmlNodeType.Element && cnode.Name == "item"))
+				{
+					entries.Add(ParseBlockLogEntry((XmlElement)cnode));
+				}
+			}
 			for (; ; )
 			{
 				if (entries.Count % 500 != 0) break;
 				List<BlockLogEntry> tmp_entries = entries;
 				entries = new List<BlockLogEntry>();
 				//
-			}
-		}
-
-		private void LoadFromXML(string xml)
-		{
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(xml);
-			XmlElement root = (XmlElement)doc.GetElementsByTagName("logevents")[0];
-			foreach (XmlNode cnode in root.ChildNodes)
-			{
-				if (!(cnode.NodeType == XmlNodeType.Element && ((XmlElement)cnode).Name == "item")) continue;
-				entries.Add(ParseBlockLogEntry((XmlElement)cnode));
 			}
 		}
 

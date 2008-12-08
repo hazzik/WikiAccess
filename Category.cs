@@ -97,11 +97,8 @@ namespace WikiTools.Access
 			subcats = subcats_tmp.ToArray();
 			pages = pages_tmp.ToArray();
 			if (doc.GetElementsByTagName("query-continue").Count <= 0) return null;
-			else
-			{
-				XmlElement elem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
-				return elem.Attributes["cmcontinue"].Value;
-			}
+			XmlElement elem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
+			return elem.Attributes["cmcontinue"].Value;
 		}
 
 		/// <summary>
