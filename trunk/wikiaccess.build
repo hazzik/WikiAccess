@@ -5,18 +5,19 @@
 	<target name="build">
 		<csc target="library"
 			  output="bin/wikiaccess.dll"
-			  doc="bin/wikiaccess.xml">
+			  doc="bin/wikiaccess.xml"
+			  keyfile="wikiaccess.snk">
 			<nowarn>
 				<warning number="1591"/>
 			</nowarn>
-			<sources>
-				<include name="**/*.cs"/>
-			</sources>
 			<references>
 				<include name="System.dll" />
 				<include name="System.Xml.dll" />
 				<include name="System.Web.dll" />
 			</references>
+			<sources >
+				<include name="**/*.cs"/>
+			</sources>
 		</csc>
 	</target>
 </project>
