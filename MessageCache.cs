@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.XPath;
 
 namespace WikiTools.Access
 {
@@ -59,7 +60,7 @@ namespace WikiTools.Access
 		/// <param name="wiki">Wiki to load</param>
 		public MessageCache(Wiki wiki)
 		{
-			mcachetext = wiki.ab.CreateGetQuery("index.php?title=Special:Allmessages&ot=php").DownloadText();
+			mcachetext = wiki.ab.CreateGetQuery("index.php?title=Special:Allmessages&ot=xml").DownloadText();
 		}
 
 		/// <summary>
@@ -94,13 +95,32 @@ namespace WikiTools.Access
 		/// <returns>Message content</returns>
 		public string GetMessage(string name)
 		{
-			Regex regex = new Regex(@"'" + Regex.Escape(name) + @"' =&gt; '([^\0]+?[^\\])',", RegexOptions.Singleline & RegexOptions.IgnoreCase);
-			if (!regex.Match(mcachetext).Success) return null;
-			string str = regex.Match(mcachetext).Groups[1].Value;
-			while (Regex.Matches(str, @"([^\\])(\\')").Count > 0) str = Regex.Replace(str, @"([^\\])(\\')", "$1'");
-			while (Regex.Matches(str, @"&lt;").Count > 0) str = Regex.Replace(str, @"&lt;", "$1'");
-			while (Regex.Matches(str, @"&gt;").Count > 0) str = Regex.Replace(str, @"&gt;", "$1'");
-			return str;
+			string value;
+			Cache.TryGetValue(name, out value);
+			return value;
+		}
+
+		private IDictionary<string, string> _cache;
+		private IDictionary<string, string> Cache 
+		{
+			get 
+			{
+				if(_cache == null) 
+				{
+					_cache = GetMessages();
+				}
+				return _cache;
+			}
+		}
+
+		private IDictionary<string, string> GetMessages() {
+			XPathDocument xdoc = new XPathDocument(new StringReader(mcachetext));
+			XPathNavigator nav = xdoc.CreateNavigator();
+			IDictionary<string, string> result = new Dictionary<string, string>();
+			foreach(XPathNavigator item in nav.Select("messages/message")) {
+				result.Add(item.GetAttribute("name", ""), item.Value);
+			}
+			return result;
 		}
 
 		private string[] GetMonths() {
