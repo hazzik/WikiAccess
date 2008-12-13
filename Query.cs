@@ -108,7 +108,7 @@ namespace WikiTools.Web
 		{
 			string postdata = "";
 			foreach(KeyValuePair<string, string> kvp in _data) {
-				postdata = CommitValue(kvp.Key, kvp.Value);
+				postdata += CommitValue(kvp.Key, kvp.Value);
 			}
 			postdata = postdata.Substring(0, postdata.Length - 2);
 			return Encoding.UTF8.GetBytes(postdata);
