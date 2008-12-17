@@ -18,9 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Xml.XPath;
+using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -29,8 +29,6 @@ namespace WikiTools.Access
 	/// </summary>
 	public class Namespaces
 	{
-		static Regex NamespaceFromMeta = new Regex("<ns id=\"(-?\\d{1,3})\">(.+?)</ns>", RegexOptions.Compiled);
-
 		/// <summary>
 		/// Media namesapce
 		/// </summary>
@@ -111,16 +109,16 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="wiki">Source of namespaces</param>
 		/// <returns>Namespace ID:Name list</returns>
-		public static SortedList<int, string> GetNamespaces(Wiki wiki)
+		public static SortedList<int, string> GetNamespaces(Wiki wiki) 
 		{
-			string str = wiki.ab.CreateGetQuery("api.php?action=query&meta=siteinfo&siprop=namespaces&format=xml").DownloadText();
-
+			Query query = wiki.ab.CreateGetQuery("api.php?format=xml" +
+			                                     "&action=query" +
+			                                     "&meta=siteinfo" + 
+															 "&siprop=namespaces");
+			XPathDocument xdoc = new XPathDocument(query.GetResponseStream());
 			SortedList<int, string> result = new SortedList<int, string>();
-			result.Add(0, "");
-			MatchCollection matches = NamespaceFromMeta.Matches(str);
-			foreach (Match match in matches)
-			{
-				result.Add(Int32.Parse(match.Groups[1].Value), match.Groups[2].Value);
+			foreach(XPathNavigator element in xdoc.CreateNavigator().Select("api/query/namespaces/ns")) {
+				result.Add(int.Parse(element.GetAttribute("id", "")), element.Value);
 			}
 			return result;
 		}
