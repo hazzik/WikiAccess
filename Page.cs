@@ -28,7 +28,7 @@ namespace WikiTools.Access
 	/// <summary>
 	/// Represents wiki page
 	/// </summary>
-	public partial class Page
+	public class Page
 	{
 		//Permanent variables
 		Wiki wiki;
@@ -38,28 +38,28 @@ namespace WikiTools.Access
 		}
 
 		//Loadable variables & Load flags
-		string text; bool textLoaded = false;
+		string text; bool textLoaded;
 
 		int pgid; DateTime touched; int lastrevision; bool redirect; bool exists; int length;
-		bool propsLoaded = false;
+		bool propsLoaded;
 
-		string redirectsOn; bool redirectsOnLoaded = false;
+		string redirectsOn; bool redirectsOnLoaded;
 
-		Revision[] history; bool historLoaded = false;
+		Revision[] history; bool historLoaded;
 
-		string[] internalLinks; bool internalLinksLoaded = false;
+		string[] internalLinks; bool internalLinksLoaded;
 
-		string[] externalLinks; bool externalLinksLoaded = false;
+		string[] externalLinks; bool externalLinksLoaded;
 
-		string[] categories; bool categoriesLoaded = false;
+		string[] categories; bool categoriesLoaded;
 
-		string[] templates; bool templatesLoaded = false;
+		string[] templates; bool templatesLoaded;
 
-		string[] images; bool imagesLoaded = false;
+		string[] images; bool imagesLoaded;
 
-		string[] subpages; bool subpagesLoaded = false;
+		string[] subpages; bool subpagesLoaded;
 		
-		string edittoken; string lastedit; string starttime; bool editPrepared = false;
+		string edittoken; string lastedit; string starttime; bool editPrepared;
 
 		/// <summary>
 		/// Initializes new instance of Page
@@ -81,8 +81,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!textLoaded)
-					LoadText();
+				if(!textLoaded) LoadText();
 				return text;
 			}
 		}
@@ -306,8 +305,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!categoriesLoaded)
-					LoadCategories();
+				if(!categoriesLoaded) LoadCategories();
 				return categories;
 			}
 		}
@@ -319,8 +317,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!redirectsOnLoaded)
-					LoadRedirectsOn();
+				if(!redirectsOnLoaded) LoadRedirectsOn();
 				return redirectsOn;
 			}
 		}
@@ -332,8 +329,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!historLoaded)
-					LoadHistory();
+				if(!historLoaded) LoadHistory();
 				return history;
 			}
 		}
@@ -345,8 +341,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!internalLinksLoaded)
-					LoadInternalLinks();
+				if(!internalLinksLoaded) LoadInternalLinks();
 				return internalLinks;
 			}
 		}
@@ -358,8 +353,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!externalLinksLoaded)
-					LoadExternalLinks();
+				if(!externalLinksLoaded) LoadExternalLinks();
 				return externalLinks;
 			}
 		}
@@ -371,8 +365,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!subpagesLoaded)
-					LoadSubpages();
+				if(!subpagesLoaded) LoadSubpages();
 				return subpages;
 			}
 		}
@@ -384,8 +377,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!templatesLoaded)
-					LoadTemplates();
+				if(!templatesLoaded) LoadTemplates();
 				return templates;
 			}
 		}
@@ -397,8 +389,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (!imagesLoaded)
-					LoadImages();
+				if(!imagesLoaded) LoadImages();
 				return images;
 			}
 		}
@@ -413,8 +404,7 @@ namespace WikiTools.Access
 			get
 			{
 				if (!propsLoaded) LoadInfo();
-				if (!exists) return -1;
-				else return pgid;
+				return exists ? pgid : -1;
 			}
 		}
 
@@ -437,8 +427,7 @@ namespace WikiTools.Access
 			get
 			{
 				if (!propsLoaded) LoadInfo();
-				if (!exists) return DateTime.MinValue;
-				else return touched;
+				return exists ? touched : DateTime.MinValue;
 			}
 		}
 
@@ -450,8 +439,7 @@ namespace WikiTools.Access
 			get
 			{
 				if (!propsLoaded) LoadInfo();
-				if (!exists) return -1;
-				else return lastrevision;
+				return exists ? lastrevision : -1;
 			}
 		}
 
@@ -463,8 +451,7 @@ namespace WikiTools.Access
 			get
 			{
 				if (!propsLoaded) LoadInfo();
-				if (!exists) return false;
-				else return redirect;
+				return exists && redirect;
 			}
 		}
 
@@ -516,8 +503,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (NamespaceID == 0) return "";
-				else return name.Split(':')[0];
+				return NamespaceID != 0 ? name.Split(':')[0] : "";
 			}
 		}
 
