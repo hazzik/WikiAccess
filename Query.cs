@@ -42,7 +42,7 @@ namespace WikiTools.Web
 
 		public string DownloadText() 
 		{
-			return Utils.ReadAllText(GetResponseStream());
+			return GetTextReader().ReadToEnd();
 		}
 		
 		public byte[] DownloadBinary() 
@@ -55,10 +55,15 @@ namespace WikiTools.Web
 			_cookies.Add(response.Cookies);
 			return response.GetResponseStream();
 		}
+		
+		public StreamReader GetTextReader() 
+		{
+			return new StreamReader(GetResponseStream());
+		}
 
 		protected virtual HttpWebRequest CreateRequest() 
 		{
-			HttpWebRequest result = (HttpWebRequest)WebRequest.Create(_uri);
+			HttpWebRequest result = (HttpWebRequest)WebRequest.Create(Uri);
 			result.UserAgent = "WikiAccess library v" + Utils.Version;
 			result.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			result.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
