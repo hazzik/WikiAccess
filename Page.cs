@@ -17,8 +17,6 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Net;
 using System.Text;
 using System.Web;
@@ -83,13 +81,9 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if (textLoaded)
-					return text;
-				else
-				{
+				if(!textLoaded)
 					LoadText();
-					return text;
-				}
+				return text;
 			}
 		}
 
@@ -564,7 +558,7 @@ namespace WikiTools.Access
 		{
 			SetText(newText, summary, minor, watch, -1);
 		}
-		
+
 		/// <summary>
 		/// Saves this page
 		/// </summary>
@@ -605,20 +599,56 @@ namespace WikiTools.Access
 		/// <param name="section">Section to edit</param>
 		public void SetText(string newText, string summary, bool minor, bool watch, int section)
 		{
-			if (!editPrepared) PrepareToEdit();
-			string pgname = "index.php?action=submit&title=" + HttpUtility.UrlEncode(name);
-			Query query = ab.CreatePostQuery(pgname)
-				.Add("wpSection", (section == -1 ? "" : section.ToString()))
-				.Add("wpStarttime", starttime)
-				.Add("wpEdittime", lastedit)
-				.Add("wpEditToken", edittoken)
-				.Add("wpTextbox1", newText)
-				.Add("wpSummary", summary);
-			if (minor) query.Add("wpMinoredit", "1");
-			if (watch) query.Add("wpWatchthis", "1");
-			query.DownloadText();
+			SetText(newText, summary, minor, watch, false, section);
+		}
+
+		/// <summary> 
+		/// Saves this page
+		/// </summary>
+		/// <param name="newText">New text of this page</param>
+		/// <param name="summary">Edit summary</param>
+		/// <param name="minor">Mark revision as minor</param>
+		/// <param name="watch">Add this page to watchlist</param>
+		/// <param name="bot">Mark this edit as bot</param>
+		/// <param name="bot"></param>
+		public void SetText(string newText, string summary, bool minor, bool watch, bool bot)
+		{
+			SetText(newText, summary, minor, watch, bot, -1);
+		}
+
+		/// <summary> 
+		/// Saves this page
+		/// </summary>
+		/// <param name="newText">New text of this page</param>
+		/// <param name="summary">Edit summary</param>
+		/// <param name="minor">Mark revision as minor</param>
+		/// <param name="watch">Add this page to watchlist</param>
+		/// <param name="bot">Mark this edit as bot</param>
+		/// <param name="section">Section to edit</param>
+		public virtual void SetText(string newText, string summary, bool minor, bool watch, bool bot, int section)
+		{
+			if(!editPrepared)
+				PrepareToEdit();
+			Query query = ab.CreatePostQuery("api.php?format=xml")
+				.Add("action", "edit")
+				.Add("title", name)
+				.Add("text", newText)
+				.Add("token", edittoken)
+				.Add("summary", summary)
+				.Add(minor ? "minor" : "notminor", "1")
+				.Add("basetimestamp", lastedit)
+				.Add("starttimestamp", starttime)
+				.Add(watch ? "watch" : "unwatch", "1");
+			if(bot) {
+				query.Add("bot", "1");
+			}
+			if(section != -1) {
+				query.Add("section", section.ToString());
+			}
+			string txt = query.DownloadText();
 			editPrepared = false;
 		}
+
 		#endregion
 
 		/*/// <summary>
