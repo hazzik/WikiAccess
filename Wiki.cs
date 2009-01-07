@@ -228,9 +228,9 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="name">Page name</param>
 		/// <param name="text">Page text</param>
-		public void CreatePage(string name, string text)
+		public Page CreatePage(string name, string text)
 		{
-			CreatePage(name, text, "", false);
+			return CreatePage(name, text, "", false);
 		}
 
 		/// <summary>
@@ -239,9 +239,9 @@ namespace WikiTools.Access
 		/// <param name="name">Page name</param>
 		/// <param name="text">Page text</param>
 		/// <param name="overwrite">Overwrite page, if it already exists</param>
-		public void CreatePage(string name, string text, bool overwrite)
+		public Page CreatePage(string name, string text, bool overwrite)
 		{
-			CreatePage(name, text, "", overwrite);
+			return CreatePage(name, text, "", overwrite);
 		}
 
 		#endregion
@@ -253,12 +253,14 @@ namespace WikiTools.Access
 		/// <param name="text">Page text</param>
 		/// <param name="summary">Page creation summry</param>
 		/// <param name="overwrite">Overwrite page, if it already exists</param>
-		public void CreatePage(string name, string text, string summary, bool overwrite)
+		public Page CreatePage(string name, string text, string summary, bool overwrite)
 		{
-			Page pg = new Page(this, name);
-			if (!overwrite) 
-				if (pg.Exists) return;
-			pg.SetText(text, summary);
+			Page page = GetPage(name);
+			if(overwrite || !page.Exists)
+			{
+				page.SetText(text, summary);
+			}
+			return page;
 		}
 
 		/// <summary>
@@ -299,5 +301,12 @@ namespace WikiTools.Access
 		}
 
 		#endregion
+
+		public Page GetPage(string pgname)
+		{
+#pragma warning disable 618,612
+			return new Page(this, pgname);
+#pragma warning restore 618,612
+		}
 	}
 }
