@@ -85,7 +85,7 @@ namespace WikiTools.Access
 		/// <param name="page">Page name</param>
 		public void Add(string page)
 		{
-			Page pg = new Page(wiki, page);
+			Page pg = wiki.GetPage(page);
 			pg.Watch();
 		}
 
@@ -95,7 +95,7 @@ namespace WikiTools.Access
 		/// <param name="page">Page name</param>
 		public void Remove(string page)
 		{
-			Page pg = new Page(wiki, page);
+			Page pg = wiki.GetPage(page);
 			pg.Unwatch();
 		}
 	}

@@ -170,7 +170,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				return new Page(wiki, "Category:" + name);
+				return wiki.GetPage("Category:" + name);
 			}
 		}
 

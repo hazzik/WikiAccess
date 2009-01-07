@@ -66,6 +66,7 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="wiki">Wiki to use</param>
 		/// <param name="pgname">Page name</param>
+		[Obsolete("Please use Wiki.GetPage(string) factory method instead.")]
 		public Page(Wiki wiki, string pgname)
 		{
 			this.wiki = wiki;
@@ -525,7 +526,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				return new Page(wiki, wiki.NamespacesUtils.TitleToTalk(name));
+				return wiki.GetPage(wiki.NamespacesUtils.TitleToTalk(name));
 			}
 		}
 

@@ -62,7 +62,7 @@ namespace WikiTools.Access
 		/// <returns>Page list</returns>
 		public static PageList FromLinksOnPage(Wiki wiki, string pagename)
 		{
-			Page pg = new Page(wiki, pagename);
+			Page pg = wiki.GetPage(pagename);
 			return new PageList(wiki, pg.InternalLinks);
 		}
 
@@ -159,7 +159,7 @@ namespace WikiTools.Access
 			List<String> result = new List<string>();
 			foreach (string cpage in pages)
 			{
-				if (plf(new Page(wiki, cpage)))
+				if (plf(wiki.GetPage(cpage)))
 					result.Add(cpage);
 				else
 					count++;
@@ -181,7 +181,7 @@ namespace WikiTools.Access
 			List<String> result = new List<string>();
 			foreach (string cpage in pages)
 			{
-				if (plf(new Page(wiki, cpage), param))
+				if (plf(wiki.GetPage(cpage), param))
 					result.Add(cpage);
 				else
 					count++;
