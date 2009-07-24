@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{84F9D5EB-2975-45E1-A41F-1EC67961F8F2}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -10,7 +10,7 @@
     <RootNamespace>WikiTools.Access</RootNamespace>
     <AssemblyName>WikiAccess</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>wikiaccess.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\wikiaccess.snk</AssemblyOriginatorKeyFile>
     <RunCodeAnalysis>False</RunCodeAnalysis>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
@@ -89,15 +89,9 @@
     <Compile Include="Wikimedia\WikimediaProjects.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Notes\CodeFileHeader.txt" />
-    <Content Include="Notes\PageListGenerators.txt" />
-    <Content Include="Readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="COPYING" />
-    <None Include="HISTORY" />
-    <None Include="RELEASE-NOTES" />
-    <None Include="wikiaccess.snk" />
+    <None Include="..\wikiaccess.snk">
+      <Link>wikiaccess.snk</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
