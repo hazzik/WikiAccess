@@ -47,11 +47,6 @@ namespace WikiTools.Access
 			this.name = name;
 		}
 
-		private AccessBrowser ab
-		{
-			get { return wiki.ab; }
-		}
-
 		/// <summary>
 		/// User's name
 		/// </summary>
@@ -89,7 +84,7 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			string pgname = "api.php?format=xml&action=query&&list=allusers&aulimit=1&auprop=editcount|groups&aufrom="
 			                + HttpUtility.UrlEncode(name);
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			if (doc.GetElementsByTagName("u").Count < 1) throw new WikiPageNotFoundExcecption();
 			var u = (XmlElement) doc.GetElementsByTagName("u")[0];
 			if (u.Attributes["name"].Value != name) throw new WikiPageNotFoundExcecption();

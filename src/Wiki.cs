@@ -31,7 +31,7 @@ namespace WikiTools.Access
 		private readonly string capacachepath;
 		private readonly string mcachepath;
 		private readonly string nscachepath;
-		private readonly string wikiURI;
+		private readonly string wikiUri;
 		internal AccessBrowser ab;
 		private CurrentUser cu;
 		private MessageCache mcache;
@@ -52,7 +52,7 @@ namespace WikiTools.Access
 		/// <param name="cachedir">Folder where Message cache will be stored</param>
 		public Wiki(string uri, string cachedir)
 		{
-			wikiURI = uri;
+			wikiUri = uri;
 			ab = new AccessBrowser(uri);
 			mcachepath = cachedir + "/" + MessageCache.MkName(uri);
 			nscachepath = cachedir + "/" + Namespaces.MkName(uri);
@@ -146,7 +146,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public string WikiURI
 		{
-			get { return wikiURI; }
+			get { return wikiUri; }
 			//set { wikiuri = value; }
 		}
 

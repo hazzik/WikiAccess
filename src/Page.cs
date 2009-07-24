@@ -101,7 +101,7 @@ namespace WikiTools.Access
 			try
 			{
 				string pgname = "index.php?action=raw&title=" + HttpUtility.UrlEncode(name).Replace("%3a", ":");
-				text = ab.CreateGetQuery(pgname).DownloadText();
+				text = wiki.ab.CreateGetQuery(pgname).DownloadText();
 			}
 			catch (WebException we)
 			{
@@ -113,11 +113,6 @@ namespace WikiTools.Access
 		}
 
 		#endregion
-
-		private AccessBrowser ab
-		{
-			get { return wiki.ab; }
-		}
 
 		/// <summary>
 		/// Category of this page. Automatically calls LoadCategory() on first usage
@@ -421,7 +416,7 @@ namespace WikiTools.Access
 		{
 			if (!editPrepared)
 				PrepareToEdit();
-			Query query = ab.CreatePostQuery("api.php?format=xml")
+			Query query = wiki.ab.CreatePostQuery("api.php?format=xml")
 				.Add("action", "edit")
 				.Add("title", name)
 				.Add("text", newText)
@@ -452,7 +447,7 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&format=xml&prop=info&titles=" + HttpUtility.UrlEncode(name);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var pageElem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			propsLoaded = true;
 			exists = !pageElem.HasAttribute("missing");
@@ -471,7 +466,7 @@ namespace WikiTools.Access
 		public void LoadRedirectsOn()
 		{
 			string pgname = "index.php?redirect=no&title=" + HttpUtility.UrlEncode(name);
-			string pgtext = ab.CreateGetQuery(pgname).DownloadText();
+			string pgtext = wiki.ab.CreateGetQuery(pgname).DownloadText();
 			redirectsOnLoaded = true;
 			if (!Regexes.HTMLRedirect.Match(pgtext).Success)
 			{
@@ -488,7 +483,7 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&format=xml&prop=links&titles=" + HttpUtility.UrlEncode(name);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("pl");
 			var tmp = new List<string>();
 			foreach (XmlNode node in nl)
@@ -507,7 +502,7 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&format=xml&prop=extlinks&titles=" + HttpUtility.UrlEncode(name);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("el");
 			var tmp = new List<string>();
 			foreach (XmlNode node in nl)
@@ -526,7 +521,7 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&format=xml&prop=templates&titles=" + HttpUtility.UrlEncode(name);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("tl");
 			var tmp = new List<string>();
 			foreach (XmlNode node in nl)
@@ -545,7 +540,7 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&format=xml&prop=images&titles=" + HttpUtility.UrlEncode(name);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("im");
 			var tmp = new List<string>();
 			foreach (XmlNode node in nl)
@@ -570,7 +565,7 @@ namespace WikiTools.Access
 			do
 			{
 				var doc = new XmlDocument();
-				doc.Load(ab.CreateGetQuery(uri).GetResponseStream());
+				doc.Load(wiki.ab.CreateGetQuery(uri).GetResponseStream());
 				if (((XmlElement) doc.GetElementsByTagName("page")[0]).HasAttribute("missing"))
 					throw new WikiPageNotFoundExcecption();
 				var revsroot = (XmlElement) doc.GetElementsByTagName("revisions")[0];
@@ -615,7 +610,7 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&format=xml&prop=categories&titles=" + HttpUtility.UrlEncode(name);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("cl");
 			var tmp = new List<string>();
 			foreach (XmlNode node in nl)
@@ -663,7 +658,7 @@ namespace WikiTools.Access
 		/// <param name="reason">Reason of name change</param>
 		public void Rename(string newName, string reason)
 		{
-			Query query = ab.CreatePostQuery("index.php?action=submit&title=Special:Movepage")
+			Query query = wiki.ab.CreatePostQuery("index.php?action=submit&title=Special:Movepage")
 				.Add("wpOldTitle", name)
 				.Add("wpNewTitle", newName)
 				.Add("wpEditToken", GetToken(name, "move"))
@@ -677,7 +672,7 @@ namespace WikiTools.Access
 		public void Purge()
 		{
 			string pgname = "index.php?action=purge&title=" + HttpUtility.UrlEncode(name);
-			ab.CreateGetQuery(pgname).DownloadText();
+			wiki.ab.CreateGetQuery(pgname).DownloadText();
 		}
 
 		/// <summary>
@@ -719,7 +714,7 @@ namespace WikiTools.Access
 			string pgname = "api.php?action=query&prop=revisions&&rvprop=timestamp&limit=1&format=xml&titles=" +
 			                HttpUtility.UrlEncode(name);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			if (pageelem.HasAttribute("missing")) throw new WikiPageNotFoundExcecption();
 			var revelem = (XmlElement) doc.GetElementsByTagName("rev")[0];
@@ -731,7 +726,7 @@ namespace WikiTools.Access
 			string pgname = "api.php?action=query&format=xml&prop=info&intoken="
 			                + type + "&titles=" + HttpUtility.UrlEncode(page);
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var elem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			if (elem == null || !elem.HasAttribute(type + "token")) throw new WikiPermissionsExpection();
 			return elem.Attributes[type + "token"].Value;
@@ -745,7 +740,7 @@ namespace WikiTools.Access
 		public void Watch()
 		{
 			string pgname = "index.php?action=watch&title=" + name;
-			ab.CreateGetQuery(pgname).DownloadText();
+			wiki.ab.CreateGetQuery(pgname).DownloadText();
 		}
 
 		/// <summary>
@@ -754,7 +749,7 @@ namespace WikiTools.Access
 		public void Unwatch()
 		{
 			string pgname = "index.php?action=unwatch&title=" + name;
-			ab.CreateGetQuery(pgname).DownloadText();
+			wiki.ab.CreateGetQuery(pgname).DownloadText();
 		}
 
 		#endregion
