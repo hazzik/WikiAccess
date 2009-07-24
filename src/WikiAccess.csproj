@@ -76,6 +76,7 @@
     <Compile Include="Page.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="PageList.cs" />
+    <Compile Include="PageTypes.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="RCWatcher.cs" />
     <Compile Include="RegExes.cs" />

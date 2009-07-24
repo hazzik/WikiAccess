@@ -29,21 +29,9 @@ namespace WikiTools.Access
 	/// </summary>
 	public class MessageCache
 	{
-		string mcachetext;
-		string[] months, months_gen;
-
-		/// <summary>
-		/// Returns message cache messages
-		/// </summary>
-		/// <param name="str">Message name</param>
-		/// <returns>Message contents</returns>
-		public string this[string str]
-		{
-			get
-			{
-				return GetMessage(str);
-			}
-		}
+		private readonly string mcachetext;
+		private IDictionary<string, string> _cache;
+		private string[] months, months_gen;
 
 		/// <summary>
 		/// Loads message cache from files
@@ -61,6 +49,73 @@ namespace WikiTools.Access
 		public MessageCache(Wiki wiki)
 		{
 			mcachetext = wiki.ab.CreateGetQuery("index.php?title=Special:Allmessages&ot=xml").DownloadText();
+		}
+
+		/// <summary>
+		/// Returns message cache messages
+		/// </summary>
+		/// <param name="str">Message name</param>
+		/// <returns>Message contents</returns>
+		public string this[string str]
+		{
+			get { return GetMessage(str); }
+		}
+
+		private IDictionary<string, string> Cache
+		{
+			get
+			{
+				if (_cache == null)
+				{
+					_cache = GetMessages();
+				}
+				return _cache;
+			}
+		}
+
+		/// <summary>
+		/// Months
+		/// </summary>
+		public string[] Months
+		{
+			get
+			{
+				if (months == null)
+				{
+					months = GetMonths();
+				}
+				return months;
+			}
+		}
+
+		/// <summary>
+		/// Months that used in date
+		/// </summary>
+		public string[] MonthsGen
+		{
+			get
+			{
+				if (months_gen == null)
+				{
+					months_gen = GetMonthsGen();
+				}
+				return months_gen;
+			}
+		}
+
+		/// <summary>
+		/// Regular expression for month
+		/// </summary>
+		public string MonthRegex
+		{
+			get
+			{
+				string str = "(";
+				foreach (string cmonth in MonthsGen)
+					str += Regex.Escape(cmonth) + "|";
+				str = str.TrimEnd('|');
+				return str + ")";
+			}
 		}
 
 		/// <summary>
@@ -85,7 +140,10 @@ namespace WikiTools.Access
 				File.WriteAllText(fname, mcachetext, Encoding.Unicode);
 				return true;
 			}
-			catch { return false; }
+			catch
+			{
+				return false;
+			}
 		}
 
 		/// <summary>
@@ -100,31 +158,21 @@ namespace WikiTools.Access
 			return value;
 		}
 
-		private IDictionary<string, string> _cache;
-		private IDictionary<string, string> Cache 
+		private IDictionary<string, string> GetMessages()
 		{
-			get 
-			{
-				if(_cache == null) 
-				{
-					_cache = GetMessages();
-				}
-				return _cache;
-			}
-		}
-
-		private IDictionary<string, string> GetMessages() {
-			XPathDocument xdoc = new XPathDocument(new StringReader(mcachetext));
+			var xdoc = new XPathDocument(new StringReader(mcachetext));
 			XPathNavigator nav = xdoc.CreateNavigator();
 			IDictionary<string, string> result = new Dictionary<string, string>();
-			foreach(XPathNavigator item in nav.Select("messages/message")) {
+			foreach (XPathNavigator item in nav.Select("messages/message"))
+			{
 				result.Add(item.GetAttribute("name", ""), item.Value);
 			}
 			return result;
 		}
 
-		private string[] GetMonths() {
-			List<string> results = new List<string>();
+		private string[] GetMonths()
+		{
+			var results = new List<string>();
 			results.Add(GetMessage("january"));
 			results.Add(GetMessage("february"));
 			results.Add(GetMessage("march"));
@@ -140,8 +188,9 @@ namespace WikiTools.Access
 			return results.ToArray();
 		}
 
-		private string[] GetMonthsGen() {
-			List<string> results_gen = new List<string>();
+		private string[] GetMonthsGen()
+		{
+			var results_gen = new List<string>();
 			results_gen.Add(GetMessage("january-gen"));
 			results_gen.Add(GetMessage("february-gen"));
 			results_gen.Add(GetMessage("march-gen"));
@@ -155,50 +204,6 @@ namespace WikiTools.Access
 			results_gen.Add(GetMessage("november-gen"));
 			results_gen.Add(GetMessage("december-gen"));
 			return results_gen.ToArray();
-		}
-
-		/// <summary>
-		/// Months
-		/// </summary>
-		public string[] Months
-		{
-			get
-			{
-				if(months == null) 
-				{
-					months = GetMonths();
-				}
-				return months;
-			}
-		}
-
-		/// <summary>
-		/// Months that used in date
-		/// </summary>
-		public string[] MonthsGen
-		{
-			get {
-				if(months_gen == null) 
-				{
-					months_gen = GetMonthsGen();
-				}
-				return months_gen;
-			}
-		}
-
-		/// <summary>
-		/// Regular expression for month
-		/// </summary>
-		public string MonthRegex
-		{
-			get
-			{
-				string str = "(";
-				foreach (string cmonth in MonthsGen)
-					str += Regex.Escape(cmonth) + "|";
-				str = str.TrimEnd('|');
-				return str + ")";
-			}
 		}
 	}
 }

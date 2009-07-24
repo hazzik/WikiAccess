@@ -18,8 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml;
 using System.Web;
+using System.Xml;
 
 namespace WikiTools.Access
 {
@@ -28,64 +28,66 @@ namespace WikiTools.Access
 	/// </summary>
 	internal class InterwikiMap
 	{
-		InterwikiMapEntry[] entries;
-		
+		private readonly InterwikiMapEntry[] entries;
+
 		public InterwikiMap(Wiki w)
 		{
 			string page = "api.php?format=xml&action=query&meta=siteinfo&siprop=interwikimap";
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("iw");
-			List<InterwikiMapEntry> entries_pre = new List<InterwikiMapEntry>();
-			foreach( XmlNode node in nl ) {
-				entries_pre.Add(ParseInterwikiMapEntry((XmlElement)node));
+			var entries_pre = new List<InterwikiMapEntry>();
+			foreach (XmlNode node in nl)
+			{
+				entries_pre.Add(ParseInterwikiMapEntry((XmlElement) node));
 			}
 			entries = entries_pre.ToArray();
 		}
 
-		private static InterwikiMapEntry ParseInterwikiMapEntry(XmlElement element) 
+		public InterwikiMapEntry[] Entries
 		{
-			InterwikiMapEntry result = new InterwikiMapEntry();
+			get { return entries; }
+		}
+
+		private static InterwikiMapEntry ParseInterwikiMapEntry(XmlElement element)
+		{
+			var result = new InterwikiMapEntry();
 			result.Prefix = element.Attributes["prefix"].Value;
 			result.Uri = element.Attributes["url"].Value;
 			result.Local = element.HasAttribute("local");
 			return result;
 		}
-		
-		public InterwikiMapEntry[] Entries {
-			get {
-				return entries;
-			}
-		}
 	}
-	
-	public struct InterwikiMapEntry {
+
+	public struct InterwikiMapEntry
+	{
+		public bool Local;
 		public string Prefix;
 		public string Uri;
-		public bool Local;
-		
-		public string FormatUri(string s) {
-			return Uri.Replace( "$1", HttpUtility.UrlEncode(s) );
+
+		public string FormatUri(string s)
+		{
+			return Uri.Replace("$1", HttpUtility.UrlEncode(s));
 		}
 	}
-	
+
 	partial class Wiki
 	{
-		InterwikiMap iwikis;
-		
-		public void LoadInterwikiMap()
-		{
-			iwikis = new InterwikiMap(this);
-		}
-		
+		private InterwikiMap iwikis;
+
 		public InterwikiMapEntry[] Interwikis
 		{
 			get
 			{
-				if( iwikis == null )
+				if (iwikis == null)
 					LoadInterwikiMap();
 				return iwikis.Entries;
 			}
+		}
+
+		public void LoadInterwikiMap()
+		{
+			iwikis = new InterwikiMap(this);
 		}
 	}
 }

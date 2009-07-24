@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace WikiTools.Access
 {
@@ -38,7 +37,7 @@ namespace WikiTools.Access
 		/// <returns>Page list</returns>
 		public static PageList FromCategory(Wiki wiki, string catname, bool includeSubCategories)
 		{
-			Category cat = new Category(wiki, catname);
+			var cat = new Category(wiki, catname);
 			string[] catpages = cat.Pages;
 			string[] result;
 			if (includeSubCategories)
@@ -73,7 +72,7 @@ namespace WikiTools.Access
 		/// <returns>Page list</returns>
 		public static PageList FromWatchlist(Wiki wiki)
 		{
-			WatchList wl = new WatchList(wiki);
+			var wl = new WatchList(wiki);
 			return new PageList(wiki, wl.Pages);
 		}
 
@@ -94,9 +93,10 @@ namespace WikiTools.Access
 		#endregion
 
 		#region PageList class
+
+		private Namespaces ns;
 		private string[] pages;
-		Wiki wiki;
-		Namespaces ns;
+		private Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of page list
@@ -108,6 +108,14 @@ namespace WikiTools.Access
 			this.pages = pages;
 			this.wiki = wiki;
 			ns = wiki.NamespacesUtils;
+		}
+
+		/// <summary>
+		/// Gets page in this list
+		/// </summary>
+		public string[] Pages
+		{
+			get { return pages; }
 		}
 
 		/// <summary>
@@ -156,7 +164,7 @@ namespace WikiTools.Access
 		public int Filter(PageListFilter plf)
 		{
 			int count = 0;
-			List<String> result = new List<string>();
+			var result = new List<string>();
 			foreach (string cpage in pages)
 			{
 				if (plf(wiki.GetPage(cpage)))
@@ -178,7 +186,7 @@ namespace WikiTools.Access
 		public int Filter<T>(ParametrizedPageListFilter<T> plf, T param)
 		{
 			int count = 0;
-			List<String> result = new List<string>();
+			var result = new List<string>();
 			foreach (string cpage in pages)
 			{
 				if (plf(wiki.GetPage(cpage), param))
@@ -190,20 +198,10 @@ namespace WikiTools.Access
 			return count;
 		}
 
-		/// <summary>
-		/// Gets page in this list
-		/// </summary>
-		public string[] Pages
-		{
-			get
-			{
-				return pages;
-			}
-		}
-
 		#endregion
 
 		#region Filter
+
 		/// <summary>
 		/// Filter page list by namespaces
 		/// </summary>
@@ -237,15 +235,6 @@ namespace WikiTools.Access
 
 		#endregion
 
-		#region IEnumerable Members
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return pages.GetEnumerator();
-		}
-
-		#endregion
-
 		#region ICloneable Members
 
 		/// <summary>
@@ -255,6 +244,15 @@ namespace WikiTools.Access
 		public object Clone()
 		{
 			return new PageList(wiki, pages);
+		}
+
+		#endregion
+
+		#region IEnumerable Members
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return pages.GetEnumerator();
 		}
 
 		#endregion

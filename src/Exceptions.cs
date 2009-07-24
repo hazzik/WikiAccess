@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace WikiTools.Access
 {
@@ -29,12 +27,17 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Initializes new instance of WikiException object
 		/// </summary>
-		public WikiException() : base() {}
+		public WikiException()
+		{
+		}
+
 		/// <summary>
 		/// Initializes new instance of WikiException object
 		/// </summary>
 		/// <param name="message">Message of exception</param>
-		public WikiException(string message) : base(message) {}
+		public WikiException(string message) : base(message)
+		{
+		}
 	}
 
 	/// <summary>
@@ -45,12 +48,17 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Initializes new instance of WikiNotSupportedException object
 		/// </summary>
-		public WikiNotSupportedException() : base() {}
+		public WikiNotSupportedException()
+		{
+		}
+
 		/// <summary>
 		/// Initializes new instance of WikiNotSupportedException object
 		/// </summary>
 		/// <param name="message">Message of exception</param>
-		public WikiNotSupportedException(string message) : base(message) { }
+		public WikiNotSupportedException(string message) : base(message)
+		{
+		}
 	}
 
 	/// <summary>
@@ -61,12 +69,17 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Initializes new instance of WikiPermissionsExpection object
 		/// </summary>
-		public WikiPermissionsExpection() : base() {}
+		public WikiPermissionsExpection()
+		{
+		}
+
 		/// <summary>
 		/// Initializes new instance of WikiPermissionsExpection object
 		/// </summary>
 		/// <param name="message">Message of exception</param>
-		public WikiPermissionsExpection(string message) : base(message) {}
+		public WikiPermissionsExpection(string message) : base(message)
+		{
+		}
 	}
 
 	/// <summary>
@@ -77,11 +90,16 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Initializes new instance of WikiPageNotFoundExcecption object
 		/// </summary>
-		public WikiPageNotFoundExcecption() : base() {}
+		public WikiPageNotFoundExcecption()
+		{
+		}
+
 		/// <summary>
 		/// Initializes new instance of WikiPageNotFoundExcecption object
 		/// </summary>
 		/// <param name="message">Message of exception</param>
-		public WikiPageNotFoundExcecption(string message) : base(message) { }
+		public WikiPageNotFoundExcecption(string message) : base(message)
+		{
+		}
 	}
 }

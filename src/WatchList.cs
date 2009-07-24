@@ -17,12 +17,7 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
 
 namespace WikiTools.Access
 {
@@ -31,13 +26,11 @@ namespace WikiTools.Access
 	/// </summary>
 	public class WatchList
 	{
-		Wiki wiki;
-		AccessBrowser ab {
-			get { return wiki.ab; }
-		}
+		private readonly Wiki wiki;
 
-		string[] contents; bool contentsLoaded = false;
-		
+		private string[] contents;
+		private bool contentsLoaded;
+
 		/// <summary>
 		/// Initializes new instance of WatchList class
 		/// </summary>
@@ -47,23 +40,9 @@ namespace WikiTools.Access
 			wiki = site;
 		}
 
-		/// <summary>
-		/// Loads watchlist
-		/// </summary>
-		public void LoadPages()
+		private AccessBrowser ab
 		{
-			string resp = ab.CreateGetQuery("index.php?title=Special:Watchlist/edit").DownloadText();
-			MatchCollection mc = Regex.Matches(resp, "<input type=\"checkbox\" name=\"id\\[\\]\" value=\"(.*?)\" />", RegexOptions.IgnoreCase);
-			List<String> result = new List<string>();
-			foreach (Match cmatch in mc)
-			{
-				int startIdx, endIdx;
-				startIdx = cmatch.Value.IndexOf("value=") + 7;
-				endIdx = cmatch.Value.IndexOf('"', startIdx);
-				result.Add(cmatch.Groups[0].Value.Substring(startIdx, endIdx - startIdx));
-			}
-			contents = result.ToArray();
-			contentsLoaded = true;
+			get { return wiki.ab; }
 		}
 
 		/// <summary>
@@ -77,6 +56,26 @@ namespace WikiTools.Access
 					LoadPages();
 				return contents;
 			}
+		}
+
+		/// <summary>
+		/// Loads watchlist
+		/// </summary>
+		public void LoadPages()
+		{
+			string resp = ab.CreateGetQuery("index.php?title=Special:Watchlist/edit").DownloadText();
+			MatchCollection mc = Regex.Matches(resp, "<input type=\"checkbox\" name=\"id\\[\\]\" value=\"(.*?)\" />",
+			                                   RegexOptions.IgnoreCase);
+			var result = new List<string>();
+			foreach (Match cmatch in mc)
+			{
+				int startIdx, endIdx;
+				startIdx = cmatch.Value.IndexOf("value=") + 7;
+				endIdx = cmatch.Value.IndexOf('"', startIdx);
+				result.Add(cmatch.Groups[0].Value.Substring(startIdx, endIdx - startIdx));
+			}
+			contents = result.ToArray();
+			contentsLoaded = true;
 		}
 
 		/// <summary>

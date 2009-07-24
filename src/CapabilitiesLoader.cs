@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace WikiTools.Access
@@ -30,9 +28,9 @@ namespace WikiTools.Access
 			return ParseWikiCapabilities(ab.CreateGetQuery(page).DownloadText());
 		}
 
-		private static WikiCapabilities ParseWikiCapabilities(string vesionPage) 
+		private static WikiCapabilities ParseWikiCapabilities(string vesionPage)
 		{
-			WikiCapabilities result = new WikiCapabilities();
+			var result = new WikiCapabilities();
 			result.HasCheckUser = vesionPage.Contains("<i>CheckUser</i>");
 			result.HasExpandTemplates = vesionPage.Contains("<i>ExpandTemplates</i>");
 			result.HasFilePath = vesionPage.Contains("<i>Filepath</i>");
@@ -43,10 +41,12 @@ namespace WikiTools.Access
 			result.HasRenameUser = vesionPage.Contains("<i>Renameuser</i>");
 			Match match = Regex.Match(vesionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
 			// 2008-11-16 BL - Ticket 2300889 - Modified to work with newer versions of the Special:Version page.
-			if(match.Length > 0) {
+			if (match.Length > 0)
+			{
 				result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
 			}
-			else {
+			else
+			{
 				match = Regex.Match(vesionPage, @"MediaWiki</a></td>\s*<td>(\d).(\d{1,2})");
 				result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
 			}

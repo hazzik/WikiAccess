@@ -30,77 +30,96 @@ namespace WikiTools.Access
 	public class Namespaces
 	{
 		/// <summary>
-		/// Media namesapce
-		/// </summary>
-		public static readonly int Media = -2;
-		/// <summary>
-		/// Special namespace, where specail pages are stored
-		/// </summary>
-		public static readonly int Special = -1;
-		/// <summary>
-		/// Main (article) namespace
-		/// </summary>
-		public static readonly int Main = 0;
-		/// <summary>
-		/// Talk for mainspace pages
-		/// </summary>
-		public static readonly int Talk = 1;
-		/// <summary>
-		/// Users' personal pages
-		/// </summary>
-		public static readonly int User = 2;
-		/// <summary>
-		/// Users' talk pages
-		/// </summary>
-		public static readonly int UserTalk = 3;
-		/// <summary>
-		/// Project pages
-		/// </summary>
-		public static readonly int Project = 4;
-		/// <summary>
-		/// Talk for project pages
-		/// </summary>
-		public static readonly int ProjectTalk = 5;
-		/// <summary>
-		/// Media files
-		/// </summary>
-		public static readonly int Image = 6;
-		/// <summary>
-		/// Media files' talk pages
-		/// </summary>
-		public static readonly int ImageTalk = 7;
-		/// <summary>
-		/// MediaWiki messages
-		/// </summary>
-		public static readonly int MediaWiki = 8;
-		/// <summary>
-		/// MediaWiki messages talk pages
-		/// </summary>
-		public static readonly int MediaWikiTalk = 9;
-		/// <summary>
-		/// Templates
-		/// </summary>
-		public static readonly int Template = 10;
-		/// <summary>
-		/// Templates' talk pages
-		/// </summary>
-		public static readonly int TemplateTalk = 11;
-		/// <summary>
-		/// Help
-		/// </summary>
-		public static readonly int Help = 12;
-		/// <summary>
-		/// Help's talk pages
-		/// </summary>
-		public static readonly int HelpTalk = 13;
-		/// <summary>
 		/// Categories
 		/// </summary>
 		public static readonly int Category = 14;
+
 		/// <summary>
 		/// Categories' talk pages
 		/// </summary>
 		public static readonly int CategoryTalk = 15;
+
+		/// <summary>
+		/// Help
+		/// </summary>
+		public static readonly int Help = 12;
+
+		/// <summary>
+		/// Help's talk pages
+		/// </summary>
+		public static readonly int HelpTalk = 13;
+
+		/// <summary>
+		/// Media files
+		/// </summary>
+		public static readonly int Image = 6;
+
+		/// <summary>
+		/// Media files' talk pages
+		/// </summary>
+		public static readonly int ImageTalk = 7;
+
+		/// <summary>
+		/// Main (article) namespace
+		/// </summary>
+		public static readonly int Main;
+
+		/// <summary>
+		/// Media namesapce
+		/// </summary>
+		public static readonly int Media = -2;
+
+		/// <summary>
+		/// MediaWiki messages
+		/// </summary>
+		public static readonly int MediaWiki = 8;
+
+		/// <summary>
+		/// MediaWiki messages talk pages
+		/// </summary>
+		public static readonly int MediaWikiTalk = 9;
+
+		/// <summary>
+		/// Project pages
+		/// </summary>
+		public static readonly int Project = 4;
+
+		/// <summary>
+		/// Talk for project pages
+		/// </summary>
+		public static readonly int ProjectTalk = 5;
+
+		/// <summary>
+		/// Special namespace, where specail pages are stored
+		/// </summary>
+		public static readonly int Special = -1;
+
+		/// <summary>
+		/// Talk for mainspace pages
+		/// </summary>
+		public static readonly int Talk = 1;
+
+		/// <summary>
+		/// Templates
+		/// </summary>
+		public static readonly int Template = 10;
+
+		/// <summary>
+		/// Templates' talk pages
+		/// </summary>
+		public static readonly int TemplateTalk = 11;
+
+		/// <summary>
+		/// Users' personal pages
+		/// </summary>
+		public static readonly int User = 2;
+
+		/// <summary>
+		/// Users' talk pages
+		/// </summary>
+		public static readonly int UserTalk = 3;
+
+		private readonly SortedList<int, string> namespaces;
 
 		#region Load and save
 
@@ -109,15 +128,16 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="wiki">Source of namespaces</param>
 		/// <returns>Namespace ID:Name list</returns>
-		public static SortedList<int, string> GetNamespaces(Wiki wiki) 
+		public static SortedList<int, string> GetNamespaces(Wiki wiki)
 		{
 			Query query = wiki.ab.CreateGetQuery("api.php?format=xml" +
 			                                     "&action=query" +
-			                                     "&meta=siteinfo" + 
-															 "&siprop=namespaces");
-			XPathDocument xdoc = new XPathDocument(query.GetResponseStream());
-			SortedList<int, string> result = new SortedList<int, string>();
-			foreach(XPathNavigator element in xdoc.CreateNavigator().Select("api/query/namespaces/ns")) {
+			                                     "&meta=siteinfo" +
+			                                     "&siprop=namespaces");
+			var xdoc = new XPathDocument(query.GetResponseStream());
+			var result = new SortedList<int, string>();
+			foreach (XPathNavigator element in xdoc.CreateNavigator().Select("api/query/namespaces/ns"))
+			{
 				result.Add(int.Parse(element.GetAttribute("id", "")), element.Value);
 			}
 			return result;
@@ -131,7 +151,7 @@ namespace WikiTools.Access
 		public static SortedList<int, string> LoadFromFile(string fname)
 		{
 			string[] lines = File.ReadAllLines(fname, Encoding.UTF8);
-			SortedList<int, string> result = new SortedList<int, string>();
+			var result = new SortedList<int, string>();
 			foreach (string cline in lines)
 			{
 				string[] parts = cline.Split(':');
@@ -147,8 +167,8 @@ namespace WikiTools.Access
 		/// <param name="ns">Namespaces list</param>
 		public static void SaveToFile(string fname, SortedList<int, string> ns)
 		{
-			List<string> result = new List<string>();
-			foreach (KeyValuePair<int, string> ckp in ns)
+			var result = new List<string>();
+			foreach (var ckp in ns)
 				result.Add(ckp.Key + ":" + ckp.Value);
 			File.WriteAllLines(fname, result.ToArray(), Encoding.UTF8);
 		}
@@ -164,14 +184,32 @@ namespace WikiTools.Access
 		}
 
 		#endregion
-		
+
+		/// <summary>
+		/// Initializes new instance of object from file
+		/// </summary>
+		/// <param name="fpath">File name</param>
+		public Namespaces(string fpath)
+		{
+			namespaces = LoadFromFile(fpath);
+		}
+
+		/// <summary>
+		/// Initializes new instance of object from live wiki
+		/// </summary>
+		/// <param name="wiki">Wiki</param>
+		public Namespaces(Wiki wiki)
+		{
+			namespaces = GetNamespaces(wiki);
+		}
+
 		/// <summary>
 		/// Gets canonical namespaces list
 		/// </summary>
 		/// <returns>Canonical namespaces list</returns>
 		public static SortedList<int, string> GetStandardNamespaces()
 		{
-			SortedList<int, string> result = new SortedList<int, string>();
+			var result = new SortedList<int, string>();
 			result.Add(-2, "Media");
 			result.Add(-1, "Special");
 			result.Add(0, "");
@@ -191,26 +229,6 @@ namespace WikiTools.Access
 			result.Add(14, "Category");
 			result.Add(15, "Category talk");
 			return result;
-		}
-
-		SortedList<int, string> namespaces;
-
-		/// <summary>
-		/// Initializes new instance of object from file
-		/// </summary>
-		/// <param name="fpath">File name</param>
-		public Namespaces(string fpath)
-		{
-			namespaces = Namespaces.LoadFromFile(fpath);
-		}
-
-		/// <summary>
-		/// Initializes new instance of object from live wiki
-		/// </summary>
-		/// <param name="wiki">Wiki</param>
-		public Namespaces(Wiki wiki)
-		{
-			namespaces = Namespaces.GetNamespaces(wiki);
 		}
 
 		/// <summary>
@@ -243,7 +261,7 @@ namespace WikiTools.Access
 		/// <param name="fname">File name</param>
 		public void SaveToFile(string fname)
 		{
-			Namespaces.SaveToFile(fname, namespaces);
+			SaveToFile(fname, namespaces);
 		}
 
 		/// <summary>
@@ -295,7 +313,7 @@ namespace WikiTools.Access
 		/// <returns>Is talk namespace</returns>
 		public bool IsTalkNamespace(string title)
 		{
-			return GetNamespaceByTitle(title) > 0 && GetNamespaceByTitle(title) % 2 == 1;
+			return GetNamespaceByTitle(title) > 0 && GetNamespaceByTitle(title)%2 == 1;
 		}
 
 		/// <summary>

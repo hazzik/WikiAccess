@@ -17,31 +17,23 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Globalization;
-using System.Reflection;
-using System.Net;
+using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Xml;
 
 namespace WikiTools.Access
 {
 	/// <summary>
 	/// Contains useful utils for library
 	/// </summary>
-	public partial class Utils
+	public class Utils
 	{
 		/// <summary>
 		/// Returns version of library
 		/// </summary>
 		public static Version Version
 		{
-			get
-			{
-				return new Version(0, 1);
-			}
+			get { return new Version(0, 1); }
 		}
 
 		/// <summary>
@@ -52,7 +44,7 @@ namespace WikiTools.Access
 		/// <returns>Result list</returns>
 		public static List<T> RemoveDuplicates<T>(List<T> list)
 		{
-			List<T> lst_unique = new List<T>(list);
+			var lst_unique = new List<T>(list);
 			for (int i = 0; i < list.Count; i++)
 			{
 				T t = list[i];
@@ -70,7 +62,7 @@ namespace WikiTools.Access
 		/// <returns>Result list</returns>
 		public static T[] RemoveDuplicates<T>(T[] list)
 		{
-			List<T> lst = new List<T>(list);
+			var lst = new List<T>(list);
 			lst = RemoveDuplicates(lst);
 			return lst.ToArray();
 		}
@@ -84,7 +76,7 @@ namespace WikiTools.Access
 		{
 			return RemoveDuplicates<string>(array);
 		}
-		
+
 		/// <summary>
 		/// Formats DateTime in API format
 		/// </summary>
@@ -115,7 +107,7 @@ namespace WikiTools.Access
 		/// <returns>New array</returns>
 		public static string[] AddPrefix(string[] orig, string prefix)
 		{
-			List<string> result = new List<string>();
+			var result = new List<string>();
 			foreach (string str in orig)
 				result.Add(prefix + str);
 			return result.ToArray();
@@ -144,32 +136,33 @@ namespace WikiTools.Access
 			while (DateTime.Now - start < ts) ;
 		}
 
-        public static string UCFisrt(string s)
-        {
-            return Char.ToUpper(s[0]) + s.Substring(1);
-        }
+		public static string UCFisrt(string s)
+		{
+			return Char.ToUpper(s[0]) + s.Substring(1);
+		}
 
-        public static string BinaryToHexString(byte[] bytes)
-        {
-            StringBuilder builder = new StringBuilder();
-            foreach (byte b in bytes)
-            {
-                builder.AppendFormat("{0:X2}", b);
-            }
-            return builder.ToString();
-        }
+		public static string BinaryToHexString(byte[] bytes)
+		{
+			var builder = new StringBuilder();
+			foreach (byte b in bytes)
+			{
+				builder.AppendFormat("{0:X2}", b);
+			}
+			return builder.ToString();
+		}
 
-		public static byte[] ReadAllBytes(Stream stream) 
+		public static byte[] ReadAllBytes(Stream stream)
 		{
 			int cbyte;
-			List<Byte> result = new List<byte>();
-			while((cbyte = stream.ReadByte()) != -1) {
-				result.Add((byte)cbyte);
+			var result = new List<byte>();
+			while ((cbyte = stream.ReadByte()) != -1)
+			{
+				result.Add((byte) cbyte);
 			}
 			return result.ToArray();
 		}
 
-		public static string ReadAllText(Stream stream) 
+		public static string ReadAllText(Stream stream)
 		{
 			return new StreamReader(stream, Encoding.UTF8).ReadToEnd();
 		}

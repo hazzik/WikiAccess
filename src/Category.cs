@@ -17,8 +17,6 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 
@@ -29,15 +27,11 @@ namespace WikiTools.Access
 	/// </summary>
 	public class Category
 	{
-		Wiki wiki;
-		string name;
-		AccessBrowser ab {
-			get { return wiki.ab; }
-		}
-
-		bool loaded;
-		string[] subcats;
-		string[] pagesincat;
+		private bool loaded;
+		private string name;
+		private string[] pagesincat;
+		private string[] subcats;
+		private Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of category class
@@ -50,55 +44,9 @@ namespace WikiTools.Access
 			this.name = name;
 		}
 
-		/// <summary>
-		/// Loads category content
-		/// </summary>
-		public void Load()
+		private AccessBrowser ab
 		{
-			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" + HttpUtility.UrlEncode(name);
-			string text = ab.CreateGetQuery(pgname).DownloadText();
-			List<string> subcats_tmp = new List<string>();
-			List<string> pages_tmp = new List<string>();
-			string cmcontinue;
-			do
-			{
-				string[] cur_subcats, cur_pages;
-				cmcontinue = ExtractCategoriesFromXML(text, out cur_subcats, out cur_pages);
-				subcats_tmp.AddRange(cur_subcats);
-				pages_tmp.AddRange(cur_pages);
-				if (!String.IsNullOrEmpty(cmcontinue))
-				{
-					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
-					                 HttpUtility.UrlEncode(name) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue);
-					text = ab.CreateGetQuery(pgname1).DownloadText();
-				}
-				else break;
-			} while (true);
-			loaded = true;
-			subcats = subcats_tmp.ToArray();
-			pagesincat = pages_tmp.ToArray();
-		}
-
-		private string ExtractCategoriesFromXML(string xml, out string[] subcats, out string[] pages)
-		{
-			List<string> subcats_tmp = new List<string>();
-			List<string> pages_tmp = new List<string>();
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(xml);
-			XmlNodeList cmnodes = doc.GetElementsByTagName("cm");
-			foreach (XmlNode cnode in cmnodes)
-			{
-				XmlElement celem = (XmlElement)cnode;
-				if (celem.Attributes["ns"].Value == "14")
-					subcats_tmp.Add(wiki.NamespacesUtils.RemoveNamespace(celem.Attributes["title"].Value));
-				else
-					pages_tmp.Add(celem.Attributes["title"].Value);
-			}
-			subcats = subcats_tmp.ToArray();
-			pages = pages_tmp.ToArray();
-			if (doc.GetElementsByTagName("query-continue").Count <= 0) return null;
-			XmlElement elem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
-			return elem.Attributes["cmcontinue"].Value;
+			get { return wiki.ab; }
 		}
 
 		/// <summary>
@@ -128,12 +76,80 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
+		/// Gets category page
+		/// </summary>
+		public Page CategoryPage
+		{
+			get { return wiki.GetPage("Category:" + name); }
+		}
+
+		/// <summary>
+		/// Checks if category has its page (if no, it is a wanted category)
+		/// </summary>
+		public bool HasCategoryPage
+		{
+			get { return CategoryPage.Exists; }
+		}
+
+		/// <summary>
+		/// Loads category content
+		/// </summary>
+		public void Load()
+		{
+			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
+			                HttpUtility.UrlEncode(name);
+			string text = ab.CreateGetQuery(pgname).DownloadText();
+			var subcats_tmp = new List<string>();
+			var pages_tmp = new List<string>();
+			string cmcontinue;
+			do
+			{
+				string[] cur_subcats, cur_pages;
+				cmcontinue = ExtractCategoriesFromXML(text, out cur_subcats, out cur_pages);
+				subcats_tmp.AddRange(cur_subcats);
+				pages_tmp.AddRange(cur_pages);
+				if (!String.IsNullOrEmpty(cmcontinue))
+				{
+					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
+					                 HttpUtility.UrlEncode(name) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue);
+					text = ab.CreateGetQuery(pgname1).DownloadText();
+				}
+				else break;
+			} while (true);
+			loaded = true;
+			subcats = subcats_tmp.ToArray();
+			pagesincat = pages_tmp.ToArray();
+		}
+
+		private string ExtractCategoriesFromXML(string xml, out string[] subcats, out string[] pages)
+		{
+			var subcats_tmp = new List<string>();
+			var pages_tmp = new List<string>();
+			var doc = new XmlDocument();
+			doc.LoadXml(xml);
+			XmlNodeList cmnodes = doc.GetElementsByTagName("cm");
+			foreach (XmlNode cnode in cmnodes)
+			{
+				var celem = (XmlElement) cnode;
+				if (celem.Attributes["ns"].Value == "14")
+					subcats_tmp.Add(wiki.NamespacesUtils.RemoveNamespace(celem.Attributes["title"].Value));
+				else
+					pages_tmp.Add(celem.Attributes["title"].Value);
+			}
+			subcats = subcats_tmp.ToArray();
+			pages = pages_tmp.ToArray();
+			if (doc.GetElementsByTagName("query-continue").Count <= 0) return null;
+			var elem = (XmlElement) doc.GetElementsByTagName("query-continue")[0].FirstChild;
+			return elem.Attributes["cmcontinue"].Value;
+		}
+
+		/// <summary>
 		/// Loads page in this category and all subcategories
 		/// </summary>
 		/// <returns>Pages</returns>
 		public string[] GetPagesRecursive()
-		{ 
-			return GetPagesRecursive(true); 
+		{
+			return GetPagesRecursive(true);
 		}
 
 		/// <summary>
@@ -153,36 +169,14 @@ namespace WikiTools.Access
 		{
 			List<string> passed = (_passed == null ? new List<string>() : _passed);
 			if (!passed.Contains(name)) passed.Add(name);
-			List<string> result = new List<string>(Pages);
+			var result = new List<string>(Pages);
 			foreach (string subcat in Subcategories)
 			{
 				if (passed.Contains(subcat)) continue;
-				Category csubcat = new Category(wiki, subcat);
+				var csubcat = new Category(wiki, subcat);
 				result.AddRange(csubcat.GetPagesRecursive(passed));
 			}
 			return result.ToArray();
-		}
-
-		/// <summary>
-		/// Gets category page
-		/// </summary>
-		public Page CategoryPage
-		{
-			get
-			{
-				return wiki.GetPage("Category:" + name);
-			}
-		}
-
-		/// <summary>
-		/// Checks if category has its page (if no, it is a wanted category)
-		/// </summary>
-		public bool HasCategoryPage
-		{
-			get
-			{
-				return CategoryPage.Exists;
-			}
 		}
 	}
 }

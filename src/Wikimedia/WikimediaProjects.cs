@@ -16,11 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace WikiTools.Access.Wikimedia
 {
+
 	#region Wikimedia projects list and documentation
 
 	/// <summary>
@@ -102,6 +101,7 @@ namespace WikiTools.Access.Wikimedia
 		/// </summary>
 		Wikimania2007,
 	}
+
 	#endregion
 
 	/// <summary>
@@ -109,6 +109,25 @@ namespace WikiTools.Access.Wikimedia
 	/// </summary>
 	public static class WikimediaUtils
 	{
+		/// <summary>
+		/// Gets Wikimedia wikis capabilities
+		/// </summary>
+		public static WikiCapabilities Capabilities
+		{
+			get
+			{
+				var result = new WikiCapabilities();
+				result.HasCheckUser = result.HasExpandTemplates = result.HasFilePath = result.HasMakeBot = result.HasMakeSysop
+				                                                                                           =
+				                                                                                           result.HasNewUserLog =
+				                                                                                           result.HasOversight =
+				                                                                                           result.HasRenameUser =
+				                                                                                           true;
+				result.Version = new Version(1, 11);
+				return result;
+			}
+		}
+
 		/// <summary>
 		/// Makes URI for specified Wikimedia project
 		/// </summary>
@@ -145,27 +164,15 @@ namespace WikiTools.Access.Wikimedia
 			}
 		}
 
-		static bool IsMultilingualProject(WikimediaProjects proj)
+		private static bool IsMultilingualProject(WikimediaProjects proj)
 		{
-			WikimediaProjects[] mlingprojs = new WikimediaProjects[] { WikimediaProjects.Wikipedia,
-				WikimediaProjects.Wiktionary, WikimediaProjects.Wikibooks, WikimediaProjects.Wikiversity,
-				WikimediaProjects.Wikinews, WikimediaProjects.Wikiquote, WikimediaProjects.Wikisource };
+			var mlingprojs = new[]
+			                 	{
+			                 		WikimediaProjects.Wikipedia,
+			                 		WikimediaProjects.Wiktionary, WikimediaProjects.Wikibooks, WikimediaProjects.Wikiversity,
+			                 		WikimediaProjects.Wikinews, WikimediaProjects.Wikiquote, WikimediaProjects.Wikisource
+			                 	};
 			return Array.IndexOf(mlingprojs, proj) != -1;
-		}
-
-		/// <summary>
-		/// Gets Wikimedia wikis capabilities
-		/// </summary>
-		public static WikiCapabilities Capabilities
-		{
-			get
-			{
-				WikiCapabilities result = new WikiCapabilities();
-				result.HasCheckUser = result.HasExpandTemplates = result.HasFilePath = result.HasMakeBot = result.HasMakeSysop
-					= result.HasNewUserLog = result.HasOversight = result.HasRenameUser = true;
-				result.Version = new Version(1, 11);
-				return result;
-			}
 		}
 	}
 }

@@ -16,56 +16,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Web;
 
 namespace WikiTools.Access
 {
-
 	/// <summary>
 	/// Page revision
 	/// </summary>
 	public struct Revision
 	{
 		/// <summary>
-		/// Wiki which contains this revision
-		/// </summary>
-		public Wiki Wiki;
-		/// <summary>
-		/// Page name
-		/// </summary>
-		public string Page;
-		/// <summary>
-		/// Revision ID
-		/// </summary>
-		public int ID;
-		/// <summary>
-		/// Revision creation time
-		/// </summary>
-		public DateTime Time;
-		/// <summary>
 		/// Revision author
 		/// </summary>
 		public string Author;
-		/// <summary>
-		/// Is minor revision
-		/// </summary>
-		public bool Minor;
+
 		/// <summary>
 		/// Comment
 		/// </summary>
 		public string Comment;
 
 		/// <summary>
-		/// Gets revsion content
+		/// Revision ID
 		/// </summary>
-		/// <returns>Revision</returns>
-		public string GetContent()
-		{
-			string pgname = "index.php?action=raw&title=" + HttpUtility.UrlEncode(Page) + "&oldid=" + ID;
-			return Wiki.ab.CreateGetQuery(pgname).DownloadText();
-		}
+		public int ID;
+
+		/// <summary>
+		/// Is minor revision
+		/// </summary>
+		public bool Minor;
+
+		/// <summary>
+		/// Page name
+		/// </summary>
+		public string Page;
+
+		/// <summary>
+		/// Revision creation time
+		/// </summary>
+		public DateTime Time;
+
+		/// <summary>
+		/// Wiki which contains this revision
+		/// </summary>
+		public Wiki Wiki;
 
 		/// <summary>
 		/// Creates new structure instance
@@ -79,7 +72,7 @@ namespace WikiTools.Access
 		/// <param name="Comment">Comment</param>
 		public Revision(Wiki w, int ID, string Page, string Author, DateTime Time, bool Minor, string Comment)
 		{
-			this.Wiki = w;
+			Wiki = w;
 			this.ID = ID;
 			this.Page = Page;
 			this.Author = Author;
@@ -89,13 +82,23 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
+		/// Gets revsion content
+		/// </summary>
+		/// <returns>Revision</returns>
+		public string GetContent()
+		{
+			string pgname = "index.php?action=raw&title=" + HttpUtility.UrlEncode(Page) + "&oldid=" + ID;
+			return Wiki.ab.CreateGetQuery(pgname).DownloadText();
+		}
+
+		/// <summary>
 		/// Represents revision as string
 		/// </summary>
 		/// <returns>String view of revision</returns>
 		public override string ToString()
 		{
-			string str = Page + ": " + (Minor?"minor":"") + "revision #" + ID + " by " + Author + 
-				" at " + Time.ToString("HH:mm:ss d MMMM yyyy");
+			string str = Page + ": " + (Minor ? "minor" : "") + "revision #" + ID + " by " + Author +
+			             " at " + Time.ToString("HH:mm:ss d MMMM yyyy");
 			return str;
 		}
 	}

@@ -17,9 +17,7 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using System.Web;
 using System.Xml;
 
@@ -30,15 +28,12 @@ namespace WikiTools.Access
 	/// </summary>
 	public class Image
 	{
-		private AccessBrowser ab {
-			get { return wiki.ab; }
-		}
-		private Wiki wiki;
-		private string name;
-		private bool infoLoaded = false;
-		private ImageRepositoryType repotype = ImageRepositoryType.Local;
 		private bool existsLocaly = false;
+		private bool infoLoaded = false;
+		private string name;
+		private ImageRepositoryType repotype = ImageRepositoryType.Local;
 		private ImageRevision[] revs = null;
+		private Wiki wiki;
 
 		/// <summary>
 		/// Initializes Image object
@@ -49,6 +44,53 @@ namespace WikiTools.Access
 		{
 			this.wiki = wiki;
 			this.name = name;
+		}
+
+		private AccessBrowser ab
+		{
+			get { return wiki.ab; }
+		}
+
+		/// <summary>
+		/// Repository where image is stored
+		/// </summary>
+		public ImageRepositoryType RepositoryType
+		{
+			get
+			{
+				if (!infoLoaded)
+					LoadInfo();
+				return repotype;
+			}
+		}
+
+		/// <summary>
+		/// Indicates if image exists localy
+		/// </summary>
+		public bool ExistsLocaly
+		{
+			get
+			{
+				if (!infoLoaded)
+					LoadInfo();
+				return existsLocaly;
+			}
+		}
+
+		/// <summary>
+		/// Revsions of this image
+		/// </summary>
+		public ImageRevision[] Revisions
+		{
+			get { return revs; }
+		}
+
+		/// <summary>
+		/// Current revision of image
+		/// </summary>
+		public ImageRevision CurrentRevision
+		{
+			get { return revs[0]; }
 		}
 
 		/// <summary>
@@ -62,7 +104,7 @@ namespace WikiTools.Access
 			else
 				return CurrentRevision.Download();
 		}
-		
+
 		/// <summary>
 		/// Loads information about image. Called automatically, you should use it only for reloading info,
 		/// </summary>
@@ -70,27 +112,27 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&prop=imageinfo&titles=Image:" + HttpUtility.UrlEncode(name) +
 			                "&iiprop=timestamp|user|comment|url|size|sha1&iihistory&format=xml";
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlElement pageelem = (XmlElement)doc.GetElementsByTagName("page")[0];
+			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			existsLocaly = !pageelem.HasAttribute("missing");
 			repotype = ParseRepoType(pageelem.Attributes["imagerepository"].Value);
 
-			XmlElement iielem = (XmlElement)pageelem.GetElementsByTagName("imageinfo")[0];
+			var iielem = (XmlElement) pageelem.GetElementsByTagName("imageinfo")[0];
 			XmlNodeList revs_ii = pageelem.GetElementsByTagName("ii");
-			List<ImageRevision> revs_temp = new List<ImageRevision>();
+			var revs_temp = new List<ImageRevision>();
 			foreach (XmlNode cnode in revs_ii)
 			{
-				revs_temp.Add(ParseImageRevision((XmlElement)cnode));
+				revs_temp.Add(ParseImageRevision((XmlElement) cnode));
 			}
 			revs = revs_temp.ToArray();
-			
+
 			infoLoaded = true;
 		}
 
-		private ImageRevision ParseImageRevision(XmlElement element) 
+		private ImageRevision ParseImageRevision(XmlElement element)
 		{
-			ImageRevision result = new ImageRevision();
+			var result = new ImageRevision();
 			result.Wiki = wiki;
 			result.Image = name;
 			result.Time = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
@@ -103,10 +145,10 @@ namespace WikiTools.Access
 			result.Sha1 = element.Attributes["sha1"].Value;
 			return result;
 		}
-		
-		ImageRepositoryType ParseRepoType(string type)
+
+		private ImageRepositoryType ParseRepoType(string type)
 		{
-			switch(type)
+			switch (type)
 			{
 				case "shared":
 					return ImageRepositoryType.Shared;
@@ -115,27 +157,6 @@ namespace WikiTools.Access
 					return ImageRepositoryType.Local;
 			}
 		}
-
-		#region Unimplemented Upload method
-		/*/// <summary>
-		/// ***NOT IMPLEMENTED***
-		/// </summary>
-		/// <param name="path">Path of file to upload</param>
-		/// <param name="fname">Target name of file</param>
-		/// <param name="description">File description</param>
-		public void Upload(string path, string fname, string description)
-		{
-			throw new NotImplementedException();
-			ab.PageName = "index.php?title=Special:Upload";
-			if (!File.Exists(path)) throw new FileNotFoundException("File is not found", path);
-			ab.SetValue("wpUploadFile", path);
-			ab.SetTextboxField("wpDestFile", fname);
-			ab.SetTextboxField("wpUploadDescription", description);
-			ab.SetCheckbox("wpWatchthis", false);
-			ab.SetCheckbox("wpIgnoreWarning", true);
-			ab.ClickButton("wpUpload");
-		} */
-		#endregion
 
 		/// <summary>
 		/// Computes MD5 hash using .NET and converts it to string
@@ -158,56 +179,31 @@ namespace WikiTools.Access
 			SHA1 sha1 = SHA1.Create();
 			return Utils.BinaryToHexString(sha1.ComputeHash(img));
 		}
-		
-		/// <summary>
-		/// Repository where image is stored
+
+		#region Unimplemented Upload method
+
+		/*/// <summary>
+		/// ***NOT IMPLEMENTED***
 		/// </summary>
-		public ImageRepositoryType RepositoryType
+		/// <param name="path">Path of file to upload</param>
+		/// <param name="fname">Target name of file</param>
+		/// <param name="description">File description</param>
+		public void Upload(string path, string fname, string description)
 		{
-			get
-			{
-				if (!infoLoaded)
-					LoadInfo();
-				return repotype;
-			}
-		}
-		
-		/// <summary>
-		/// Indicates if image exists localy
-		/// </summary>
-		public bool ExistsLocaly
-		{
-			get
-			{
-				if (!infoLoaded)
-					LoadInfo();
-				return this.existsLocaly;
-			}
-		}
-		
-		/// <summary>
-		/// Revsions of this image
-		/// </summary>
-		public ImageRevision[] Revisions
-		{
-			get
-			{
-				return revs;
-			}
-		}
-		
-		/// <summary>
-		/// Current revision of image
-		/// </summary>
-		public ImageRevision CurrentRevision
-		{
-			get
-			{
-				return revs[0];
-			}
-		}
+			throw new NotImplementedException();
+			ab.PageName = "index.php?title=Special:Upload";
+			if (!File.Exists(path)) throw new FileNotFoundException("File is not found", path);
+			ab.SetValue("wpUploadFile", path);
+			ab.SetTextboxField("wpDestFile", fname);
+			ab.SetTextboxField("wpUploadDescription", description);
+			ab.SetCheckbox("wpWatchthis", false);
+			ab.SetCheckbox("wpIgnoreWarning", true);
+			ab.ClickButton("wpUpload");
+		} */
+
+		#endregion
 	}
-	
+
 	/// <summary>
 	/// Image repository type
 	/// </summary>
@@ -222,53 +218,62 @@ namespace WikiTools.Access
 		/// </summary>
 		Shared
 	}
-	
+
 	/// <summary>
 	/// Image revison
 	/// </summary>
 	public struct ImageRevision
 	{
 		/// <summary>
-		/// Wiki that contains image
-		/// </summary>
-		public Wiki Wiki;
-		/// <summary>
-		/// Image name
-		/// </summary>
-		public string Image;
-		/// <summary>
-		/// Version upload Time
-		/// </summary>
-		public DateTime Time;
-		/// <summary>
 		/// Uploader
 		/// </summary>
 		public string Author;
-		/// <summary>
-		/// Image size
-		/// </summary>
-		public long Size;
-		/// <summary>
-		/// Image width (0 for non-images)
-		/// </summary>
-		public int Width;
-		/// <summary>
-		/// Image height (0 for non-images)
-		/// </summary>
-		public int Height;
-		/// <summary>
-		/// Image raw url
-		/// </summary>
-		public string Url;
+
 		/// <summary>
 		/// Revision comment
 		/// </summary>
 		public string Comment;
+
+		/// <summary>
+		/// Image height (0 for non-images)
+		/// </summary>
+		public int Height;
+
+		/// <summary>
+		/// Image name
+		/// </summary>
+		public string Image;
+
 		/// <summary>
 		/// SHA1 hash of image
 		/// </summary>
 		public string Sha1;
-		
+
+		/// <summary>
+		/// Image size
+		/// </summary>
+		public long Size;
+
+		/// <summary>
+		/// Version upload Time
+		/// </summary>
+		public DateTime Time;
+
+		/// <summary>
+		/// Image raw url
+		/// </summary>
+		public string Url;
+
+		/// <summary>
+		/// Image width (0 for non-images)
+		/// </summary>
+		public int Width;
+
+		/// <summary>
+		/// Wiki that contains image
+		/// </summary>
+		public Wiki Wiki;
+
 		public byte[] Download()
 		{
 			return Wiki.ab.DownloadBinaryFullUrl(Url);

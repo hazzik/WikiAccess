@@ -17,7 +17,6 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
@@ -29,16 +28,13 @@ namespace WikiTools.Access
 	/// </summary>
 	public class User
 	{
-		static Regex UserGroup = new Regex("<option value=\"(.*?)\">", RegexOptions.Compiled);
+		private static Regex UserGroup = new Regex("<option value=\"(.*?)\">", RegexOptions.Compiled);
 
-		string name;
-		Wiki wiki;
-		AccessBrowser ab {
-			get { return wiki.ab; }
-		}
-		int editcount;
-		string[] groups;
-		bool propsLoaded = false;
+		private int editcount;
+		private string[] groups;
+		private string name;
+		private bool propsLoaded = false;
+		private Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of User class
@@ -50,49 +46,20 @@ namespace WikiTools.Access
 			this.wiki = wiki;
 			this.name = name;
 		}
-		
-		/// <summary>
-		/// Loads properties (groups, editcount) for user
-		/// </summary>
-		public void LoadProps()
+
+		private AccessBrowser ab
 		{
-			XmlDocument doc = new XmlDocument();
-			string pgname = "api.php?format=xml&action=query&&list=allusers&aulimit=1&auprop=editcount|groups&aufrom="
-			                + HttpUtility.UrlEncode(name);
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			if (doc.GetElementsByTagName("u").Count < 1) throw new WikiPageNotFoundExcecption();
-			XmlElement u = (XmlElement)doc.GetElementsByTagName("u")[0];
-			if (u.Attributes["name"].Value != name) throw new WikiPageNotFoundExcecption();
-			editcount = Int32.Parse(u.Attributes["editcount"].Value);
-			List<string> groups_tmp = new List<string>();
-			foreach (XmlNode node in u.ChildNodes)
-			{
-				if (node.Name == "groups")
-				{
-					XmlElement groups = (XmlElement) node;
-					foreach (XmlNode cnode in groups.ChildNodes)
-					{
-						if (cnode.Name == "g")
-						{
-							groups_tmp.Add(cnode.InnerText);
-						}
-					}
-				}
-			}
-			this.groups = groups_tmp.ToArray();
+			get { return wiki.ab; }
 		}
-		
+
 		/// <summary>
 		/// User's name
 		/// </summary>
 		public string Name
 		{
-			get
-			{
-				return name;
-			}
+			get { return name; }
 		}
-		
+
 		/// <summary>
 		/// Count of all edits made by this user
 		/// </summary>
@@ -105,16 +72,44 @@ namespace WikiTools.Access
 				return editcount;
 			}
 		}
-		
+
 		/// <summary>
 		/// Flags which this user has
 		/// </summary>
 		public string[] Groups
 		{
-			get
+			get { return groups; }
+		}
+
+		/// <summary>
+		/// Loads properties (groups, editcount) for user
+		/// </summary>
+		public void LoadProps()
+		{
+			var doc = new XmlDocument();
+			string pgname = "api.php?format=xml&action=query&&list=allusers&aulimit=1&auprop=editcount|groups&aufrom="
+			                + HttpUtility.UrlEncode(name);
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			if (doc.GetElementsByTagName("u").Count < 1) throw new WikiPageNotFoundExcecption();
+			var u = (XmlElement) doc.GetElementsByTagName("u")[0];
+			if (u.Attributes["name"].Value != name) throw new WikiPageNotFoundExcecption();
+			editcount = Int32.Parse(u.Attributes["editcount"].Value);
+			var groups_tmp = new List<string>();
+			foreach (XmlNode node in u.ChildNodes)
 			{
-				return groups;
+				if (node.Name == "groups")
+				{
+					var groups = (XmlElement) node;
+					foreach (XmlNode cnode in groups.ChildNodes)
+					{
+						if (cnode.Name == "g")
+						{
+							groups_tmp.Add(cnode.InnerText);
+						}
+					}
+				}
 			}
+			groups = groups_tmp.ToArray();
 		}
 
 		/*
