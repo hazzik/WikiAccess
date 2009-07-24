@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using System.Xml.XPath;
 using WikiTools.Web;
@@ -33,9 +31,9 @@ namespace WikiTools.Access
 				.Add("action", action)
 				.Add("title", pagetitle)
 				.Add("text", text);
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.Load(query.GetResponseStream());
-			XPathNodeIterator xpni = (XPathNodeIterator)doc.CreateNavigator().Evaluate("/api/" + action);
+			var xpni = (XPathNodeIterator) doc.CreateNavigator().Evaluate("/api/" + action);
 			foreach (XPathItem i in xpni)
 				return i.Value;
 			return null;
@@ -45,7 +43,7 @@ namespace WikiTools.Access
 		{
 			return ExpandTemplatesOrRender("expandtemplates", text, pagetitle);
 		}
-		
+
 		public string RenderText(string text, string pagetitle)
 		{
 			return ExpandTemplatesOrRender("render", text, pagetitle);

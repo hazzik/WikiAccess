@@ -18,10 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace WikiTools.Access
 {
+
 	#region Capabilities
 
 	/// <summary>
@@ -30,41 +30,49 @@ namespace WikiTools.Access
 	public struct WikiCapabilities
 	{
 		/// <summary>
-		/// Version of MediaWiki
-		/// </summary>
-		public Version Version;
-		/// <summary>
 		/// Requierd to check users
 		/// </summary>
 		public bool HasCheckUser;
+
 		/// <summary>
 		/// Required for full template substitution
 		/// </summary>
 		public bool HasExpandTemplates;
+
 		/// <summary>
 		/// Required to get images
 		/// </summary>
 		public bool HasFilePath;
+
 		/// <summary>
 		/// Requiered to make bot via MakeBot interface and have access to MakeBot log
 		/// </summary>
 		public bool HasMakeBot;
+
 		/// <summary>
 		/// Required to determine what permission bureaucrat have
 		/// </summary>
 		public bool HasMakeSysop;
+
 		/// <summary>
 		/// Required to get new users log
 		/// </summary>
 		public bool HasNewUserLog;
+
 		/// <summary>
 		/// Required to hide revisions
 		/// </summary>
 		public bool HasOversight;
+
 		/// <summary>
 		/// Required to rename users
 		/// </summary>
 		public bool HasRenameUser;
+
+		/// <summary>
+		/// Version of MediaWiki
+		/// </summary>
+		public Version Version;
 
 		/// <summary>
 		/// Casts capabilities to string
@@ -72,9 +80,9 @@ namespace WikiTools.Access
 		/// <returns>String</returns>
 		public override string ToString()
 		{
-			List<string> str = new List<string>();
+			var str = new List<string>();
 			str.Add("!Wiki-capa");
-			str.Add("version = " + Version.ToString());
+			str.Add("version = " + Version);
 			str.Add("ext:checkuser = " + HasCheckUser);
 			str.Add("ext:exptl = " + HasExpandTemplates);
 			str.Add("ext:fpath = " + HasFilePath);
@@ -93,14 +101,15 @@ namespace WikiTools.Access
 		/// <returns>Succes of parsing</returns>
 		public bool FromString(string s)
 		{
-			StringReader sr = new StringReader(s);
+			var sr = new StringReader(s);
 			if (sr.ReadLine().Trim() != "!Wiki-capa")
 				return false;
 			string cstr;
 			while (!String.IsNullOrEmpty(cstr = sr.ReadLine()))
 			{
-				string[] kv = cstr.Split(new char[] { '=' }, 2);
-				kv[0] = kv[0].Trim(); kv[1] = kv[1].Trim();
+				string[] kv = cstr.Split(new[] {'='}, 2);
+				kv[0] = kv[0].Trim();
+				kv[1] = kv[1].Trim();
 				switch (kv[0])
 				{
 					case "version":
@@ -144,37 +153,44 @@ namespace WikiTools.Access
 	public struct Statistics
 	{
 		/// <summary>
-		/// Count of total pages
+		/// Count of sysops
 		/// </summary>
-		public int TotalPages;
-		/// <summary>
-		/// Count of articles
-		/// </summary>
-		public int GoodPages;
-		/// <summary>
-		/// Count of views
-		/// </summary>
-		public int Views;
+		public int Admins;
+
 		/// <summary>
 		/// Count of revisions
 		/// </summary>
 		public int Edits;
+
 		/// <summary>
-		/// Count of users
+		/// Count of articles
 		/// </summary>
-		public int Users;
-		/// <summary>
-		/// Count of sysops
-		/// </summary>
-		public int Admins;
+		public int GoodPages;
+
 		/// <summary>
 		/// Count of images
 		/// </summary>
 		public int Images;
+
 		/// <summary>
 		/// Size of job queue
 		/// </summary>
 		public int Jobs;
+
+		/// <summary>
+		/// Count of total pages
+		/// </summary>
+		public int TotalPages;
+
+		/// <summary>
+		/// Count of users
+		/// </summary>
+		public int Users;
+
+		/// <summary>
+		/// Count of views
+		/// </summary>
+		public int Views;
 	}
 
 	public enum ProtectionLevel

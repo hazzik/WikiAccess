@@ -18,9 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Web;
 using WikiTools.Web;
 
 namespace WikiTools.Access
@@ -30,22 +27,15 @@ namespace WikiTools.Access
 	/// </summary>
 	public partial class Wiki : IDisposable
 	{
-		string wikiURI;
+		private readonly WikiCapabilities capabilities;
+		private readonly string capacachepath;
+		private readonly string mcachepath;
+		private readonly string nscachepath;
+		private readonly string wikiURI;
 		internal AccessBrowser ab;
-		MessageCache mcache;
-		string mcachepath, nscachepath, capacachepath;
+		private CurrentUser cu;
+		private MessageCache mcache;
 		internal Namespaces ns;
-		WikiCapabilities capabilities;
-		CurrentUser cu;
-
-		/// <summary>
-		/// URI of wiki in format http://mediawiki.org/w
-		/// </summary>
-		public string WikiURI
-		{
-			get { return wikiURI; }
-			//set { wikiuri = value; }
-		}
 
 		/// <summary>
 		/// Initializes new instance of a Wiki object. Message cache will be stored in current directory.
@@ -152,14 +142,20 @@ namespace WikiTools.Access
 		#endregion
 
 		/// <summary>
+		/// URI of wiki in format http://mediawiki.org/w
+		/// </summary>
+		public string WikiURI
+		{
+			get { return wikiURI; }
+			//set { wikiuri = value; }
+		}
+
+		/// <summary>
 		/// Returns wiki capabilities (version and extensions)
 		/// </summary>
 		public WikiCapabilities Capabilities
 		{
-			get
-			{
-				return capabilities;
-			}
+			get { return capabilities; }
 		}
 
 		/// <summary>
@@ -168,10 +164,7 @@ namespace WikiTools.Access
 		/// <seealso cref="Namespaces"/>
 		public Namespaces NamespacesUtils
 		{
-			get
-			{
-				return ns;
-			}
+			get { return ns; }
 		}
 
 		/// <summary>
@@ -179,10 +172,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public MessageCache Messages
 		{
-			get
-			{
-				return mcache;
-			}
+			get { return mcache; }
 		}
 
 		/// <summary>
@@ -192,10 +182,10 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				Statistics result = new Statistics();
+				var result = new Statistics();
 				string statstr = ab.CreateGetQuery("index.php?title=Special:Statistics&action=raw").DownloadText();
 				string[] _stats = statstr.Split(';');
-				Dictionary<string, int> stats = new Dictionary<string,int>();
+				var stats = new Dictionary<string, int>();
 				for (int i = 0; i < _stats.Length; i++)
 					stats.Add(_stats[i].Split('=')[0], Int32.Parse(_stats[i].Split('=')[1]));
 				result.Admins = stats["admins"];
@@ -207,6 +197,19 @@ namespace WikiTools.Access
 				result.Users = stats["users"];
 				result.Views = stats["views"];
 				return result;
+			}
+		}
+
+		/// <summary>
+		/// Returns info about current user
+		/// </summary>
+		public CurrentUser CurrentUserInfo
+		{
+			get
+			{
+				if (cu == null)
+					LoadCurrentUserInfo();
+				return cu;
 			}
 		}
 
@@ -246,6 +249,19 @@ namespace WikiTools.Access
 
 		#endregion
 
+		#region IDisposable Members
+
+		/// <summary>
+		/// Release all resources used by Wiki object
+		/// </summary>
+		public void Dispose()
+		{
+			ab.Dispose();
+			ab = null;
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Creates a page on wiki
 		/// </summary>
@@ -256,7 +272,7 @@ namespace WikiTools.Access
 		public Page CreatePage(string name, string text, string summary, bool overwrite)
 		{
 			Page page = GetPage(name);
-			if(overwrite || !page.Exists)
+			if (overwrite || !page.Exists)
 			{
 				page.SetText(text, summary);
 			}
@@ -270,37 +286,11 @@ namespace WikiTools.Access
 		{
 			ab.CreateGetQuery("index.php?title=Special:Mytalk").DownloadText();
 		}
-		
-		/// <summary>
-		/// Returns info about current user
-		/// </summary>
-		public CurrentUser CurrentUserInfo
-		{
-			get
-			{
-				if (cu == null)
-					LoadCurrentUserInfo();
-				return cu;
-			}
-		}
 
 		private void LoadCurrentUserInfo()
 		{
 			cu = new CurrentUser(this);
 		}
-
-		#region IDisposable Members
-
-		/// <summary>
-		/// Release all resources used by Wiki object
-		/// </summary>
-		public void Dispose()
-		{
-			ab.Dispose();
-			ab = null;
-		}
-
-		#endregion
 
 		public Page GetPage(string pgname)
 		{

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Web;
 using System.Xml;
 
@@ -8,50 +7,57 @@ namespace WikiTools.Access
 {
 	public class BlockLog
 	{
-		Wiki wiki;
-		AccessBrowser ab {
-			get { return wiki.ab; }
-		}
-		List<BlockLogEntry> entries = new List<BlockLogEntry>();
+		private List<BlockLogEntry> entries = new List<BlockLogEntry>();
+		private Wiki wiki;
 
 		public BlockLog(Wiki wiki)
 		{
 			this.wiki = wiki;
 		}
 
+		private AccessBrowser ab
+		{
+			get { return wiki.ab; }
+		}
+
+		public BlockLogEntry[] Entries
+		{
+			get { return entries.ToArray(); }
+		}
+
 		public void Load(string adminname)
 		{
-			string pgname = "api.php?action=query&list=logevents&letype=block&leuser=" 
+			string pgname = "api.php?action=query&list=logevents&letype=block&leuser="
 			                + HttpUtility.UrlEncode(adminname) + "&lelimit=500&format=xml";
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlElement root = (XmlElement)doc.GetElementsByTagName("logevents")[0];
+			var root = (XmlElement) doc.GetElementsByTagName("logevents")[0];
 			foreach (XmlNode cnode in root.ChildNodes)
 			{
-				if((cnode.NodeType == XmlNodeType.Element && cnode.Name == "item"))
+				if ((cnode.NodeType == XmlNodeType.Element && cnode.Name == "item"))
 				{
-					entries.Add(ParseBlockLogEntry((XmlElement)cnode));
+					entries.Add(ParseBlockLogEntry((XmlElement) cnode));
 				}
 			}
-			for (; ; )
+			for (;;)
 			{
-				if (entries.Count % 500 != 0) break;
+				if (entries.Count%500 != 0) break;
 				List<BlockLogEntry> tmp_entries = entries;
 				entries = new List<BlockLogEntry>();
 				//
 			}
 		}
 
-		private BlockLogEntry ParseBlockLogEntry(XmlElement element) 
+		private BlockLogEntry ParseBlockLogEntry(XmlElement element)
 		{
-			BlockLogEntry result = new BlockLogEntry();
+			var result = new BlockLogEntry();
 			result.Action = StringToBlockAction(element.Attributes["action"].Value);
 			result.BlockedBy = element.Attributes["user"].Value;
 			result.BlockTime = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
-			if(result.Action == BlockAction.Block)
+			if (result.Action == BlockAction.Block)
 				result.Duration = element.FirstChild.FirstChild.Value;
-			result.UserName = element.Attributes["title"].Value.Split(new char[] { ":"[0] }, 2)[1];
-			if(element.HasAttribute("comment"))
+			result.UserName = element.Attributes["title"].Value.Split(new char[] {":"[0]}, 2)[1];
+			if (element.HasAttribute("comment"))
 				result.Comment = element.Attributes["comment"].Value;
 			return result;
 		}
@@ -68,29 +74,22 @@ namespace WikiTools.Access
 					throw new FormatException();
 			}
 		}
-
-		public BlockLogEntry[] Entries
-		{
-			get
-			{
-				return entries.ToArray();
-			}
-		}
 	}
 
 	public struct BlockLogEntry
 	{
-		public string UserName;
 		public BlockAction Action;
 		public string BlockedBy;
 		public DateTime BlockTime;
-		public string Duration;
 		public string Comment;
+		public string Duration;
+		public string UserName;
 
 		public override string ToString()
 		{
-			return BlockedBy + " " + Action.ToString().ToLower() + "ed " + UserName + " for " + Duration + " at " + BlockTime.ToString()
-				+ " (reason: " + Comment + ")";
+			return BlockedBy + " " + Action.ToString().ToLower() + "ed " + UserName + " for " + Duration + " at " +
+			       BlockTime.ToString()
+			       + " (reason: " + Comment + ")";
 		}
 	}
 

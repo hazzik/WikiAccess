@@ -28,46 +28,18 @@ namespace WikiTools.Access
 	/// </summary>
 	public class AccessBrowser : IDisposable
 	{
+		private readonly string baseUri;
+		private CookieContainer cookies = new CookieContainer();
 		private string cpagename = "";
 		private string cpagetext = "";
-		private CookieContainer cookies = new CookieContainer();
-		private string baseUri;
 
 		/// <summary>
 		/// Initializes new instance of AccessBrowser for the specified URI
 		/// </summary>
 		/// <param name="uri">Uniform Resource Identifier</param>
-		public AccessBrowser(string uri) 
+		public AccessBrowser(string uri)
 		{
 			baseUri = uri;
-		}
-
-		public void ClearCookies() {
-			cookies = new CookieContainer();
-		}
-
-		public Query CreateGetQuery(string page) {
-			return new GetQuery(baseUri + '/' + page, cookies);
-		}
-
-		public Query CreateGetQueryFullUrl(string uri) {
-			return new GetQuery(uri, cookies);
-		}
-		
-		public Query CreatePostQuery(string page) {
-			return new PostQuery(baseUri + '/' + page, cookies);
-		}
-
-		public Query CreatePostQueryFullUrl(string uri) {
-			return new PostQuery(uri, cookies);
-		}
-
-		public Query CreatePostQuery(string page, IDictionary<string, string> data) {
-			return new PostQuery(baseUri + '/' + page, cookies, data);
-		}
-
-		public Query CreatePostQueryFullUrl(string uri, IDictionary<string, string> data) {
-			return new PostQuery(uri, cookies, data);
 		}
 
 		#region IDisposable Members
@@ -75,13 +47,47 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Release WebBrowser control
 		/// </summary>
-		public void Dispose() {
+		public void Dispose()
+		{
 			//wb.Dispose();
 		}
 
 		#endregion
 
 		#region Obsolete members, can be deleted anytime
+
+		/// <summary>
+		/// Initializes new instance of AccessBrowser
+		/// </summary>
+		/// <param name="wiki">Wiki to work with</param>
+		[Obsolete("Please use constructor with string argument")]
+		public AccessBrowser(Wiki wiki)
+			: this(wiki.WikiURI)
+		{
+		}
+
+		/// <summary>
+		/// Allows to change current page
+		/// </summary>
+		[Obsolete]
+		public string PageName
+		{
+			get { return cpagename; }
+			set
+			{
+				cpagename = baseUri + "/" + value;
+				cpagetext = CreateGetQuery(value).DownloadText();
+			}
+		}
+
+		/// <summary>
+		/// Current page text
+		/// </summary>
+		[Obsolete]
+		public string PageText
+		{
+			get { return cpagetext; }
+		}
 
 		/// <summary>
 		/// Checks if we are currently logged in
@@ -98,7 +104,7 @@ namespace WikiTools.Access
 		/// <param name="pgname">Page name</param>
 		/// <returns>Page content</returns>
 		[Obsolete("Please use instance of GetQuery class instead")]
-		public string DownloadPage(string pgname) 
+		public string DownloadPage(string pgname)
 		{
 			return DownloadPageFullUrl(baseUri + "/" + pgname);
 		}
@@ -122,7 +128,7 @@ namespace WikiTools.Access
 		/// <param name="data">Post data</param>
 		/// <returns>HTTP response</returns>
 		[Obsolete("Please use instance of PostQuery class instead")]
-		public string PostQuery(string pgname, IDictionary<string, string> data) 
+		public string PostQuery(string pgname, IDictionary<string, string> data)
 		{
 			cpagename = pgname;
 			return cpagetext = CreatePostQueryFullUrl(baseUri + "/" + pgname, data).DownloadText();
@@ -147,38 +153,6 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Allows to change current page
-		/// </summary>
-		[Obsolete]
-		public string PageName {
-			get { return cpagename; }
-			set
-			{
-				cpagename = baseUri + "/" + value;
-				cpagetext = CreateGetQuery(value).DownloadText();
-			}
-		}
-
-		/// <summary>
-		/// Current page text
-		/// </summary>
-		[Obsolete]
-		public string PageText {
-			get {
-				return cpagetext;
-			}
-		}
-
-		/// <summary>
-		/// Initializes new instance of AccessBrowser
-		/// </summary>
-		/// <param name="wiki">Wiki to work with</param>
-		[Obsolete("Please use constructor with string argument")]
-		public AccessBrowser(Wiki wiki)
-			: this(wiki.WikiURI) {
-		}
-
-		/// <summary>
 		/// Parses API timestamp
 		/// </summary>
 		/// <param name="p">API timestamp in string</param>
@@ -195,11 +169,46 @@ namespace WikiTools.Access
 		/// <param name="str">String to encode</param>
 		/// <returns>Encoded URL</returns>
 		[Obsolete("Please use HttpUtility.UrlEncode(url) instead")]
-		public string EncodeUrl(string str) {
+		public string EncodeUrl(string str)
+		{
 			return HttpUtility.UrlEncode(str);
 		}
 
 		#endregion
 
+		public void ClearCookies()
+		{
+			cookies = new CookieContainer();
+		}
+
+		public Query CreateGetQuery(string page)
+		{
+			return new GetQuery(baseUri + '/' + page, cookies);
+		}
+
+		public Query CreateGetQueryFullUrl(string uri)
+		{
+			return new GetQuery(uri, cookies);
+		}
+
+		public Query CreatePostQuery(string page)
+		{
+			return new PostQuery(baseUri + '/' + page, cookies);
+		}
+
+		public Query CreatePostQueryFullUrl(string uri)
+		{
+			return new PostQuery(uri, cookies);
+		}
+
+		public Query CreatePostQuery(string page, IDictionary<string, string> data)
+		{
+			return new PostQuery(baseUri + '/' + page, cookies, data);
+		}
+
+		public Query CreatePostQueryFullUrl(string uri, IDictionary<string, string> data)
+		{
+			return new PostQuery(uri, cookies, data);
+		}
 	}
 }

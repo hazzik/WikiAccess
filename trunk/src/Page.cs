@@ -31,35 +31,40 @@ namespace WikiTools.Access
 	public class Page
 	{
 		//Permanent variables
-		Wiki wiki;
-		string name;
-		AccessBrowser ab {
-			get { return wiki.ab; }
-		}
+		private string[] categories;
+		private bool categoriesLoaded;
+		private bool editPrepared;
+		private string edittoken;
+		private bool exists;
 
-		//Loadable variables & Load flags
-		string text; bool textLoaded;
+		private string[] externalLinks;
+		private bool externalLinksLoaded;
+		private bool historLoaded;
+		private Revision[] history;
 
-		int pgid; DateTime touched; int lastrevision; bool redirect; bool exists; int length;
-		bool propsLoaded;
+		private string[] images;
+		private bool imagesLoaded;
+		private string[] internalLinks;
+		private bool internalLinksLoaded;
 
-		string redirectsOn; bool redirectsOnLoaded;
-
-		Revision[] history; bool historLoaded;
-
-		string[] internalLinks; bool internalLinksLoaded;
-
-		string[] externalLinks; bool externalLinksLoaded;
-
-		string[] categories; bool categoriesLoaded;
-
-		string[] templates; bool templatesLoaded;
-
-		string[] images; bool imagesLoaded;
-
-		string[] subpages; bool subpagesLoaded;
-		
-		string edittoken; string lastedit; string starttime; bool editPrepared;
+		private string lastedit;
+		private int lastrevision;
+		private int length;
+		private string name;
+		private int pgid;
+		private bool propsLoaded;
+		private bool redirect;
+		private string redirectsOn;
+		private bool redirectsOnLoaded;
+		private string starttime;
+		private string[] subpages;
+		private bool subpagesLoaded;
+		private string[] templates;
+		private bool templatesLoaded;
+		private string text;
+		private bool textLoaded;
+		private DateTime touched;
+		private Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of Page
@@ -82,7 +87,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!textLoaded) LoadText();
+				if (!textLoaded) LoadText();
 				return text;
 			}
 		}
@@ -100,7 +105,7 @@ namespace WikiTools.Access
 			}
 			catch (WebException we)
 			{
-				if (((HttpWebResponse)we.Response).StatusCode == HttpStatusCode.NotFound)
+				if (((HttpWebResponse) we.Response).StatusCode == HttpStatusCode.NotFound)
 					throw new WikiPageNotFoundExcecption();
 				throw;
 			}
@@ -109,194 +114,9 @@ namespace WikiTools.Access
 
 		#endregion
 
-		/// <summary>
-		/// Loads common page info: existance, page ID, last edit time, last edit ID, is redirect
-		/// </summary>
-		public void LoadInfo()
+		private AccessBrowser ab
 		{
-			string pgname = "api.php?action=query&format=xml&prop=info&titles=" + HttpUtility.UrlEncode(name);
-			XmlDocument doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlElement pageElem = (XmlElement)doc.GetElementsByTagName("page")[0];
-			propsLoaded = true;
-			exists = !pageElem.HasAttribute("missing");
-			if (!exists)
-				return;
-			pgid = Int32.Parse(pageElem.Attributes["pageid"].Value);
-			touched = DateTime.Parse(pageElem.Attributes["touched"].Value).ToUniversalTime();
-			lastrevision = Int32.Parse(pageElem.Attributes["lastrevid"].Value);
-			redirect =pageElem.HasAttribute("redirect");
-			length = Int32.Parse(pageElem.Attributes["length"].Value);
-		}
-
-		/// <summary>
-		/// Loads on which page this page redirects
-		/// </summary>
-		public void LoadRedirectsOn()
-		{
-			string pgname = "index.php?redirect=no&title=" + HttpUtility.UrlEncode(name);
-			string pgtext = ab.CreateGetQuery(pgname).DownloadText();
-			redirectsOnLoaded = true;
-			if (!Regexes.HTMLRedirect.Match(pgtext).Success)
-			{
-				redirectsOn = null;
-				return;
-			}
-			redirectsOn = (Regexes.HTMLRedirect.Match(pgtext).Success ? Regexes.HTMLRedirect.Match(pgtext).Groups[1].Value : "");
-		}
-
-		/// <summary>
-		/// Loads internal links on this page
-		/// </summary>
-		public void LoadInternalLinks()
-		{
-			string pgname = "api.php?action=query&format=xml&prop=links&titles=" + HttpUtility.UrlEncode(name);
-			XmlDocument doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlNodeList nl = doc.GetElementsByTagName("pl");
-			List<string> tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				XmlElement celem = (XmlElement)node;
-				tmp.Add(celem.Attributes["title"].Value);
-			}
-			internalLinksLoaded = true;
-			internalLinks = tmp.ToArray();
-		}
-
-		/// <summary>
-		/// Loads external links on this page
-		/// </summary>
-		public void LoadExternalLinks()
-		{
-			string pgname = "api.php?action=query&format=xml&prop=extlinks&titles=" + HttpUtility.UrlEncode(name);
-			XmlDocument doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlNodeList nl = doc.GetElementsByTagName("el");
-			List<string> tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				XmlElement celem = (XmlElement)node;
-				tmp.Add(celem.InnerText);
-			}
-			externalLinksLoaded = true;
-			externalLinks = tmp.ToArray();
-		}
-
-		/// <summary>
-		/// Loads list of templates used on this page
-		/// </summary>
-		public void LoadTemplates()
-		{
-			string pgname = "api.php?action=query&format=xml&prop=templates&titles=" + HttpUtility.UrlEncode(name);
-			XmlDocument doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlNodeList nl = doc.GetElementsByTagName("tl");
-			List<string> tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				XmlElement celem = (XmlElement)node;
-				tmp.Add(celem.Attributes["title"].Value);
-			}
-			templatesLoaded = true;
-			templates = tmp.ToArray();
-		}
-
-		/// <summary>
-		/// Loads images of templates used on this page
-		/// </summary>
-		public void LoadImages()
-		{
-			string pgname = "api.php?action=query&format=xml&prop=images&titles=" + HttpUtility.UrlEncode(name);
-			XmlDocument doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlNodeList nl = doc.GetElementsByTagName("im");
-			List<string> tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				XmlElement celem = (XmlElement)node;
-				tmp.Add(celem.Attributes["title"].Value);
-			}
-			imagesLoaded = true;
-			images = tmp.ToArray();
-		}
-
-		/// <summary>
-		/// Loads history of this page
-		/// </summary>
-		public void LoadHistory()
-		{
-			string uri = "api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles="
-				+ HttpUtility.UrlEncode(name);
-			bool needNext = false;
-			historLoaded = true;
-			List<Revision> tmp = new List<Revision>();
-			do
-			{
-				XmlDocument doc = new XmlDocument();
-				doc.Load(ab.CreateGetQuery(uri).GetResponseStream());
-				if (((XmlElement)doc.GetElementsByTagName("page")[0]).HasAttribute("missing"))
-					throw new WikiPageNotFoundExcecption();
-				XmlElement revsroot = (XmlElement)doc.GetElementsByTagName("revisions")[0];
-				foreach (XmlNode node in revsroot.ChildNodes)
-				{
-					if (node.NodeType == XmlNodeType.Element && node.Name == "rev")
-					{
-						tmp.Add(ParseRevision((XmlElement)node));
-					}
-				}
-				if (doc.GetElementsByTagName("query-continue").Count > 0)
-				{	
-					XmlElement qcelem = (XmlElement)doc.GetElementsByTagName("query-continue")[0].FirstChild;
-					uri = "api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles=" +
-						HttpUtility.UrlEncode(name) + "&rvstartid=" + qcelem.Attributes["rvstartid"].Value;
-					needNext = true;
-				}
-				else
-					needNext = false;
-			} while (needNext);
-			history = tmp.ToArray();
-		}
-
-		private Revision ParseRevision(XmlElement element) {
-			Revision result = new Revision();
-			result.Wiki = wiki;
-			result.Minor = element.HasAttribute("minor");
-			result.ID = Int32.Parse(element.Attributes["revid"].Value);
-			result.Page = name;
-			result.Author = element.Attributes["user"].Value;
-			result.Time = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
-			result.Comment = (element.HasAttribute("comment") ? element.Attributes["comment"].Value : "");
-			return result;
-		}
-
-		/// <summary>
-		/// Loads category that contains this page
-		/// </summary>
-		public void LoadCategories()
-		{
-			string pgname = "api.php?action=query&format=xml&prop=categories&titles=" + HttpUtility.UrlEncode(name);
-			XmlDocument doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlNodeList nl = doc.GetElementsByTagName("cl");
-			List<string> tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				XmlElement celem = (XmlElement)node;
-				tmp.Add(celem.Attributes["title"].Value.Substring(wiki.NamespacesUtils.GetNamespaceByID(14).Length + 1));
-			}
-			categoriesLoaded = true;
-			categories = tmp.ToArray();
-		}
-
-		/// <summary>
-		/// Loads subpages of this page
-		/// </summary>
-		public void LoadSubpages()
-		{
-			subpages = wiki.GetPrefixIndex(
-				wiki.NamespacesUtils.RemoveNamespace(name) + "/", PageTypes.All, NamespaceID);
-			subpagesLoaded = true;
+			get { return wiki.ab; }
 		}
 
 		/// <summary>
@@ -306,7 +126,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!categoriesLoaded) LoadCategories();
+				if (!categoriesLoaded) LoadCategories();
 				return categories;
 			}
 		}
@@ -318,7 +138,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!redirectsOnLoaded) LoadRedirectsOn();
+				if (!redirectsOnLoaded) LoadRedirectsOn();
 				return redirectsOn;
 			}
 		}
@@ -330,11 +150,11 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!historLoaded) LoadHistory();
+				if (!historLoaded) LoadHistory();
 				return history;
 			}
 		}
-		
+
 		/// <summary>
 		/// Gets internal links on this page. Automatically calls LoadInternalLinks() on first usage
 		/// </summary>
@@ -342,7 +162,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!internalLinksLoaded) LoadInternalLinks();
+				if (!internalLinksLoaded) LoadInternalLinks();
 				return internalLinks;
 			}
 		}
@@ -354,7 +174,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!externalLinksLoaded) LoadExternalLinks();
+				if (!externalLinksLoaded) LoadExternalLinks();
 				return externalLinks;
 			}
 		}
@@ -366,7 +186,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!subpagesLoaded) LoadSubpages();
+				if (!subpagesLoaded) LoadSubpages();
 				return subpages;
 			}
 		}
@@ -378,7 +198,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!templatesLoaded) LoadTemplates();
+				if (!templatesLoaded) LoadTemplates();
 				return templates;
 			}
 		}
@@ -390,7 +210,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				if(!imagesLoaded) LoadImages();
+				if (!imagesLoaded) LoadImages();
 				return images;
 			}
 		}
@@ -414,10 +234,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public string PageName
 		{
-			get
-			{
-				return name;
-			}
+			get { return name; }
 		}
 
 		/// <summary>
@@ -482,7 +299,7 @@ namespace WikiTools.Access
 			}
 		}
 
-#endregion
+		#endregion
 
 		#region Namespace-related properties
 
@@ -491,10 +308,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public int NamespaceID
 		{
-			get
-			{
-				return wiki.NamespacesUtils.GetNamespaceByTitle(name);
-			}
+			get { return wiki.NamespacesUtils.GetNamespaceByTitle(name); }
 		}
 
 		/// <summary>
@@ -502,10 +316,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public string NamespeceName
 		{
-			get
-			{
-				return NamespaceID != 0 ? name.Split(':')[0] : "";
-			}
+			get { return NamespaceID != 0 ? name.Split(':')[0] : ""; }
 		}
 
 		/// <summary>
@@ -513,10 +324,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public bool IsTalkPage
 		{
-			get
-			{
-				return wiki.NamespacesUtils.IsTalkNamespace(name);
-			}
+			get { return wiki.NamespacesUtils.IsTalkNamespace(name); }
 		}
 
 		/// <summary>
@@ -524,10 +332,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public Page TalkPage
 		{
-			get
-			{
-				return wiki.GetPage(wiki.NamespacesUtils.TitleToTalk(name));
-			}
+			get { return wiki.GetPage(wiki.NamespacesUtils.TitleToTalk(name)); }
 		}
 
 		#endregion
@@ -614,7 +419,7 @@ namespace WikiTools.Access
 		/// <param name="section">Section to edit</param>
 		public virtual void SetText(string newText, string summary, bool minor, bool watch, bool bot, int section)
 		{
-			if(!editPrepared)
+			if (!editPrepared)
 				PrepareToEdit();
 			Query query = ab.CreatePostQuery("api.php?format=xml")
 				.Add("action", "edit")
@@ -626,10 +431,12 @@ namespace WikiTools.Access
 				.Add("basetimestamp", lastedit)
 				.Add("starttimestamp", starttime)
 				.Add(watch ? "watch" : "unwatch", "1");
-			if(bot) {
+			if (bot)
+			{
 				query.Add("bot", "1");
 			}
-			if(section != -1) {
+			if (section != -1)
+			{
 				query.Add("section", section.ToString());
 			}
 			string txt = query.DownloadText();
@@ -637,6 +444,198 @@ namespace WikiTools.Access
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Loads common page info: existance, page ID, last edit time, last edit ID, is redirect
+		/// </summary>
+		public void LoadInfo()
+		{
+			string pgname = "api.php?action=query&format=xml&prop=info&titles=" + HttpUtility.UrlEncode(name);
+			var doc = new XmlDocument();
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			var pageElem = (XmlElement) doc.GetElementsByTagName("page")[0];
+			propsLoaded = true;
+			exists = !pageElem.HasAttribute("missing");
+			if (!exists)
+				return;
+			pgid = Int32.Parse(pageElem.Attributes["pageid"].Value);
+			touched = DateTime.Parse(pageElem.Attributes["touched"].Value).ToUniversalTime();
+			lastrevision = Int32.Parse(pageElem.Attributes["lastrevid"].Value);
+			redirect = pageElem.HasAttribute("redirect");
+			length = Int32.Parse(pageElem.Attributes["length"].Value);
+		}
+
+		/// <summary>
+		/// Loads on which page this page redirects
+		/// </summary>
+		public void LoadRedirectsOn()
+		{
+			string pgname = "index.php?redirect=no&title=" + HttpUtility.UrlEncode(name);
+			string pgtext = ab.CreateGetQuery(pgname).DownloadText();
+			redirectsOnLoaded = true;
+			if (!Regexes.HTMLRedirect.Match(pgtext).Success)
+			{
+				redirectsOn = null;
+				return;
+			}
+			redirectsOn = (Regexes.HTMLRedirect.Match(pgtext).Success ? Regexes.HTMLRedirect.Match(pgtext).Groups[1].Value : "");
+		}
+
+		/// <summary>
+		/// Loads internal links on this page
+		/// </summary>
+		public void LoadInternalLinks()
+		{
+			string pgname = "api.php?action=query&format=xml&prop=links&titles=" + HttpUtility.UrlEncode(name);
+			var doc = new XmlDocument();
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			XmlNodeList nl = doc.GetElementsByTagName("pl");
+			var tmp = new List<string>();
+			foreach (XmlNode node in nl)
+			{
+				var celem = (XmlElement) node;
+				tmp.Add(celem.Attributes["title"].Value);
+			}
+			internalLinksLoaded = true;
+			internalLinks = tmp.ToArray();
+		}
+
+		/// <summary>
+		/// Loads external links on this page
+		/// </summary>
+		public void LoadExternalLinks()
+		{
+			string pgname = "api.php?action=query&format=xml&prop=extlinks&titles=" + HttpUtility.UrlEncode(name);
+			var doc = new XmlDocument();
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			XmlNodeList nl = doc.GetElementsByTagName("el");
+			var tmp = new List<string>();
+			foreach (XmlNode node in nl)
+			{
+				var celem = (XmlElement) node;
+				tmp.Add(celem.InnerText);
+			}
+			externalLinksLoaded = true;
+			externalLinks = tmp.ToArray();
+		}
+
+		/// <summary>
+		/// Loads list of templates used on this page
+		/// </summary>
+		public void LoadTemplates()
+		{
+			string pgname = "api.php?action=query&format=xml&prop=templates&titles=" + HttpUtility.UrlEncode(name);
+			var doc = new XmlDocument();
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			XmlNodeList nl = doc.GetElementsByTagName("tl");
+			var tmp = new List<string>();
+			foreach (XmlNode node in nl)
+			{
+				var celem = (XmlElement) node;
+				tmp.Add(celem.Attributes["title"].Value);
+			}
+			templatesLoaded = true;
+			templates = tmp.ToArray();
+		}
+
+		/// <summary>
+		/// Loads images of templates used on this page
+		/// </summary>
+		public void LoadImages()
+		{
+			string pgname = "api.php?action=query&format=xml&prop=images&titles=" + HttpUtility.UrlEncode(name);
+			var doc = new XmlDocument();
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			XmlNodeList nl = doc.GetElementsByTagName("im");
+			var tmp = new List<string>();
+			foreach (XmlNode node in nl)
+			{
+				var celem = (XmlElement) node;
+				tmp.Add(celem.Attributes["title"].Value);
+			}
+			imagesLoaded = true;
+			images = tmp.ToArray();
+		}
+
+		/// <summary>
+		/// Loads history of this page
+		/// </summary>
+		public void LoadHistory()
+		{
+			string uri = "api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles="
+			             + HttpUtility.UrlEncode(name);
+			bool needNext = false;
+			historLoaded = true;
+			var tmp = new List<Revision>();
+			do
+			{
+				var doc = new XmlDocument();
+				doc.Load(ab.CreateGetQuery(uri).GetResponseStream());
+				if (((XmlElement) doc.GetElementsByTagName("page")[0]).HasAttribute("missing"))
+					throw new WikiPageNotFoundExcecption();
+				var revsroot = (XmlElement) doc.GetElementsByTagName("revisions")[0];
+				foreach (XmlNode node in revsroot.ChildNodes)
+				{
+					if (node.NodeType == XmlNodeType.Element && node.Name == "rev")
+					{
+						tmp.Add(ParseRevision((XmlElement) node));
+					}
+				}
+				if (doc.GetElementsByTagName("query-continue").Count > 0)
+				{
+					var qcelem = (XmlElement) doc.GetElementsByTagName("query-continue")[0].FirstChild;
+					uri =
+						"api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles=" +
+						HttpUtility.UrlEncode(name) + "&rvstartid=" + qcelem.Attributes["rvstartid"].Value;
+					needNext = true;
+				}
+				else
+					needNext = false;
+			} while (needNext);
+			history = tmp.ToArray();
+		}
+
+		private Revision ParseRevision(XmlElement element)
+		{
+			var result = new Revision();
+			result.Wiki = wiki;
+			result.Minor = element.HasAttribute("minor");
+			result.ID = Int32.Parse(element.Attributes["revid"].Value);
+			result.Page = name;
+			result.Author = element.Attributes["user"].Value;
+			result.Time = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
+			result.Comment = (element.HasAttribute("comment") ? element.Attributes["comment"].Value : "");
+			return result;
+		}
+
+		/// <summary>
+		/// Loads category that contains this page
+		/// </summary>
+		public void LoadCategories()
+		{
+			string pgname = "api.php?action=query&format=xml&prop=categories&titles=" + HttpUtility.UrlEncode(name);
+			var doc = new XmlDocument();
+			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			XmlNodeList nl = doc.GetElementsByTagName("cl");
+			var tmp = new List<string>();
+			foreach (XmlNode node in nl)
+			{
+				var celem = (XmlElement) node;
+				tmp.Add(celem.Attributes["title"].Value.Substring(wiki.NamespacesUtils.GetNamespaceByID(14).Length + 1));
+			}
+			categoriesLoaded = true;
+			categories = tmp.ToArray();
+		}
+
+		/// <summary>
+		/// Loads subpages of this page
+		/// </summary>
+		public void LoadSubpages()
+		{
+			subpages = wiki.GetPrefixIndex(
+				wiki.NamespacesUtils.RemoveNamespace(name) + "/", PageTypes.All, NamespaceID);
+			subpagesLoaded = true;
+		}
 
 		/*/// <summary>
 		/// Deletes this page
@@ -691,7 +690,7 @@ namespace WikiTools.Access
 			LoadRedirectsOn();
 			LoadInfo();
 		}
-		
+
 		/// <summary>
 		/// Initializes variables to prevent edit conflicts
 		/// </summary>
@@ -710,7 +709,7 @@ namespace WikiTools.Access
 			}
 			editPrepared = true;
 		}
-		
+
 		/// <summary>
 		/// Returns the date of last edit
 		/// </summary>
@@ -719,21 +718,21 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&prop=revisions&&rvprop=timestamp&limit=1&format=xml&titles=" +
 			                HttpUtility.UrlEncode(name);
-			XmlDocument doc = new XmlDocument(); 
+			var doc = new XmlDocument();
 			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlElement pageelem = (XmlElement)doc.GetElementsByTagName("page")[0];
+			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			if (pageelem.HasAttribute("missing")) throw new WikiPageNotFoundExcecption();
-			XmlElement revelem = (XmlElement)doc.GetElementsByTagName("rev")[0];
+			var revelem = (XmlElement) doc.GetElementsByTagName("rev")[0];
 			return DateTime.Parse(revelem.Attributes["timestamp"].Value).ToUniversalTime();
 		}
-		
+
 		private string GetToken(string page, string type)
 		{
 			string pgname = "api.php?action=query&format=xml&prop=info&intoken="
 			                + type + "&titles=" + HttpUtility.UrlEncode(page);
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
-			XmlElement elem = (XmlElement)doc.GetElementsByTagName("page")[0];
+			var elem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			if (elem == null || !elem.HasAttribute(type + "token")) throw new WikiPermissionsExpection();
 			return elem.Attributes[type + "token"].Value;
 		}
