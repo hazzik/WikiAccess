@@ -44,11 +44,6 @@ namespace WikiTools.Access
 			this.name = name;
 		}
 
-		private AccessBrowser ab
-		{
-			get { return wiki.ab; }
-		}
-
 		/// <summary>
 		/// Gets subcategories.  Automatically calls Load() on first usage
 		/// </summary>
@@ -98,7 +93,7 @@ namespace WikiTools.Access
 		{
 			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
 			                HttpUtility.UrlEncode(name);
-			string text = ab.CreateGetQuery(pgname).DownloadText();
+			string text = wiki.ab.CreateGetQuery(pgname).DownloadText();
 			var subcats_tmp = new List<string>();
 			var pages_tmp = new List<string>();
 			string cmcontinue;
@@ -112,7 +107,7 @@ namespace WikiTools.Access
 				{
 					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
 					                 HttpUtility.UrlEncode(name) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue);
-					text = ab.CreateGetQuery(pgname1).DownloadText();
+					text = wiki.ab.CreateGetQuery(pgname1).DownloadText();
 				}
 				else break;
 			} while (true);

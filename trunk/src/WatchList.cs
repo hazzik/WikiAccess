@@ -40,11 +40,6 @@ namespace WikiTools.Access
 			wiki = site;
 		}
 
-		private AccessBrowser ab
-		{
-			get { return wiki.ab; }
-		}
-
 		/// <summary>
 		/// Gets page in watch list
 		/// </summary>
@@ -63,15 +58,14 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadPages()
 		{
-			string resp = ab.CreateGetQuery("index.php?title=Special:Watchlist/edit").DownloadText();
+			string resp = wiki.ab.CreateGetQuery("index.php?title=Special:Watchlist/edit").DownloadText();
 			MatchCollection mc = Regex.Matches(resp, "<input type=\"checkbox\" name=\"id\\[\\]\" value=\"(.*?)\" />",
 			                                   RegexOptions.IgnoreCase);
 			var result = new List<string>();
 			foreach (Match cmatch in mc)
 			{
-				int startIdx, endIdx;
-				startIdx = cmatch.Value.IndexOf("value=") + 7;
-				endIdx = cmatch.Value.IndexOf('"', startIdx);
+				int startIdx = cmatch.Value.IndexOf("value=") + 7;
+				int endIdx = cmatch.Value.IndexOf('"', startIdx);
 				result.Add(cmatch.Groups[0].Value.Substring(startIdx, endIdx - startIdx));
 			}
 			contents = result.ToArray();

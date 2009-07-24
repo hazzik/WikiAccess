@@ -15,11 +15,6 @@ namespace WikiTools.Access
 			this.wiki = wiki;
 		}
 
-		private AccessBrowser ab
-		{
-			get { return wiki.ab; }
-		}
-
 		public BlockLogEntry[] Entries
 		{
 			get { return entries.ToArray(); }
@@ -30,7 +25,7 @@ namespace WikiTools.Access
 			string pgname = "api.php?action=query&list=logevents&letype=block&leuser="
 			                + HttpUtility.UrlEncode(adminname) + "&lelimit=500&format=xml";
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var root = (XmlElement) doc.GetElementsByTagName("logevents")[0];
 			foreach (XmlNode cnode in root.ChildNodes)
 			{

@@ -46,11 +46,6 @@ namespace WikiTools.Access
 			this.name = name;
 		}
 
-		private AccessBrowser ab
-		{
-			get { return wiki.ab; }
-		}
-
 		/// <summary>
 		/// Repository where image is stored
 		/// </summary>
@@ -100,7 +95,7 @@ namespace WikiTools.Access
 		public byte[] Download()
 		{
 			if (wiki.Capabilities.HasFilePath)
-				return ab.DownloadBinary("index.php?title=Special:Filepath/" + HttpUtility.UrlEncode(name));
+				return wiki.ab.DownloadBinary("index.php?title=Special:Filepath/" + HttpUtility.UrlEncode(name));
 			else
 				return CurrentRevision.Download();
 		}
@@ -113,7 +108,7 @@ namespace WikiTools.Access
 			string pgname = "api.php?action=query&prop=imageinfo&titles=Image:" + HttpUtility.UrlEncode(name) +
 			                "&iiprop=timestamp|user|comment|url|size|sha1&iihistory&format=xml";
 			var doc = new XmlDocument();
-			doc.Load(ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			existsLocaly = !pageelem.HasAttribute("missing");
 			repotype = ParseRepoType(pageelem.Attributes["imagerepository"].Value);
