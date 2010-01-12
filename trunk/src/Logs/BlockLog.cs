@@ -8,7 +8,7 @@ namespace WikiTools.Access
 	public class BlockLog
 	{
 		private List<BlockLogEntry> entries = new List<BlockLogEntry>();
-		private Wiki wiki;
+		private readonly Wiki wiki;
 
 		public BlockLog(Wiki wiki)
 		{
@@ -43,7 +43,7 @@ namespace WikiTools.Access
 			}
 		}
 
-		private BlockLogEntry ParseBlockLogEntry(XmlElement element)
+		private static BlockLogEntry ParseBlockLogEntry(XmlElement element)
 		{
 			var result = new BlockLogEntry();
 			result.Action = StringToBlockAction(element.Attributes["action"].Value);
@@ -57,7 +57,7 @@ namespace WikiTools.Access
 			return result;
 		}
 
-		private BlockAction StringToBlockAction(String str)
+		private static BlockAction StringToBlockAction(String str)
 		{
 			switch (str.ToLower())
 			{

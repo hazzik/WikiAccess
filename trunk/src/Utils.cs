@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace WikiTools.Access
@@ -42,29 +43,22 @@ namespace WikiTools.Access
 		/// <typeparam name="T">Type of list</typeparam>
 		/// <param name="list">List to clean up</param>
 		/// <returns>Result list</returns>
-		public static List<T> RemoveDuplicates<T>(List<T> list)
+		[Obsolete("Please use Enumerable.Distinct() instead")]
+        public static List<T> RemoveDuplicates<T>(List<T> list)
 		{
-			var lst_unique = new List<T>(list);
-			for (int i = 0; i < list.Count; i++)
-			{
-				T t = list[i];
-				if (!lst_unique.Contains(t))
-					lst_unique.Add(t);
-			}
-			return lst_unique;
+		    return list.Distinct().ToList();
 		}
 
 		/// <summary>
 		/// Removes duplicates from array
 		/// </summary>
 		/// <typeparam name="T">Type of array</typeparam>
-		/// <param name="list">Array to clean up</param>
+		/// <param name="array">Array to clean up</param>
 		/// <returns>Result list</returns>
-		public static T[] RemoveDuplicates<T>(T[] list)
+        [Obsolete("Please use Enumerable.Distinct() instead")]
+        public static T[] RemoveDuplicates<T>(T[] array)
 		{
-			var lst = new List<T>(list);
-			lst = RemoveDuplicates(lst);
-			return lst.ToArray();
+            return array.Distinct().ToArray();
 		}
 
 		/// <summary>
@@ -72,9 +66,10 @@ namespace WikiTools.Access
 		/// </summary>
 		/// <param name="array">Array to clean up</param>
 		/// <returns>Result list</returns>
-		public static string[] RemoveDuplicates(string[] array)
+        [Obsolete("Please use Enumerable.Distinct() instead")]
+        public static string[] RemoveDuplicates(string[] array)
 		{
-			return RemoveDuplicates<string>(array);
+			return array.Distinct().ToArray();
 		}
 
 		/// <summary>
@@ -107,10 +102,7 @@ namespace WikiTools.Access
 		/// <returns>New array</returns>
 		public static string[] AddPrefix(string[] orig, string prefix)
 		{
-			var result = new List<string>();
-			foreach (string str in orig)
-				result.Add(prefix + str);
-			return result.ToArray();
+		    return orig.Select(str => prefix + str).ToArray();
 		}
 
 		/// <summary>

@@ -24,22 +24,24 @@ namespace WikiTools.Access
 	{
 		private WikiCapabilities LoadCapabilities()
 		{
-			string page = "index.php?title=Special:Version";
-			return ParseWikiCapabilities(ab.CreateGetQuery(page).DownloadText());
+		    const string page = "index.php?title=Special:Version";
+		    return ParseWikiCapabilities(ab.CreateGetQuery(page).DownloadText());
 		}
 
-		private static WikiCapabilities ParseWikiCapabilities(string vesionPage)
+	    private static WikiCapabilities ParseWikiCapabilities(string vesionPage)
 		{
-			var result = new WikiCapabilities();
-			result.HasCheckUser = vesionPage.Contains("<i>CheckUser</i>");
-			result.HasExpandTemplates = vesionPage.Contains("<i>ExpandTemplates</i>");
-			result.HasFilePath = vesionPage.Contains("<i>Filepath</i>");
-			result.HasMakeBot = vesionPage.Contains("<i>MakeBot</i>");
-			result.HasMakeSysop = vesionPage.Contains("<i>Makesysop</i>");
-			result.HasNewUserLog = vesionPage.Contains("<i>Newuserlog</i>");
-			result.HasOversight = vesionPage.Contains("<i>Oversight</i>");
-			result.HasRenameUser = vesionPage.Contains("<i>Renameuser</i>");
-			Match match = Regex.Match(vesionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
+			var result = new WikiCapabilities
+                    {
+                        HasCheckUser = vesionPage.Contains("<i>CheckUser</i>"),
+                        HasExpandTemplates = vesionPage.Contains("<i>ExpandTemplates</i>"),
+                        HasFilePath = vesionPage.Contains("<i>Filepath</i>"),
+                        HasMakeBot = vesionPage.Contains("<i>MakeBot</i>"),
+                        HasMakeSysop = vesionPage.Contains("<i>Makesysop</i>"),
+                        HasNewUserLog = vesionPage.Contains("<i>Newuserlog</i>"),
+                        HasOversight = vesionPage.Contains("<i>Oversight</i>"),
+                        HasRenameUser = vesionPage.Contains("<i>Renameuser</i>")
+                    };
+	        Match match = Regex.Match(vesionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
 			// 2008-11-16 BL - Ticket 2300889 - Modified to work with newer versions of the Special:Version page.
 			if (match.Length > 0)
 			{

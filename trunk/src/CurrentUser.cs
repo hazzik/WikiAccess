@@ -26,13 +26,13 @@ namespace WikiTools.Access
 	/// </summary>
 	public class CurrentUser
 	{
-		private string blockedby = null;
-		private string blockreason = null;
-		private bool hasnewmsg = false;
-		private bool isBlocked = false;
-		private string[] usergroups = null;
-		private string[] userrights = null;
-		private Wiki w;
+		private string blockedby;
+		private string blockreason;
+		private bool hasnewmsg;
+		private bool isBlocked;
+		private string[] usergroups;
+		private string[] userrights;
+		private readonly Wiki w;
 
 		/// <summary>
 		/// Initializes new instance of object
@@ -105,29 +105,29 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Reload()
 		{
-			string page = "api.php?action=query&format=xml&meta=userinfo&uiprop=blockinfo|groups|rights|hasmsg";
+			const string page = "api.php?action=query&format=xml&meta=userinfo&uiprop=blockinfo|groups|rights|hasmsg";
 			var doc = new XmlDocument();
 			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			var rootelem = (XmlElement) doc.GetElementsByTagName("userinfo")[0];
 			hasnewmsg = rootelem.HasAttribute("messages");
 			var rightselem = (XmlElement) rootelem.GetElementsByTagName("rights")[0];
 			var groupselem = (XmlElement) rootelem.GetElementsByTagName("groups")[0];
-			var userrights_temp = new List<string>();
+			var userrightsTemp = new List<string>();
 			foreach (XmlNode cnode in rightselem.ChildNodes)
 			{
 				if (cnode.NodeType != XmlNodeType.Element || cnode.Name != "r") continue;
 				var celem = (XmlElement) cnode;
-				userrights_temp.Add(celem.InnerText);
+				userrightsTemp.Add(celem.InnerText);
 			}
-			userrights = userrights_temp.ToArray();
-			var usergroups_temp = new List<string>();
+			userrights = userrightsTemp.ToArray();
+			var usergroupsTemp = new List<string>();
 			foreach (XmlNode cnode in groupselem.ChildNodes)
 			{
 				if (cnode.NodeType != XmlNodeType.Element || cnode.Name != "g") continue;
 				var celem = (XmlElement) cnode;
-				usergroups_temp.Add(celem.InnerText);
+				usergroupsTemp.Add(celem.InnerText);
 			}
-			usergroups = usergroups_temp.ToArray();
+			usergroups = usergroupsTemp.ToArray();
 			isBlocked = rootelem.HasAttribute("blockedby") || rootelem.HasAttribute("blockreason");
 			if (isBlocked)
 			{

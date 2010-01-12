@@ -94,9 +94,9 @@ namespace WikiTools.Access
 
 		#region PageList class
 
-		private Namespaces ns;
+		private readonly Namespaces ns;
 		private string[] pages;
-		private Wiki wiki;
+		private readonly Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of page list
@@ -209,10 +209,10 @@ namespace WikiTools.Access
 		/// <returns>Count of filtered out pages</returns>
 		public int FilterAllowedNamespaces(int[] allowedNS)
 		{
-			return Filter<int[]>(new ParametrizedPageListFilter<int[]>(FANDelegate), allowedNS);
+			return Filter(FANDelegate, allowedNS);
 		}
 
-		private bool FANDelegate(Page pg, int[] ns)
+		private static bool FANDelegate(Page pg, int[] ns)
 		{
 			return Array.IndexOf(ns, pg.NamespaceID) > -1;
 		}
@@ -228,7 +228,7 @@ namespace WikiTools.Access
 			return cnum - Filter<int[]>(new ParametrizedPageListFilter<int[]>(FDNDelegate), disallowedNS);
 		}
 
-		private bool FDNDelegate(Page pg, int[] ns)
+		private static bool FDNDelegate(Page pg, int[] ns)
 		{
 			return Array.IndexOf(ns, pg.NamespaceID) < 0;
 		}

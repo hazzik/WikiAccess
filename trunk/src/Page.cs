@@ -64,7 +64,7 @@ namespace WikiTools.Access
 		private string text;
 		private bool textLoaded;
 		private DateTime touched;
-		private Wiki wiki;
+		private readonly Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of Page
@@ -389,16 +389,17 @@ namespace WikiTools.Access
 			SetText(newText, summary, minor, watch, false, section);
 		}
 
-		/// <summary> 
-		/// Saves this page
-		/// </summary>
-		/// <param name="newText">New text of this page</param>
-		/// <param name="summary">Edit summary</param>
-		/// <param name="minor">Mark revision as minor</param>
-		/// <param name="watch">Add this page to watchlist</param>
-		/// <param name="bot">Mark this edit as bot</param>
-		/// <param name="bot"></param>
-		public void SetText(string newText, string summary, bool minor, bool watch, bool bot)
+	    /// <summary> 
+	    /// Saves this page
+	    /// </summary>
+	    /// <param name="newText">New text of this page</param>
+	    /// <param name="summary">Edit summary</param>
+	    /// <param name="minor">Mark revision as minor</param>
+	    /// <param name="watch">Add this page to watchlist</param>
+	    /// <param name="bot">
+	    ///   Mark this edit as bot
+	    /// </param>
+	    public void SetText(string newText, string summary, bool minor, bool watch, bool bot)
 		{
 			SetText(newText, summary, minor, watch, bot, -1);
 		}
@@ -434,7 +435,7 @@ namespace WikiTools.Access
 			{
 				query.Add("section", section.ToString());
 			}
-			string txt = query.DownloadText();
+			query.DownloadText();
 			editPrepared = false;
 		}
 

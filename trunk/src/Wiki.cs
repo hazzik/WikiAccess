@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using WikiTools.Web;
 
 namespace WikiTools.Access
@@ -184,11 +184,8 @@ namespace WikiTools.Access
 			{
 				var result = new Statistics();
 				string statstr = ab.CreateGetQuery("index.php?title=Special:Statistics&action=raw").DownloadText();
-				string[] _stats = statstr.Split(';');
-				var stats = new Dictionary<string, int>();
-				for (int i = 0; i < _stats.Length; i++)
-					stats.Add(_stats[i].Split('=')[0], Int32.Parse(_stats[i].Split('=')[1]));
-				result.Admins = stats["admins"];
+			    var stats = statstr.Split(';').Select(t => t.Split('=')).ToDictionary(strings => strings[0], strings => Int32.Parse(strings[1]));
+			    result.Admins = stats["admins"];
 				result.Edits = stats["edits"];
 				result.GoodPages = stats["good"];
 				result.Images = stats["images"];
