@@ -132,15 +132,15 @@ namespace WikiTools.Access
 	/// </summary>
 	public class RecentChangesWatcher
 	{
-		private int lastrc = 0;
-		private Thread t;
+		private int lastrc;
+		private readonly Thread t;
 		private int updateTime = 5;
 		internal Wiki w;
 
 		public RecentChangesWatcher(Wiki w)
 		{
 			this.w = w;
-			t = new Thread(new ThreadStart(ThreadProc));
+			t = new Thread(ThreadProc);
 		}
 
 		public int UpdateTime
@@ -186,8 +186,8 @@ namespace WikiTools.Access
 
 		public RecentChange[] GetRecentChanges()
 		{
-			string page = "api.php?format=xml&action=query&list=recentchanges"
-			              + "&rclimit=max&rcprop=user|comment|flags|timestamp|title|sizes|ids";
+			const string page = "api.php?format=xml&action=query&list=recentchanges"
+			                    + "&rclimit=max&rcprop=user|comment|flags|timestamp|title|sizes|ids";
 			var doc = new XmlDocument();
 			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			XmlNodeList nodes = doc.GetElementsByTagName("rc");
@@ -229,7 +229,7 @@ namespace WikiTools.Access
 
 	public class EditEventArgs : EventArgs
 	{
-		private RecentChange rc;
+		private readonly RecentChange rc;
 
 		public EditEventArgs(RecentChange rc)
 		{

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
@@ -32,9 +32,9 @@ namespace WikiTools.Access
 
 		private int editcount;
 		private string[] groups;
-		private string name;
-		private bool propsLoaded = false;
-		private Wiki wiki;
+		private readonly string name;
+		private bool propsLoaded;
+		private readonly Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of User class
@@ -89,22 +89,12 @@ namespace WikiTools.Access
 			var u = (XmlElement) doc.GetElementsByTagName("u")[0];
 			if (u.Attributes["name"].Value != name) throw new WikiPageNotFoundExcecption();
 			editcount = Int32.Parse(u.Attributes["editcount"].Value);
-			var groups_tmp = new List<string>();
-			foreach (XmlNode node in u.ChildNodes)
-			{
-				if (node.Name == "groups")
-				{
-					var groups = (XmlElement) node;
-					foreach (XmlNode cnode in groups.ChildNodes)
-					{
-						if (cnode.Name == "g")
-						{
-							groups_tmp.Add(cnode.InnerText);
-						}
-					}
-				}
-			}
-			groups = groups_tmp.ToArray();
+		    groups = (from XmlNode node in u.ChildNodes
+		              where node.Name == "groups"
+		              from XmlNode cnode in node.ChildNodes
+		              where cnode.Name == "g"
+		              select cnode.InnerText).ToArray();
+		    propsLoaded = true;
 		}
 
 		/*

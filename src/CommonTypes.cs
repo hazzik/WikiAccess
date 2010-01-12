@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace WikiTools.Access
@@ -80,18 +79,20 @@ namespace WikiTools.Access
 		/// <returns>String</returns>
 		public override string ToString()
 		{
-			var str = new List<string>();
-			str.Add("!Wiki-capa");
-			str.Add("version = " + Version);
-			str.Add("ext:checkuser = " + HasCheckUser);
-			str.Add("ext:exptl = " + HasExpandTemplates);
-			str.Add("ext:fpath = " + HasFilePath);
-			str.Add("ext:mkbot = " + HasMakeBot);
-			str.Add("ext:mksysop = " + HasMakeSysop);
-			str.Add("ext:newusers = " + HasNewUserLog);
-			str.Add("ext:oversight = " + HasOversight);
-			str.Add("ext:renameuser = " + HasRenameUser);
-			return String.Join("\n", str.ToArray());
+			var str = new []
+			              {
+			                  "!Wiki-capa",
+			                  "version = " + Version,
+			                  "ext:checkuser = " + HasCheckUser,
+			                  "ext:exptl = " + HasExpandTemplates,
+			                  "ext:fpath = " + HasFilePath,
+			                  "ext:mkbot = " + HasMakeBot,
+			                  "ext:mksysop = " + HasMakeSysop,
+			                  "ext:newusers = " + HasNewUserLog,
+			                  "ext:oversight = " + HasOversight,
+			                  "ext:renameuser = " + HasRenameUser
+			              };
+		    return String.Join("\n", str);
 		}
 
 		/// <summary>

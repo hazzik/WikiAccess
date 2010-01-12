@@ -17,6 +17,7 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Xml;
 
@@ -28,10 +29,10 @@ namespace WikiTools.Access
 	public class Category
 	{
 		private bool loaded;
-		private string name;
+		private readonly string name;
 		private string[] pagesincat;
 		private string[] subcats;
-		private Wiki wiki;
+		private readonly Wiki wiki;
 
 		/// <summary>
 		/// Initializes new instance of category class
@@ -94,15 +95,14 @@ namespace WikiTools.Access
 			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
 			                HttpUtility.UrlEncode(name);
 			string text = wiki.ab.CreateGetQuery(pgname).DownloadText();
-			var subcats_tmp = new List<string>();
-			var pages_tmp = new List<string>();
-			string cmcontinue;
-			do
+			var subcatsTmp = new List<string>();
+			var pagesTmp = new List<string>();
+		    do
 			{
-				string[] cur_subcats, cur_pages;
-				cmcontinue = ExtractCategoriesFromXML(text, out cur_subcats, out cur_pages);
-				subcats_tmp.AddRange(cur_subcats);
-				pages_tmp.AddRange(cur_pages);
+				string[] curSubcats, curPages;
+				string cmcontinue = ExtractCategoriesFromXML(text, out curSubcats, out curPages);
+				subcatsTmp.AddRange(curSubcats);
+				pagesTmp.AddRange(curPages);
 				if (!String.IsNullOrEmpty(cmcontinue))
 				{
 					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
@@ -112,14 +112,14 @@ namespace WikiTools.Access
 				else break;
 			} while (true);
 			loaded = true;
-			subcats = subcats_tmp.ToArray();
-			pagesincat = pages_tmp.ToArray();
+			subcats = subcatsTmp.ToArray();
+			pagesincat = pagesTmp.ToArray();
 		}
 
 		private string ExtractCategoriesFromXML(string xml, out string[] subcats, out string[] pages)
 		{
-			var subcats_tmp = new List<string>();
-			var pages_tmp = new List<string>();
+			var subcatsTmp = new List<string>();
+			var pagesTmp = new List<string>();
 			var doc = new XmlDocument();
 			doc.LoadXml(xml);
 			XmlNodeList cmnodes = doc.GetElementsByTagName("cm");
@@ -127,12 +127,12 @@ namespace WikiTools.Access
 			{
 				var celem = (XmlElement) cnode;
 				if (celem.Attributes["ns"].Value == "14")
-					subcats_tmp.Add(wiki.NamespacesUtils.RemoveNamespace(celem.Attributes["title"].Value));
+					subcatsTmp.Add(wiki.NamespacesUtils.RemoveNamespace(celem.Attributes["title"].Value));
 				else
-					pages_tmp.Add(celem.Attributes["title"].Value);
+					pagesTmp.Add(celem.Attributes["title"].Value);
 			}
-			subcats = subcats_tmp.ToArray();
-			pages = pages_tmp.ToArray();
+			subcats = subcatsTmp.ToArray();
+			pages = pagesTmp.ToArray();
 			if (doc.GetElementsByTagName("query-continue").Count <= 0) return null;
 			var elem = (XmlElement) doc.GetElementsByTagName("query-continue")[0].FirstChild;
 			return elem.Attributes["cmcontinue"].Value;
@@ -154,24 +154,25 @@ namespace WikiTools.Access
 		/// <returns>Pages</returns>
 		public string[] GetPagesRecursive(bool removeDuplicates)
 		{
-			if (removeDuplicates)
-				return Utils.RemoveDuplicates(GetPagesRecursive(null));
-			else
-				return GetPagesRecursive(null);
+		    var pagesRecursive = GetPagesRecursive(null);
+		    if (removeDuplicates)
+		        return pagesRecursive.Distinct().ToArray();
+		    return pagesRecursive;
 		}
 
-		private string[] GetPagesRecursive(List<string> _passed)
+	    private string[] GetPagesRecursive(List<string> _passed)
 		{
-			List<string> passed = (_passed == null ? new List<string>() : _passed);
-			if (!passed.Contains(name)) passed.Add(name);
-			var result = new List<string>(Pages);
-			foreach (string subcat in Subcategories)
-			{
-				if (passed.Contains(subcat)) continue;
-				var csubcat = new Category(wiki, subcat);
-				result.AddRange(csubcat.GetPagesRecursive(passed));
-			}
-			return result.ToArray();
+			List<string> passed = (_passed ?? new List<string>());
+		    if (passed.Contains(name) == false)
+		        passed.Add(name);
+
+		    var selectMany = Subcategories
+		        .Where(subcat => !passed.Contains(subcat))
+		        .Select(subcat => new Category(wiki, subcat))
+		        .SelectMany(csubcat => csubcat.GetPagesRecursive(passed));
+		    var result = new List<string>(Pages);
+		    result.AddRange(selectMany);
+		    return result.ToArray();
 		}
 	}
 }

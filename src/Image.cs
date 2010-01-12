@@ -28,12 +28,12 @@ namespace WikiTools.Access
 	/// </summary>
 	public class Image
 	{
-		private bool existsLocaly = false;
-		private bool infoLoaded = false;
-		private string name;
+		private bool existsLocaly;
+		private bool infoLoaded;
+		private readonly string name;
 		private ImageRepositoryType repotype = ImageRepositoryType.Local;
-		private ImageRevision[] revs = null;
-		private Wiki wiki;
+		private ImageRevision[] revs;
+		private readonly Wiki wiki;
 
 		/// <summary>
 		/// Initializes Image object
@@ -141,7 +141,7 @@ namespace WikiTools.Access
 			return result;
 		}
 
-		private ImageRepositoryType ParseRepoType(string type)
+		private static ImageRepositoryType ParseRepoType(string type)
 		{
 			switch (type)
 			{

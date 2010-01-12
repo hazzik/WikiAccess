@@ -32,7 +32,7 @@ namespace WikiTools.Access
 
 		public InterwikiMap(Wiki w)
 		{
-			string page = "api.php?format=xml&action=query&meta=siteinfo&siprop=interwikimap";
+			const string page = "api.php?format=xml&action=query&meta=siteinfo&siprop=interwikimap";
 			var doc = new XmlDocument();
 			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("iw");
