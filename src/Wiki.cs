@@ -18,6 +18,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using WikiTools.Web;
 
 namespace WikiTools.Access
@@ -32,7 +34,7 @@ namespace WikiTools.Access
 		private readonly string mcachepath;
 		private readonly string nscachepath;
 		private readonly string wikiUri;
-		internal AccessBrowser ab;
+		internal IAccessBrowser ab;
 		private CurrentUser cu;
 		private MessageCache mcache;
 		internal Namespaces ns;
@@ -45,7 +47,12 @@ namespace WikiTools.Access
 		{
 		}
 
-		/// <summary>
+        public Wiki(IAccessBrowser accessBrowser)
+        {
+            ab = accessBrowser;
+        }
+
+	    /// <summary>
 		/// Initializes new instance of a Wiki object.
 		/// </summary>
 		/// <param name="uri">URI of Wiki. <see cref="Wiki.WikiURI"/></param>
@@ -57,24 +64,24 @@ namespace WikiTools.Access
 			mcachepath = cachedir + "/" + MessageCache.MkName(uri);
 			nscachepath = cachedir + "/" + Namespaces.MkName(uri);
 			capacachepath = cachedir + "/" + new Uri(uri).Host + ".capabilities";
-			if (File.Exists(mcachepath)) mcache = new MessageCache(mcachepath);
-			else
-			{
-				mcache = new MessageCache(this);
-				mcache.SaveToFile(mcachepath);
-			}
-			if (File.Exists(nscachepath)) ns = new Namespaces(nscachepath);
-			else
-			{
-				ns = new Namespaces(this);
-				ns.SaveToFile(nscachepath);
-			}
-			if (File.Exists(capacachepath)) capabilities.FromString(File.ReadAllText(capacachepath));
-			else
-			{
-				capabilities = LoadCapabilities();
-				File.WriteAllText(capacachepath, capabilities.ToString());
-			}
+            //if (File.Exists(mcachepath)) mcache = new MessageCache(mcachepath);
+            //else
+            //{
+            //    mcache = new MessageCache(this);
+            //    mcache.SaveToFile(mcachepath);
+            //}
+            //if (File.Exists(nscachepath)) ns = new Namespaces(nscachepath);
+            //else
+            //{
+            //    ns = new Namespaces(this);
+            //    ns.SaveToFile(nscachepath);
+            //}
+            //if (File.Exists(capacachepath)) capabilities.FromString(File.ReadAllText(capacachepath));
+            //else
+            //{
+            //    capabilities = LoadCapabilities();
+            //    File.WriteAllText(capacachepath, capabilities.ToString());
+            //}
 		}
 
 		#region Login Functions
@@ -87,18 +94,18 @@ namespace WikiTools.Access
 		/// <returns>Succes</returns>
 		public bool Login(string username, string password)
 		{
-			Query query = ab.CreatePostQuery("index.php?title=Special:Userlogin&action=submitlogin&type=login")
-				.Add("wpName", username)
-				.Add("wpPassword", password)
-				.Add("wpRemember", "1")
-				.Add("wpLoginAttempt", mcache["login"]);
-			query.DownloadText();
-			if (cu != null)
-				LoadCurrentUserInfo();
-			return ab.IsLoggedIn();
-		}
+            IQuery query = ab.CreatePostQuery("api.php?format=xml")
+		        .Add("action", "login")
+		        .Add("lgname", username)
+		        .Add("lgpassword", password);
 
-		/// <summary>
+		    XDocument xdoc = XDocument.Load(query.GetTextReader());
+		    var element = xdoc.CreateNavigator()
+		        .SelectSingleNode("//api/login/@result");
+		    return string.Equals("Success", element.Value, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+	    /// <summary>
 		/// Logs out
 		/// </summary>
 		public void Logout()
@@ -144,10 +151,10 @@ namespace WikiTools.Access
 		/// <summary>
 		/// URI of wiki in format http://mediawiki.org/w
 		/// </summary>
-		public string WikiURI
+		[Obsolete]
+        public string WikiURI
 		{
 			get { return wikiUri; }
-			//set { wikiuri = value; }
 		}
 
 		/// <summary>
@@ -253,7 +260,6 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Dispose()
 		{
-			ab.Dispose();
 			ab = null;
 		}
 

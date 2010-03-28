@@ -23,11 +23,11 @@ using WikiTools.Web;
 
 namespace WikiTools.Access
 {
-	/// <summary>
+    /// <summary>
 	/// Provides access to wiki via WebRequest
 	/// </summary>
-	public class AccessBrowser : IDisposable
-	{
+	public class AccessBrowser : IDisposable, IAccessBrowser
+    {
 		private readonly string baseUri;
 		private CookieContainer cookies = new CookieContainer();
 		private string cpagename = "";
@@ -181,32 +181,32 @@ namespace WikiTools.Access
 			cookies = new CookieContainer();
 		}
 
-		public Query CreateGetQuery(string page)
+		public IQuery CreateGetQuery(string page)
 		{
 			return new GetQuery(baseUri + '/' + page, cookies);
 		}
 
-		public Query CreateGetQueryFullUrl(string uri)
+		public IQuery CreateGetQueryFullUrl(string uri)
 		{
 			return new GetQuery(uri, cookies);
 		}
 
-		public Query CreatePostQuery(string page)
+		public IQuery CreatePostQuery(string page)
 		{
 			return new PostQuery(baseUri + '/' + page, cookies);
 		}
 
-		public Query CreatePostQueryFullUrl(string uri)
+		public IQuery CreatePostQueryFullUrl(string uri)
 		{
 			return new PostQuery(uri, cookies);
 		}
 
-		public Query CreatePostQuery(string page, IDictionary<string, string> data)
+		public IQuery CreatePostQuery(string page, IDictionary<string, string> data)
 		{
 			return new PostQuery(baseUri + '/' + page, cookies, data);
 		}
 
-		public Query CreatePostQueryFullUrl(string uri, IDictionary<string, string> data)
+		public IQuery CreatePostQueryFullUrl(string uri, IDictionary<string, string> data)
 		{
 			return new PostQuery(uri, cookies, data);
 		}

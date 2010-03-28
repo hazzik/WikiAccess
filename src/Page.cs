@@ -417,7 +417,7 @@ namespace WikiTools.Access
 		{
 			if (!editPrepared)
 				PrepareToEdit();
-			Query query = wiki.ab.CreatePostQuery("api.php?format=xml")
+			var query = wiki.ab.CreatePostQuery("api.php?format=xml")
 				.Add("action", "edit")
 				.Add("title", name)
 				.Add("text", newText)
@@ -659,7 +659,7 @@ namespace WikiTools.Access
 		/// <param name="reason">Reason of name change</param>
 		public void Rename(string newName, string reason)
 		{
-			Query query = wiki.ab.CreatePostQuery("index.php?action=submit&title=Special:Movepage")
+			var query = wiki.ab.CreatePostQuery("index.php?action=submit&title=Special:Movepage")
 				.Add("wpOldTitle", name)
 				.Add("wpNewTitle", newName)
 				.Add("wpEditToken", GetToken(name, "move"))
