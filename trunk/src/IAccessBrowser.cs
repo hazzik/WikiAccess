@@ -6,12 +6,6 @@ namespace WikiTools.Access
 {
     public interface IAccessBrowser
     {
-        /// <summary>
-        /// Checks if we are currently logged in
-        /// </summary>
-        /// <returns>Login status</returns>
-        bool IsLoggedIn();
-
         void ClearCookies();
 
         IQuery CreateGetQuery(string page);
