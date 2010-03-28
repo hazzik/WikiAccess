@@ -38,8 +38,9 @@ namespace WikiTools.Access
 		private CurrentUser cu;
 		private MessageCache mcache;
 		internal Namespaces ns;
+	    private bool loggedIn;
 
-		/// <summary>
+	    /// <summary>
 		/// Initializes new instance of a Wiki object. Message cache will be stored in current directory.
 		/// </summary>
 		/// <param name="uri">URI of wiki. <see cref="Wiki.WikiURI"/></param>
@@ -89,21 +90,21 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Logs in
 		/// </summary>
-		/// <param name="username">User name</param>
+		/// <param name="name">User name</param>
 		/// <param name="password">User password</param>
 		/// <returns>Succes</returns>
-		public bool Login(string username, string password)
+		public bool Login(string name, string password)
 		{
             IQuery query = ab.CreatePostQuery("api.php?format=xml")
 		        .Add("action", "login")
-		        .Add("lgname", username)
+		        .Add("lgname", name)
 		        .Add("lgpassword", password);
 
 		    XDocument xdoc = XDocument.Load(query.GetTextReader());
 		    var element = xdoc.CreateNavigator()
 		        .SelectSingleNode("//api/login/@result");
-		    return string.Equals("Success", element.Value, StringComparison.InvariantCultureIgnoreCase);
-        }
+		    return loggedIn = string.Equals("Success", element.Value, StringComparison.InvariantCultureIgnoreCase);
+		}
 
 	    /// <summary>
 		/// Logs out
@@ -119,7 +120,7 @@ namespace WikiTools.Access
 		/// <returns>True, if we are logged in</returns>
 		public bool IsLoggedIn()
 		{
-			return ab.IsLoggedIn();
+		    return loggedIn;
 		}
 
 		#endregion
