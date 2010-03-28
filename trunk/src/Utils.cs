@@ -27,7 +27,7 @@ namespace WikiTools.Access
 	/// <summary>
 	/// Contains useful utils for library
 	/// </summary>
-	public class Utils
+	public static class Utils
 	{
 		/// <summary>
 		/// Returns version of library
@@ -133,7 +133,7 @@ namespace WikiTools.Access
 			return Char.ToUpper(s[0]) + s.Substring(1);
 		}
 
-		public static string BinaryToHexString(byte[] bytes)
+		public static string BinaryToHexString(this byte[] bytes)
 		{
 			var builder = new StringBuilder();
 			foreach (byte b in bytes)

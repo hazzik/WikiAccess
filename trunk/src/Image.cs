@@ -160,8 +160,7 @@ namespace WikiTools.Access
 		/// <returns>String-formatted MD5 hash</returns>
 		public static string CalculateMD5Hash(byte[] img)
 		{
-			MD5 md5 = MD5.Create();
-			return Utils.BinaryToHexString(md5.ComputeHash(img));
+		    return MD5.Create().ComputeHash(img).BinaryToHexString();
 		}
 
 		/// <summary>
@@ -171,8 +170,7 @@ namespace WikiTools.Access
 		/// <returns>String-formatted SHA1 hash</returns>
 		public static string CalculateSHA1Hash(byte[] img)
 		{
-			SHA1 sha1 = SHA1.Create();
-			return Utils.BinaryToHexString(sha1.ComputeHash(img));
+		    return SHA1.Create().ComputeHash(img).BinaryToHexString();
 		}
 
 		#region Unimplemented Upload method

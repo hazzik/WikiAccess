@@ -51,7 +51,7 @@ namespace WikiTools.Access
 			result.BlockTime = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
 			if (result.Action == BlockAction.Block)
 				result.Duration = element.FirstChild.FirstChild.Value;
-			result.UserName = element.Attributes["title"].Value.Split(new char[] {":"[0]}, 2)[1];
+			result.UserName = element.Attributes["title"].Value.Split(new[] {':'}, 2)[1];
 			if (element.HasAttribute("comment"))
 				result.Comment = element.Attributes["comment"].Value;
 			return result;
