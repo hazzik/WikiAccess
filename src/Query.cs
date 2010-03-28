@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using WikiTools.Access;
@@ -118,12 +119,9 @@ namespace WikiTools.Web
 
 		private byte[] GetDataBytes()
 		{
-			string postdata = "";
-			foreach (var kvp in _data)
-			{
-				postdata += CommitValue(kvp.Key, kvp.Value);
-			}
-			postdata = postdata.Substring(0, postdata.Length - 2);
+		    string postdata = _data.Select(kvp => CommitValue(kvp.Key, kvp.Value))
+		        .Aggregate("", (current, commitValue) => current + commitValue);
+		    postdata = postdata.Substring(0, postdata.Length - 2);
 			return Encoding.UTF8.GetBytes(postdata);
 		}
 

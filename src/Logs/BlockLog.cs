@@ -82,9 +82,7 @@ namespace WikiTools.Access
 
 		public override string ToString()
 		{
-			return BlockedBy + " " + Action.ToString().ToLower() + "ed " + UserName + " for " + Duration + " at " +
-			       BlockTime.ToString()
-			       + " (reason: " + Comment + ")";
+			return string.Format("{0} {1}ed {2} for {3} at {4} (reason: {5})", BlockedBy, Action.ToString().ToLower(), UserName, Duration, BlockTime, Comment);
 		}
 	}
 

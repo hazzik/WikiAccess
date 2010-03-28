@@ -117,12 +117,15 @@ namespace WikiTools.Access.Wikimedia
 			get
 			{
 				var result = new WikiCapabilities();
-				result.HasCheckUser = result.HasExpandTemplates = result.HasFilePath = result.HasMakeBot = result.HasMakeSysop
-				                                                                                           =
-				                                                                                           result.HasNewUserLog =
-				                                                                                           result.HasOversight =
-				                                                                                           result.HasRenameUser =
-				                                                                                           true;
+			    result.HasCheckUser =
+			        result.HasExpandTemplates =
+			        result.HasFilePath =
+			        result.HasMakeBot =
+			        result.HasMakeSysop =
+			        result.HasNewUserLog =
+			        result.HasOversight =
+			        result.HasRenameUser =
+			        true;
 				result.Version = new Version(1, 11);
 				return result;
 			}
@@ -146,25 +149,22 @@ namespace WikiTools.Access.Wikimedia
 		/// <returns>Project URI</returns>
 		public static string MakeUri(WikimediaProjects proj, string langCode)
 		{
-			if (IsMultilingualProject(proj))
+		    if (IsMultilingualProject(proj))
 			{
 				return "http://" + langCode + "." + proj.ToString().ToLower() + ".org/w";
 			}
-			else
-			{
-				switch (proj)
-				{
-					case WikimediaProjects.Test:
-						return "http://test.wikipedia.org/w";
-					case WikimediaProjects.Foundation:
-						return "http://wikimediafoundation.org/w";
-					default:
-						return "http://" + proj.ToString().ToLower() + ".wikimedia.org/w";
-				}
-			}
+		    switch (proj)
+		    {
+		        case WikimediaProjects.Test:
+		            return "http://test.wikipedia.org/w";
+		        case WikimediaProjects.Foundation:
+		            return "http://wikimediafoundation.org/w";
+		        default:
+		            return "http://" + proj.ToString().ToLower() + ".wikimedia.org/w";
+		    }
 		}
 
-		private static bool IsMultilingualProject(WikimediaProjects proj)
+	    private static bool IsMultilingualProject(WikimediaProjects proj)
 		{
 			var mlingprojs = new[]
 			                 	{

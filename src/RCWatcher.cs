@@ -215,10 +215,7 @@ namespace WikiTools.Access
 			result.NewSize = int.Parse(element.GetAttribute("newlen"));
 			result.User = element.GetAttribute("user");
 			result.Time = DateTime.Parse(element.GetAttribute("timestamp")).ToUniversalTime();
-			if (element.HasAttribute("comment"))
-				result.Comment = element.GetAttribute("comment");
-			else
-				result.Comment = "";
+			result.Comment = element.HasAttribute("comment") ? element.GetAttribute("comment") : "";
 			return result;
 		}
 

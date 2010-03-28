@@ -17,7 +17,6 @@
  **********************************************************************************/
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 
@@ -28,9 +27,7 @@ namespace WikiTools.Access
 	/// </summary>
 	public class User
 	{
-		private static Regex UserGroup = new Regex("<option value=\"(.*?)\">", RegexOptions.Compiled);
-
-		private int editcount;
+	    private int editcount;
 		private string[] groups;
 		private readonly string name;
 		private bool propsLoaded;
