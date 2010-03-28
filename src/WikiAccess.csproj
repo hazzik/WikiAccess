@@ -71,7 +71,7 @@
     <Compile Include="Category.cs" />
     <Compile Include="CommonTypes.cs" />
     <Compile Include="CurrentUser.cs" />
-    <Compile Include="Exceptions.cs" />
+    <Compile Include="WikiException.cs" />
     <Compile Include="ExpandTemplates.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
@@ -96,6 +96,9 @@
     <Compile Include="Wiki.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Wikimedia\WikimediaProjects.cs" />
+    <Compile Include="WikiNotSupportedException.cs" />
+    <Compile Include="WikiPageNotFoundExcecption.cs" />
+    <Compile Include="WikiPermissionsExpection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\wikiaccess.snk">
