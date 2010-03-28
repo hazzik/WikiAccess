@@ -94,10 +94,11 @@ namespace WikiTools.Access
 		/// <returns>Image</returns>
 		public byte[] Download()
 		{
-			if (wiki.Capabilities.HasFilePath)
-				return wiki.ab.DownloadBinary("index.php?title=Special:Filepath/" + HttpUtility.UrlEncode(name));
-			else
-				return CurrentRevision.Download();
+			//if (wiki.Capabilities.HasFilePath)
+				//return wiki.ab.DownloadBinary("index.php?title=Special:Filepath/" + HttpUtility.UrlEncode(name));
+			//else
+			//	return CurrentRevision.Download();
+            throw new NotImplementedException();
 		}
 
 		/// <summary>
@@ -269,7 +270,8 @@ namespace WikiTools.Access
 
 		public byte[] Download()
 		{
-			return Wiki.ab.DownloadBinaryFullUrl(Url);
+			//return Wiki.ab.DownloadBinaryFullUrl(Url);
+		    throw new NotImplementedException();
 		}
 	}
 }

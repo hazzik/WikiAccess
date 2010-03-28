@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{84F9D5EB-2975-45E1-A41F-1EC67961F8F2}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -60,6 +60,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessBrowser.cs" />
@@ -71,7 +74,10 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExpandTemplates.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="IAccessBrowser.cs" />
     <Compile Include="InterwikiMap.cs" />
+    <Compile Include="IQuery.cs" />
     <Compile Include="Logs\BlockLog.cs" />
     <Compile Include="MessageCache.cs" />
     <Compile Include="Namespace.cs" />

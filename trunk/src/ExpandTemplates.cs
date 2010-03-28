@@ -19,7 +19,6 @@ using System;
 using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
-using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -27,7 +26,7 @@ namespace WikiTools.Access
 	{
 		private string ExpandTemplatesOrRender(string action, string text, string pagetitle)
 		{
-		    Query query = ab.CreatePostQuery("api.php")
+		    var query = ab.CreatePostQuery("api.php")
 		        .Add("format", "xml")
 		        .Add("action", action)
 		        .Add("title", pagetitle)

@@ -5,14 +5,15 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using WikiTools.Access;
+using WikiTools.Access.Extensions;
 
 namespace WikiTools.Web
 {
-	public abstract class Query
-	{
+    public abstract class Query : IQuery
+    {
 		protected readonly CookieContainer _cookies;
 		protected readonly IDictionary<string, string> _data;
-		private readonly string _uri;
+		private readonly Uri _uri;
 
 		protected Query(string uri)
 			: this(uri, new CookieContainer())
@@ -26,17 +27,17 @@ namespace WikiTools.Web
 
 		protected Query(string uri, CookieContainer cookies, IDictionary<string, string> data)
 		{
-			_uri = uri;
+			_uri = new Uri(uri);
 			_data = data;
 			_cookies = cookies;
 		}
 
-		public string Uri
+		public Uri Uri
 		{
 			get { return _uri; }
 		}
 
-		public Query Add(string key, string value)
+		public IQuery Add(string key, string value)
 		{
 			_data.Add(key, value);
 			return this;
@@ -59,13 +60,14 @@ namespace WikiTools.Web
 			return response.GetResponseStream();
 		}
 
-		public StreamReader GetTextReader()
+		public TextReader GetTextReader()
 		{
 			return new StreamReader(GetResponseStream());
 		}
 
 		protected virtual HttpWebRequest CreateRequest()
 		{
+            ServicePointManager.Expect100Continue = false;
 			var result = (HttpWebRequest) WebRequest.Create(Uri);
 			result.UserAgent = "WikiAccess library v" + Utils.Version;
 			result.Proxy.Credentials = CredentialCache.DefaultCredentials;
@@ -113,26 +115,29 @@ namespace WikiTools.Web
 
 			Stream str = result.GetRequestStream();
 			str.Write(data, 0, data.Length);
-
 			return result;
 		}
 
 		private byte[] GetDataBytes()
 		{
-		    string postdata = _data.Select(kvp => CommitValue(kvp.Key, kvp.Value))
-		        .Aggregate("", (current, commitValue) => current + commitValue);
-		    postdata = postdata.Substring(0, postdata.Length - 2);
-			return Encoding.UTF8.GetBytes(postdata);
+		    string data = _data
+		        .Select(kvp => CommitValue(kvp.Key, kvp.Value))
+		        .Join("\r\n");
+		    return Encoding.UTF8.GetBytes(data);
 		}
 
 		private string CommitValue(string key, string value)
 		{
-			string result = "--" + _boundary + "\r\n";
-			result += "Content-Disposition: form-data; name=\"" + key + "\"\r\n";
-			result += "Content-Type: text/plain; charset=utf-8\r\n";
-			result += "\r\n";
-			result += value + "\r\n";
-			return result;
+		    var sb = new StringBuilder();
+		    sb.AppendFormat("--{0}", _boundary)
+		        .AppendLine()
+		        .AppendFormat("Content-Disposition: form-data; name=\"{0}\"", key)
+		        .AppendLine()
+		        .AppendFormat("Content-Type: text/plain; charset=utf-8")
+		        .AppendLine()
+		        .AppendLine()
+		        .Append(value);
+		    return sb.ToString();
 		}
 
 		private static string CreateBoundary()
