@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WikiAccess", "src\WikiAccess.csproj", "{84F9D5EB-2975-45E1-A41F-1EC67961F8F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WikiAccess.Tests", "tests\WikiAccess.Tests\WikiAccess.Tests.csproj", "{36ABCD82-AE92-414A-A203-E789FC9E2341}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{84F9D5EB-2975-45E1-A41F-1EC67961F8F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84F9D5EB-2975-45E1-A41F-1EC67961F8F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84F9D5EB-2975-45E1-A41F-1EC67961F8F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36ABCD82-AE92-414A-A203-E789FC9E2341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36ABCD82-AE92-414A-A203-E789FC9E2341}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36ABCD82-AE92-414A-A203-E789FC9E2341}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36ABCD82-AE92-414A-A203-E789FC9E2341}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

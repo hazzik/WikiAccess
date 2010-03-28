@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.XPath;
@@ -63,14 +64,7 @@ namespace WikiTools.Access
 
 		private IDictionary<string, string> Cache
 		{
-			get
-			{
-				if (_cache == null)
-				{
-					_cache = GetMessages();
-				}
-				return _cache;
-			}
+			get { return _cache ?? (_cache = GetMessages()); }
 		}
 
 		/// <summary>
@@ -78,14 +72,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public string[] Months
 		{
-			get
-			{
-				if (months == null)
-				{
-					months = GetMonths();
-				}
-				return months;
-			}
+			get { return months ?? (months = GetMonths()); }
 		}
 
 		/// <summary>
@@ -93,14 +80,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public string[] MonthsGen
 		{
-			get
-			{
-				if (months_gen == null)
-				{
-					months_gen = GetMonthsGen();
-				}
-				return months_gen;
-			}
+			get { return months_gen ?? (months_gen = GetMonthsGen()); }
 		}
 
 		/// <summary>
@@ -110,11 +90,7 @@ namespace WikiTools.Access
 		{
 			get
 			{
-				string str = "(";
-				foreach (string cmonth in MonthsGen)
-					str += Regex.Escape(cmonth) + "|";
-				str = str.TrimEnd('|');
-				return str + ")";
+			    return string.Format("({0})", string.Join("|", MonthsGen.Select(x => Regex.Escape(x)).ToArray()));
 			}
 		}
 
@@ -172,38 +148,40 @@ namespace WikiTools.Access
 
 		private string[] GetMonths()
 		{
-			var results = new List<string>();
-			results.Add(GetMessage("january"));
-			results.Add(GetMessage("february"));
-			results.Add(GetMessage("march"));
-			results.Add(GetMessage("april"));
-			results.Add(GetMessage("may"));
-			results.Add(GetMessage("june"));
-			results.Add(GetMessage("july"));
-			results.Add(GetMessage("august"));
-			results.Add(GetMessage("september"));
-			results.Add(GetMessage("october"));
-			results.Add(GetMessage("november"));
-			results.Add(GetMessage("december"));
-			return results.ToArray();
+		    return new []
+		               {
+		                   GetMessage("january"),
+		                   GetMessage("february"),
+		                   GetMessage("march"),
+		                   GetMessage("april"),
+		                   GetMessage("may"),
+		                   GetMessage("june"),
+		                   GetMessage("july"),
+		                   GetMessage("august"),
+		                   GetMessage("september"),
+		                   GetMessage("october"),
+		                   GetMessage("november"),
+		                   GetMessage("december")
+		               };
 		}
 
 		private string[] GetMonthsGen()
 		{
-			var results_gen = new List<string>();
-			results_gen.Add(GetMessage("january-gen"));
-			results_gen.Add(GetMessage("february-gen"));
-			results_gen.Add(GetMessage("march-gen"));
-			results_gen.Add(GetMessage("april-gen"));
-			results_gen.Add(GetMessage("may-gen"));
-			results_gen.Add(GetMessage("june-gen"));
-			results_gen.Add(GetMessage("july-gen"));
-			results_gen.Add(GetMessage("august-gen"));
-			results_gen.Add(GetMessage("september-gen"));
-			results_gen.Add(GetMessage("october-gen"));
-			results_gen.Add(GetMessage("november-gen"));
-			results_gen.Add(GetMessage("december-gen"));
-			return results_gen.ToArray();
+		    return new []
+		               {
+		                   GetMessage("january-gen"),
+		                   GetMessage("february-gen"),
+		                   GetMessage("march-gen"),
+		                   GetMessage("april-gen"),
+		                   GetMessage("may-gen"),
+		                   GetMessage("june-gen"),
+		                   GetMessage("july-gen"),
+		                   GetMessage("august-gen"),
+		                   GetMessage("september-gen"),
+		                   GetMessage("october-gen"),
+		                   GetMessage("november-gen"),
+		                   GetMessage("december-gen")
+		               };
 		}
 	}
 }

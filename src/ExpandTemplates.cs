@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
+using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
 using WikiTools.Web;
@@ -26,17 +27,15 @@ namespace WikiTools.Access
 	{
 		private string ExpandTemplatesOrRender(string action, string text, string pagetitle)
 		{
-			Query query = ab.CreatePostQuery("api.php")
-				.Add("format", "xml")
-				.Add("action", action)
-				.Add("title", pagetitle)
-				.Add("text", text);
+		    Query query = ab.CreatePostQuery("api.php")
+		        .Add("format", "xml")
+		        .Add("action", action)
+		        .Add("title", pagetitle)
+		        .Add("text", text);
 			var doc = new XmlDocument();
 			doc.Load(query.GetResponseStream());
-			var xpni = (XPathNodeIterator) doc.CreateNavigator().Evaluate("/api/" + action);
-			foreach (XPathItem i in xpni)
-				return i.Value;
-			return null;
+		    var xpni = (XPathNodeIterator) doc.CreateNavigator().Evaluate("/api/" + action);
+		    return xpni.Cast<XPathItem>().Select(i => i.Value).FirstOrDefault();
 		}
 
 		public string ExpandTemplates(string text, string pagetitle)
