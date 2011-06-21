@@ -43,7 +43,7 @@ namespace WikiTools.Access
 			if (includeSubCategories)
 			{
 				string[] subcats = cat.Subcategories;
-				subcats = Utils.AddPrefix(subcats, wiki.NamespacesUtils.GetNamespaceByID(14) + ":");
+				subcats = Utils.AddPrefix(subcats, wiki.NamespacesUtils.GetNamespaceByID(Namespaces.Category) + ":");
 				result = new string[catpages.Length + subcats.Length];
 				subcats.CopyTo(result, 0);
 				catpages.CopyTo(result, subcats.Length);

@@ -617,7 +617,7 @@ namespace WikiTools.Access
 			foreach (XmlNode node in nl)
 			{
 				var celem = (XmlElement) node;
-				tmp.Add(celem.Attributes["title"].Value.Substring(wiki.NamespacesUtils.GetNamespaceByID(14).Length + 1));
+				tmp.Add(celem.Attributes["title"].Value.Substring(wiki.NamespacesUtils.GetNamespaceByID(Namespaces.Category).Length + 1));
 			}
 			categoriesLoaded = true;
 			categories = tmp.ToArray();
