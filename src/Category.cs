@@ -126,7 +126,7 @@ namespace WikiTools.Access
 			foreach (XmlNode cnode in cmnodes)
 			{
 				var celem = (XmlElement) cnode;
-				if (celem.Attributes["ns"].Value == "14")
+				if (celem.Attributes["ns"].Value == Namespaces.Category.ToString())
 					subcatsTmp.Add(wiki.NamespacesUtils.RemoveNamespace(celem.Attributes["title"].Value));
 				else
 					pagesTmp.Add(celem.Attributes["title"].Value);

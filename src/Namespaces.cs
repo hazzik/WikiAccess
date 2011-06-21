@@ -32,92 +32,92 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Categories
 		/// </summary>
-		public static readonly int Category = 14;
+		public const int Category = 14;
 
 		/// <summary>
 		/// Categories' talk pages
 		/// </summary>
-		public static readonly int CategoryTalk = 15;
+		public const int CategoryTalk = 15;
 
 		/// <summary>
 		/// Help
 		/// </summary>
-		public static readonly int Help = 12;
+		public const int Help = 12;
 
 		/// <summary>
 		/// Help's talk pages
 		/// </summary>
-		public static readonly int HelpTalk = 13;
+		public const int HelpTalk = 13;
 
 		/// <summary>
 		/// Media files
 		/// </summary>
-		public static readonly int Image = 6;
+		public const int Image = 6;
 
 		/// <summary>
 		/// Media files' talk pages
 		/// </summary>
-		public static readonly int ImageTalk = 7;
+		public const int ImageTalk = 7;
 
 		/// <summary>
 		/// Main (article) namespace
 		/// </summary>
-		public static readonly int Main;
+		public const int Main = 0;
 
 		/// <summary>
 		/// Media namesapce
 		/// </summary>
-		public static readonly int Media = -2;
+		public const int Media = -2;
 
 		/// <summary>
 		/// MediaWiki messages
 		/// </summary>
-		public static readonly int MediaWiki = 8;
+		public const int MediaWiki = 8;
 
 		/// <summary>
 		/// MediaWiki messages talk pages
 		/// </summary>
-		public static readonly int MediaWikiTalk = 9;
+		public const int MediaWikiTalk = 9;
 
 		/// <summary>
 		/// Project pages
 		/// </summary>
-		public static readonly int Project = 4;
+		public const int Project = 4;
 
 		/// <summary>
 		/// Talk for project pages
 		/// </summary>
-		public static readonly int ProjectTalk = 5;
+		public const int ProjectTalk = 5;
 
 		/// <summary>
 		/// Special namespace, where specail pages are stored
 		/// </summary>
-		public static readonly int Special = -1;
+		public const int Special = -1;
 
 		/// <summary>
 		/// Talk for mainspace pages
 		/// </summary>
-		public static readonly int Talk = 1;
+		public const int Talk = 1;
 
 		/// <summary>
 		/// Templates
 		/// </summary>
-		public static readonly int Template = 10;
+		public const int Template = 10;
 
 		/// <summary>
 		/// Templates' talk pages
 		/// </summary>
-		public static readonly int TemplateTalk = 11;
+		public const int TemplateTalk = 11;
 
 		/// <summary>
 		/// Users' personal pages
 		/// </summary>
-		public static readonly int User = 2;
+		public const int User = 2;
 
 		/// <summary>
 		/// Users' talk pages
 		/// </summary>
-		public static readonly int UserTalk = 3;
+		public const int UserTalk = 3;
 
 		private readonly SortedList<int, string> namespaces;
 
@@ -210,24 +210,24 @@ namespace WikiTools.Access
 		public static SortedList<int, string> GetStandardNamespaces()
 		{
 			var result = new SortedList<int, string>();
-			result.Add(-2, "Media");
-			result.Add(-1, "Special");
-			result.Add(0, "");
-			result.Add(1, "Talk");
-			result.Add(2, "User");
-			result.Add(3, "User talk");
-			result.Add(4, "Project");
-			result.Add(5, "Project talk");
-			result.Add(6, "Image");
-			result.Add(7, "Image talk");
-			result.Add(8, "MediaWiki");
-			result.Add(9, "MediaWiki talk");
-			result.Add(10, "Template");
-			result.Add(11, "Template talk");
-			result.Add(12, "Help");
-			result.Add(13, "Help talk");
-			result.Add(14, "Category");
-			result.Add(15, "Category talk");
+			result.Add(Media, "Media");
+			result.Add(Special, "Special");
+			result.Add(Main, "");
+			result.Add(Talk, "Talk");
+			result.Add(User, "User");
+			result.Add(UserTalk, "User talk");
+			result.Add(Project, "Project");
+			result.Add(ProjectTalk, "Project talk");
+			result.Add(Image, "Image");
+			result.Add(ImageTalk, "Image talk");
+			result.Add(MediaWiki, "MediaWiki");
+			result.Add(MediaWikiTalk, "MediaWiki talk");
+			result.Add(Template, "Template");
+			result.Add(TemplateTalk, "Template talk");
+			result.Add(Help, "Help");
+			result.Add(HelpTalk, "Help talk");
+			result.Add(Category, "Category");
+			result.Add(CategoryTalk, "Category talk");
 			return result;
 		}
 
