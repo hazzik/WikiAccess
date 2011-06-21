@@ -68,6 +68,7 @@ namespace WikiTools.Web
 			var result = (HttpWebRequest) WebRequest.Create(Uri);
 			result.UserAgent = "WikiAccess library v" + Utils.Version;
 			result.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			result.UseDefaultCredentials = true;
 			result.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
 			result.CookieContainer = _cookies;
 			return result;
