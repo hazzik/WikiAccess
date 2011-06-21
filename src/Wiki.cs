@@ -65,24 +65,24 @@ namespace WikiTools.Access
 			mcachepath = cachedir + "/" + MessageCache.MkName(uri);
 			nscachepath = cachedir + "/" + Namespaces.MkName(uri);
 			capacachepath = cachedir + "/" + new Uri(uri).Host + ".capabilities";
-            //if (File.Exists(mcachepath)) mcache = new MessageCache(mcachepath);
-            //else
-            //{
-            //    mcache = new MessageCache(this);
-            //    mcache.SaveToFile(mcachepath);
-            //}
-            //if (File.Exists(nscachepath)) ns = new Namespaces(nscachepath);
-            //else
-            //{
-            //    ns = new Namespaces(this);
-            //    ns.SaveToFile(nscachepath);
-            //}
-            //if (File.Exists(capacachepath)) capabilities.FromString(File.ReadAllText(capacachepath));
-            //else
-            //{
-            //    capabilities = LoadCapabilities();
-            //    File.WriteAllText(capacachepath, capabilities.ToString());
-            //}
+			if (File.Exists(mcachepath)) mcache = new MessageCache(mcachepath);
+			else
+			{
+				mcache = new MessageCache(this);
+				mcache.SaveToFile(mcachepath);
+			}
+			if (File.Exists(nscachepath)) ns = new Namespaces(nscachepath);
+			else
+			{
+				ns = new Namespaces(this);
+				ns.SaveToFile(nscachepath);
+			}
+			if (File.Exists(capacachepath)) capabilities.FromString(File.ReadAllText(capacachepath));
+			else
+			{
+				capabilities = LoadCapabilities();
+				File.WriteAllText(capacachepath, capabilities.ToString());
+			}
 		}
 
 		#region Login Functions
