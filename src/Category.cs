@@ -28,47 +28,55 @@ namespace WikiTools.Access
 	/// </summary>
 	public class Category
 	{
-		private bool loaded;
-		private readonly string name;
-		private string[] pagesincat;
-		private string[] subcats;
-		private readonly Wiki wiki;
+		private bool _loaded;
+		private readonly string _name;
+		private string[] _pagesincat;
+		private string[] _subcats;
+		private readonly Wiki _wiki;
 
 		/// <summary>
 		/// Initializes new instance of category class
 		/// </summary>
 		/// <param name="wiki">Wiki to use</param>
-		/// <param name="name">Name of the categry</param>
+		/// <param name="name">Name of the category</param>
 		public Category(Wiki wiki, string name)
 		{
-			this.wiki = wiki;
-			this.name = name;
+			_wiki = wiki;
+			_name = name;
 		}
 
 		/// <summary>
-		/// Gets subcategories.  Automatically calls Load() on first usage
+		/// Gets subcategories. Automatically calls Load() on first usage
 		/// </summary>
 		public string[] Subcategories
 		{
 			get
 			{
-				if (!loaded)
+				if (!_loaded)
 					Load();
-				return subcats;
+				return _subcats;
 			}
 		}
 
 		/// <summary>
-		/// Gets pages in it.  Automatically calls Load() on first usage
+		/// Gets pages in it. Automatically calls Load() on first usage
 		/// </summary>
 		public string[] Pages
 		{
 			get
 			{
-				if (!loaded)
+				if (!_loaded)
 					Load();
-				return pagesincat;
+				return _pagesincat;
 			}
+		}
+
+		/// <summary>
+		/// Gets the name including the category prefix
+		/// </summary>
+		private string FullName
+		{
+			get { return string.Format("{0}:{1}", _wiki.ns.GetNamespaceByID(Namespaces.Category), _name); }
 		}
 
 		/// <summary>
@@ -76,7 +84,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public Page CategoryPage
 		{
-			get { return wiki.GetPage("Category:" + name); }
+			get { return _wiki.GetPage(FullName); }
 		}
 
 		/// <summary>
@@ -92,9 +100,9 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Load()
 		{
-			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
-			                HttpUtility.UrlEncode(name);
-			string text = wiki.ab.CreateGetQuery(pgname).DownloadText();
+			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmtitle=" +
+							HttpUtility.UrlEncode(FullName);
+			string text = _wiki.ab.CreateGetQuery(pgname).DownloadText();
 			var subcatsTmp = new List<string>();
 			var pagesTmp = new List<string>();
 		    do
@@ -105,15 +113,15 @@ namespace WikiTools.Access
 				pagesTmp.AddRange(curPages);
 				if (!String.IsNullOrEmpty(cmcontinue))
 				{
-					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmcategory=" +
-					                 HttpUtility.UrlEncode(name) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue);
-					text = wiki.ab.CreateGetQuery(pgname1).DownloadText();
+					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmtitle=" +
+									 HttpUtility.UrlEncode(FullName) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue);
+					text = _wiki.ab.CreateGetQuery(pgname1).DownloadText();
 				}
 				else break;
 			} while (true);
-			loaded = true;
-			subcats = subcatsTmp.ToArray();
-			pagesincat = pagesTmp.ToArray();
+			_loaded = true;
+			_subcats = subcatsTmp.ToArray();
+			_pagesincat = pagesTmp.ToArray();
 		}
 
 		private string ExtractCategoriesFromXML(string xml, out string[] subcats, out string[] pages)
@@ -123,13 +131,12 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			doc.LoadXml(xml);
 			XmlNodeList cmnodes = doc.GetElementsByTagName("cm");
-			foreach (XmlNode cnode in cmnodes)
+			foreach (XmlElement cnode in cmnodes)
 			{
-				var celem = (XmlElement) cnode;
-				if (celem.Attributes["ns"].Value == Namespaces.Category.ToString())
-					subcatsTmp.Add(wiki.NamespacesUtils.RemoveNamespace(celem.Attributes["title"].Value));
+				if (cnode.Attributes["ns"].Value == Namespaces.Category.ToString())
+					subcatsTmp.Add(_wiki.NamespacesUtils.RemoveNamespace(cnode.Attributes["title"].Value));
 				else
-					pagesTmp.Add(celem.Attributes["title"].Value);
+					pagesTmp.Add(cnode.Attributes["title"].Value);
 			}
 			subcats = subcatsTmp.ToArray();
 			pages = pagesTmp.ToArray();
@@ -160,18 +167,20 @@ namespace WikiTools.Access
 		    return pagesRecursive;
 		}
 
-	    private string[] GetPagesRecursive(List<string> _passed)
+	    private string[] GetPagesRecursive(List<string> pagelist)
 		{
-			List<string> passed = (_passed ?? new List<string>());
-		    if (passed.Contains(name) == false)
-		        passed.Add(name);
+			List<string> passed = (pagelist ?? new List<string>());
+		    if (passed.Contains(_name) == false)
+		        passed.Add(_name);
 
-		    var selectMany = Subcategories
+			// get pages from subcategories
+		    var pagesSubcategories = Subcategories
 		        .Where(subcat => !passed.Contains(subcat))
-		        .Select(subcat => new Category(wiki, subcat))
+		        .Select(subcat => new Category(_wiki, subcat))
 		        .SelectMany(csubcat => csubcat.GetPagesRecursive(passed));
+
 		    var result = new List<string>(Pages);
-		    result.AddRange(selectMany);
+		    result.AddRange(pagesSubcategories);
 		    return result.ToArray();
 		}
 	}
