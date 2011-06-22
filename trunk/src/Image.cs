@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
 using System.Xml;
@@ -73,11 +73,18 @@ namespace WikiTools.Access
 		}
 
 		/// <summary>
-		/// Revsions of this image
+		/// Revisions of this image
+		/// Revisions are ordered descending (more recent first)
+		/// Revisionhistory is limited to 500 entries.
 		/// </summary>
 		public ImageRevision[] Revisions
 		{
-			get { return revs; }
+			get
+			{
+				if (!infoLoaded)
+					LoadInfo();
+				return revs;
+			}
 		}
 
 		/// <summary>
@@ -85,7 +92,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public ImageRevision CurrentRevision
 		{
-			get { return revs[0]; }
+			get { return Revisions[0]; }
 		}
 
 		/// <summary>
@@ -94,11 +101,7 @@ namespace WikiTools.Access
 		/// <returns>Image</returns>
 		public byte[] Download()
 		{
-			//if (wiki.Capabilities.HasFilePath)
-				//return wiki.ab.DownloadBinary("index.php?title=Special:Filepath/" + HttpUtility.UrlEncode(name));
-			//else
-			//	return CurrentRevision.Download();
-            throw new NotImplementedException();
+			return CurrentRevision.Download();
 		}
 
 		/// <summary>
@@ -107,38 +110,36 @@ namespace WikiTools.Access
 		public void LoadInfo()
 		{
 			string pgname = "api.php?action=query&prop=imageinfo&titles=Image:" + HttpUtility.UrlEncode(name) +
-			                "&iiprop=timestamp|user|comment|url|size|sha1&iihistory&format=xml";
+							"&iiprop=timestamp|user|comment|url|size|dimensions|sha1|mime|metadata|archivename|bitdepth&iilimit=500&format=xml";
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.LoadXml(wiki.ab.CreateGetQuery(pgname).DownloadText());
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			existsLocaly = !pageelem.HasAttribute("missing");
 			repotype = ParseRepoType(pageelem.Attributes["imagerepository"].Value);
 
-			var iielem = (XmlElement) pageelem.GetElementsByTagName("imageinfo")[0];
 			XmlNodeList revs_ii = pageelem.GetElementsByTagName("ii");
-			var revs_temp = new List<ImageRevision>();
-			foreach (XmlNode cnode in revs_ii)
-			{
-				revs_temp.Add(ParseImageRevision((XmlElement) cnode));
-			}
-			revs = revs_temp.ToArray();
+			revs = (from XmlNode cnode in revs_ii
+					select ParseImageRevision(cnode)).ToArray();
 
 			infoLoaded = true;
 		}
 
-		private ImageRevision ParseImageRevision(XmlElement element)
+		private ImageRevision ParseImageRevision(XmlNode element)
 		{
 			var result = new ImageRevision();
 			result.Wiki = wiki;
-			result.Image = name;
+			result.Name = name;
 			result.Time = DateTime.Parse(element.Attributes["timestamp"].Value).ToUniversalTime();
 			result.Author = element.Attributes["user"].Value;
 			result.Size = Int64.Parse(element.Attributes["size"].Value);
 			result.Width = Int32.Parse(element.Attributes["width"].Value);
 			result.Height = Int32.Parse(element.Attributes["height"].Value);
-			result.Url = element.Attributes["url"].Value;
 			result.Comment = element.Attributes["comment"].Value;
+			result.Url = element.Attributes["url"].Value;
 			result.Sha1 = element.Attributes["sha1"].Value;
+			result.Metadata = element.Attributes["metadata"].Value;
+			result.Mime = element.Attributes["mime"].Value;
+			result.Bitdepth = Int32.Parse(element.Attributes["bitdepth"].Value);
 			return result;
 		}
 
