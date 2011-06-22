@@ -109,6 +109,7 @@
     <Compile Include="Wiki.AllPages.cs" />
     <Compile Include="Wiki.CapabilitiesLoader.cs" />
     <Compile Include="Category.cs" />
+    <Compile Include="Wiki.Export.cs" />
     <Compile Include="WikiCapabilities.cs" />
     <Compile Include="CurrentUser.cs" />
     <Compile Include="WikiException.cs" />
