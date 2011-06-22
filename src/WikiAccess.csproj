@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessBrowser.cs" />
+    <Compile Include="AssemblyConfig.cs" />
     <Compile Include="EditEventArgs.cs" />
     <Compile Include="EditEventHandler.cs" />
     <Compile Include="GetQuery.cs" />

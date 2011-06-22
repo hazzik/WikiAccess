@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using WikiTools.Access;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("WikiAccess")]
-[assembly: AssemblyDescription("Provides access to different wiki's")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Vasiliev V. V.")]
-[assembly: AssemblyProduct("WikiTools")]
-[assembly: AssemblyCopyright("GNU GPL")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyTitle(AssemblyConfig.Title)]
+[assembly: AssemblyDescription(AssemblyConfig.Description)]
+[assembly: AssemblyConfiguration(AssemblyConfig.Configuration)]
+[assembly: AssemblyCompany(AssemblyConfig.Company)]
+[assembly: AssemblyProduct(AssemblyConfig.Product)]
+[assembly: AssemblyCopyright(AssemblyConfig.Copyright)]
+[assembly: AssemblyTrademark(AssemblyConfig.Trademark)]
+[assembly: AssemblyCulture(AssemblyConfig.Culture)]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -35,8 +36,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("0.3.0.0")]
-[assembly: AssemblyFileVersion("0.3.0.0")]
+[assembly: AssemblyVersion(AssemblyConfig.Version)]
+[assembly: AssemblyFileVersion(AssemblyConfig.FileVersion)]
 [assembly: CLSCompliant(true)]
 
 /*[assembly: EnvironmentPermission(SecurityAction.Deny)]
