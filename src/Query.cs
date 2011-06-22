@@ -6,10 +6,10 @@ using WikiTools.Access;
 
 namespace WikiTools.Web
 {
-    public abstract class Query : IQuery
-    {
-		protected readonly CookieContainer _cookies;
-		protected readonly IDictionary<string, string> _data;
+	public abstract class Query : IQuery
+	{
+		protected readonly CookieContainer Cookies;
+		protected readonly IDictionary<string, string> Data;
 		private readonly Uri _uri;
 
 		protected Query(string uri)
@@ -25,8 +25,8 @@ namespace WikiTools.Web
 		protected Query(string uri, CookieContainer cookies, IDictionary<string, string> data)
 		{
 			_uri = new Uri(uri);
-			_data = data;
-			_cookies = cookies;
+			Data = data;
+			Cookies = cookies;
 		}
 
 		public Uri Uri
@@ -36,7 +36,7 @@ namespace WikiTools.Web
 
 		public IQuery Add(string key, string value)
 		{
-			_data.Add(key, value);
+			Data.Add(key, value);
 			return this;
 		}
 
@@ -53,7 +53,7 @@ namespace WikiTools.Web
 		public Stream GetResponseStream()
 		{
 			var response = (HttpWebResponse) CreateRequest().GetResponse();
-			_cookies.Add(response.Cookies);
+			Cookies.Add(response.Cookies);
 			return response.GetResponseStream();
 		}
 
@@ -64,14 +64,17 @@ namespace WikiTools.Web
 
 		protected virtual HttpWebRequest CreateRequest()
 		{
-            ServicePointManager.Expect100Continue = false;
-			var result = (HttpWebRequest) WebRequest.Create(Uri);
-			result.UserAgent = "WikiAccess library v" + Utils.Version;
-			result.Proxy.Credentials = CredentialCache.DefaultCredentials;
-			result.UseDefaultCredentials = true;
-			result.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-			result.CookieContainer = _cookies;
-			return result;
+			ServicePointManager.Expect100Continue = false;
+			var request = (HttpWebRequest) WebRequest.Create(Uri);
+			request.UserAgent = "WikiAccess library v" + Utils.Version;
+			request.Proxy.Credentials = CredentialCache.DefaultCredentials;
+			request.UseDefaultCredentials = true;
+			// needed authentication (ntlm, kerberos) is preserved after first request and used for further requests
+			// saves N/2-1 http requests
+			request.PreAuthenticate = true;
+			request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+			request.CookieContainer = Cookies;
+			return request;
 		}
 	}
 }
