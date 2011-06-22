@@ -17,11 +17,11 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
 using System.Xml;
-using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -309,7 +309,7 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Gets namespace name of this page
 		/// </summary>
-		public string NamespeceName
+		public string NamespaceName
 		{
 			get { return NamespaceID != 0 ? name.Split(':')[0] : ""; }
 		}
@@ -486,14 +486,8 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("pl");
-			var tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				var celem = (XmlElement) node;
-				tmp.Add(celem.Attributes["title"].Value);
-			}
 			internalLinksLoaded = true;
-			internalLinks = tmp.ToArray();
+			internalLinks = (from XmlElement node in nl select node.Attributes["title"].Value).ToArray();
 		}
 
 		/// <summary>
@@ -505,14 +499,8 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("el");
-			var tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				var celem = (XmlElement) node;
-				tmp.Add(celem.InnerText);
-			}
 			externalLinksLoaded = true;
-			externalLinks = tmp.ToArray();
+			externalLinks = (from XmlElement node in nl select node.InnerText).ToArray();
 		}
 
 		/// <summary>
@@ -524,14 +512,8 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("tl");
-			var tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				var celem = (XmlElement) node;
-				tmp.Add(celem.Attributes["title"].Value);
-			}
 			templatesLoaded = true;
-			templates = tmp.ToArray();
+			templates = (from XmlElement node in nl select node.Attributes["title"].Value).ToArray();
 		}
 
 		/// <summary>
@@ -543,14 +525,8 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("im");
-			var tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				var celem = (XmlElement) node;
-				tmp.Add(celem.Attributes["title"].Value);
-			}
 			imagesLoaded = true;
-			images = tmp.ToArray();
+			images = (from XmlElement celem in nl select celem.Attributes["title"].Value).ToArray();
 		}
 
 		/// <summary>
@@ -560,7 +536,7 @@ namespace WikiTools.Access
 		{
 			string uri = "api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles="
 			             + HttpUtility.UrlEncode(name);
-			bool needNext = false;
+			bool needNext;
 			historLoaded = true;
 			var tmp = new List<Revision>();
 			do
@@ -570,13 +546,9 @@ namespace WikiTools.Access
 				if (((XmlElement) doc.GetElementsByTagName("page")[0]).HasAttribute("missing"))
 					throw new WikiPageNotFoundExcecption();
 				var revsroot = (XmlElement) doc.GetElementsByTagName("revisions")[0];
-				foreach (XmlNode node in revsroot.ChildNodes)
-				{
-					if (node.NodeType == XmlNodeType.Element && node.Name == "rev")
-					{
-						tmp.Add(ParseRevision((XmlElement) node));
-					}
-				}
+				tmp.AddRange(from XmlNode node in revsroot.ChildNodes
+				             where node.NodeType == XmlNodeType.Element && node.Name == "rev"
+				             select ParseRevision((XmlElement) node));
 				if (doc.GetElementsByTagName("query-continue").Count > 0)
 				{
 					var qcelem = (XmlElement) doc.GetElementsByTagName("query-continue")[0].FirstChild;
@@ -613,14 +585,9 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("cl");
-			var tmp = new List<string>();
-			foreach (XmlNode node in nl)
-			{
-				var celem = (XmlElement) node;
-				tmp.Add(celem.Attributes["title"].Value.Substring(wiki.NamespacesUtils.GetNamespaceByID(Namespaces.Category).Length + 1));
-			}
 			categoriesLoaded = true;
-			categories = tmp.ToArray();
+			categories = (from XmlElement node in nl
+			              select node.Attributes["title"].Value.Substring(wiki.NamespacesUtils.GetNamespaceByID(Namespaces.Category).Length + 1)).ToArray();
 		}
 
 		/// <summary>

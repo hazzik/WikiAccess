@@ -18,6 +18,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WikiTools.Access
 {
@@ -94,9 +95,8 @@ namespace WikiTools.Access
 
 		#region PageList class
 
-		private readonly Namespaces ns;
-		private string[] pages;
-		private readonly Wiki wiki;
+		private readonly Namespaces _ns;
+		private readonly Wiki _wiki;
 
 		/// <summary>
 		/// Initializes new instance of page list
@@ -105,18 +105,15 @@ namespace WikiTools.Access
 		/// <param name="pages">Pages in list</param>
 		public PageList(Wiki wiki, string[] pages)
 		{
-			this.pages = pages;
-			this.wiki = wiki;
-			ns = wiki.NamespacesUtils;
+			Pages = pages;
+			_wiki = wiki;
+			_ns = wiki.NamespacesUtils;
 		}
 
 		/// <summary>
 		/// Gets page in this list
 		/// </summary>
-		public string[] Pages
-		{
-			get { return pages; }
-		}
+		public string[] Pages { get; private set; }
 
 		/// <summary>
 		/// Convert all pages in list to talk pages
@@ -125,10 +122,10 @@ namespace WikiTools.Access
 		public int AllTitlesToTalk()
 		{
 			int count = 0;
-			for (int cidx = 0; cidx < pages.Length; cidx++)
+			for (int cidx = 0; cidx < Pages.Length; cidx++)
 			{
-				if (!ns.IsTalkNamespace(pages[cidx])) count++;
-				pages[cidx] = ns.TitleToTalk(pages[cidx]);
+				if (!_ns.IsTalkNamespace(Pages[cidx])) count++;
+				Pages[cidx] = _ns.TitleToTalk(Pages[cidx]);
 			}
 			return count;
 		}
@@ -138,7 +135,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void RemoveDuplicates()
 		{
-			pages = Utils.RemoveDuplicates(pages);
+			Pages = Pages.Distinct().ToArray();
 		}
 
 		/// <summary>
@@ -148,10 +145,10 @@ namespace WikiTools.Access
 		public int AllTitlesFromTalk()
 		{
 			int count = 0;
-			for (int cidx = 0; cidx < pages.Length; cidx++)
+			for (int cidx = 0; cidx < Pages.Length; cidx++)
 			{
-				if (ns.IsTalkNamespace(pages[cidx])) count++;
-				pages[cidx] = ns.TitleFromTalk(pages[cidx]);
+				if (_ns.IsTalkNamespace(Pages[cidx])) count++;
+				Pages[cidx] = _ns.TitleFromTalk(Pages[cidx]);
 			}
 			return count;
 		}
@@ -165,14 +162,14 @@ namespace WikiTools.Access
 		{
 			int count = 0;
 			var result = new List<string>();
-			foreach (string cpage in pages)
+			foreach (string cpage in Pages)
 			{
-				if (plf(wiki.GetPage(cpage)))
+				if (plf(_wiki.GetPage(cpage)))
 					result.Add(cpage);
 				else
 					count++;
 			}
-			pages = result.ToArray();
+			Pages = result.ToArray();
 			return count;
 		}
 
@@ -187,14 +184,14 @@ namespace WikiTools.Access
 		{
 			int count = 0;
 			var result = new List<string>();
-			foreach (string cpage in pages)
+			foreach (string cpage in Pages)
 			{
-				if (plf(wiki.GetPage(cpage), param))
+				if (plf(_wiki.GetPage(cpage), param))
 					result.Add(cpage);
 				else
 					count++;
 			}
-			pages = result.ToArray();
+			Pages = result.ToArray();
 			return count;
 		}
 
@@ -205,14 +202,14 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Filter page list by namespaces
 		/// </summary>
-		/// <param name="allowedNS">List of IDs of namespeces, pages in which should be kept in list</param>
+		/// <param name="allowedNamespaces">List of IDs of namespaces, pages in which should be kept in list</param>
 		/// <returns>Count of filtered out pages</returns>
-		public int FilterAllowedNamespaces(int[] allowedNS)
+		public int FilterAllowedNamespaces(int[] allowedNamespaces)
 		{
-			return Filter(FANDelegate, allowedNS);
+			return Filter(FilterAllowedNamespacesDelegate, allowedNamespaces);
 		}
 
-		private static bool FANDelegate(Page pg, int[] ns)
+		private static bool FilterAllowedNamespacesDelegate(Page pg, int[] ns)
 		{
 			return Array.IndexOf(ns, pg.NamespaceID) > -1;
 		}
@@ -220,15 +217,15 @@ namespace WikiTools.Access
 		/// <summary>
 		/// Filter page list by namespaces
 		/// </summary>
-		/// <param name="disallowedNS">List of IDs of namespeces, pages in which should be removed from list</param>
+		/// <param name="disallowedNamespaces">List of IDs of namespaces, pages in which should be removed from list</param>
 		/// <returns>Count of filtered out pages</returns>
-		public int FilterDisallowedNamespaces(int[] disallowedNS)
+		public int FilterDisallowedNamespaces(int[] disallowedNamespaces)
 		{
-			int cnum = pages.Length;
-			return cnum - Filter<int[]>(new ParametrizedPageListFilter<int[]>(FDNDelegate), disallowedNS);
+			int cnum = Pages.Length;
+			return cnum - Filter(FilterDisallowedNamespacesDelegate, disallowedNamespaces);
 		}
 
-		private static bool FDNDelegate(Page pg, int[] ns)
+		private static bool FilterDisallowedNamespacesDelegate(Page pg, int[] ns)
 		{
 			return Array.IndexOf(ns, pg.NamespaceID) < 0;
 		}
@@ -243,7 +240,7 @@ namespace WikiTools.Access
 		/// <returns>New copy of this list</returns>
 		public object Clone()
 		{
-			return new PageList(wiki, pages);
+			return new PageList(_wiki, Pages);
 		}
 
 		#endregion
@@ -252,13 +249,9 @@ namespace WikiTools.Access
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return pages.GetEnumerator();
+			return Pages.GetEnumerator();
 		}
 
 		#endregion
 	}
-
-	#region Page filter delegates
-
-    #endregion
 }
