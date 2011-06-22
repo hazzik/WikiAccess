@@ -1,7 +1,7 @@
 ﻿namespace WikiTools.Access
 {
     /// <summary>
-    /// Is trown when page doesn't exists
+    /// Is thrown when page doesn't exists
     /// </summary>
     public class WikiPageNotFoundExcecption : WikiException
     {

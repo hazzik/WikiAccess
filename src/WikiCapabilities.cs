@@ -29,7 +29,7 @@ namespace WikiTools.Access
 	public struct WikiCapabilities
 	{
 		/// <summary>
-		/// Requierd to check users
+		/// Required to check users
 		/// </summary>
 		public bool HasCheckUser;
 
@@ -44,7 +44,7 @@ namespace WikiTools.Access
 		public bool HasFilePath;
 
 		/// <summary>
-		/// Requiered to make bot via MakeBot interface and have access to MakeBot log
+		/// Required to make bot via MakeBot interface and have access to MakeBot log
 		/// </summary>
 		public bool HasMakeBot;
 
