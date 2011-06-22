@@ -66,7 +66,7 @@ namespace WikiTools.Web
 		{
 			ServicePointManager.Expect100Continue = false;
 			var request = (HttpWebRequest) WebRequest.Create(Uri);
-			request.UserAgent = "WikiAccess library v" + Utils.Version;
+			request.UserAgent = string.Format("{0} v{1}", AssemblyConfig.Title, AssemblyConfig.Version);
 			request.Proxy.Credentials = CredentialCache.DefaultCredentials;
 			request.UseDefaultCredentials = true;
 			// needed authentication (ntlm, kerberos) is preserved after first request and used for further requests

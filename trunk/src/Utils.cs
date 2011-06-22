@@ -34,7 +34,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public static Version Version
 		{
-			get { return new Version(0, 1); }
+			get { return new Version(AssemblyConfig.Version); }
 		}
 
 		/// <summary>
