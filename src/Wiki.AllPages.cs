@@ -17,6 +17,7 @@
  **********************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Xml;
 
@@ -34,22 +35,21 @@ namespace WikiTools.Access
 		/// <returns>All pages list</returns>
 		public string[] GetAllPages(string startfrom, int limit, PageTypes filter, int namespaceId)
 		{
-			int walksCount = (int) Math.Floor((double) limit/500), adittionalWalk = limit%500;
+			const int maxPages = 500;
+			int walksCount = (int)Math.Floor((double)limit / maxPages);
+			int additionalWalk = limit % maxPages;
 			string rqUri;
 			string next = startfrom;
 			var result = new List<string>();
 			for (int i = 0; i < walksCount; i++)
 			{
-				rqUri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
-				         + "&apfrom=" + HttpUtility.UrlEncode(next) + "&apnamespace=" + namespaceId;
+				rqUri = string.Format(Web.Query.PageList, maxPages, filter.ToString().ToLower(), HttpUtility.UrlEncode(next), namespaceId);
 				result.AddRange(ParseAllPages(ab.CreateGetQuery(rqUri).DownloadText(), out next));
 				if (String.IsNullOrEmpty(next)) return result.ToArray();
 			}
-			if (adittionalWalk > 0)
+			if (additionalWalk > 0)
 			{
-				rqUri = "api.php?action=query&list=allpages&format=xml&aplimit=" + adittionalWalk +
-				         "&apfilterredir=" + filter.ToString().ToLower()
-				         + "&apfrom=" + HttpUtility.UrlEncode(next) + "&apnamespace=" + namespaceId;
+				rqUri = string.Format(Web.Query.PageList, additionalWalk, filter.ToString().ToLower(), HttpUtility.UrlEncode(next), namespaceId);
 				result.AddRange(ParseAllPages(ab.CreateGetQuery(rqUri).DownloadText(), out next));
 			}
 			return result.ToArray();
@@ -60,12 +60,6 @@ namespace WikiTools.Access
 			var doc = new XmlDocument();
 			doc.LoadXml(xml);
 			XmlNodeList pgnodes = doc.GetElementsByTagName("p");
-			var result = new List<string>();
-			foreach (XmlNode cnode in pgnodes)
-			{
-				var celem = (XmlElement) cnode;
-				result.Add(celem.Attributes["title"].Value);
-			}
 			if (doc.GetElementsByTagName("query-continue").Count > 0)
 			{
 				var qcelem = (XmlElement) doc.GetElementsByTagName("query-continue")[0].FirstChild;
@@ -73,7 +67,8 @@ namespace WikiTools.Access
 			}
 			else
 				next = String.Empty;
-			return result.ToArray();
+			return (from XmlElement celem in pgnodes
+					select celem.Attributes["title"].Value).ToArray();
 		}
 
 		/// <summary>
@@ -89,8 +84,7 @@ namespace WikiTools.Access
 			var result = new List<string>();
 			do
 			{
-			    string rqUri = "api.php?action=query&list=allpages&format=xml&aplimit=500&apfilterredir=" + filter.ToString().ToLower()
-			                    + "&apfrom=" + HttpUtility.UrlEncode(next) + "&apnamespace=" + namespaceId + "&apprefix=" + prefix;
+			    string rqUri = string.Format(Web.Query.PageListPrefix, 500, filter.ToString().ToLower(), HttpUtility.UrlEncode(next), namespaceId, prefix);
 			    result.AddRange(ParseAllPages(ab.CreateGetQuery(rqUri).DownloadText(), out next));
 			} while (!String.IsNullOrEmpty(next));
 			return result.ToArray();

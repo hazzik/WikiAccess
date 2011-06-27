@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Web;
+using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -18,9 +19,8 @@ namespace WikiTools.Access
 		/// <returns></returns>
 		public string ExportPagesFromCategory(string categoryName, bool plainXmlDump = false)
 		{
-			// api.php?action=query&export&exportnowrap&generator=categorymembers&gcmtitle=category:XYZ
-			string page = "api.php?format=xml&action=query&export&generator=categorymembers&gcmtitle=" +
-				string.Format("{0}:{1}", ns.GetNamespaceByID(Namespaces.Category), HttpUtility.UrlEncode(categoryName));
+			string page = string.Format(Query.ExportFromCategory,
+				string.Format("{0}:{1}", ns.GetNamespaceByID(Namespaces.Category), HttpUtility.UrlEncode(categoryName)));
 			if (plainXmlDump)
 				page += "&exportnowrap";
 			return ab.CreateGetQuery(page).DownloadText();
@@ -39,8 +39,7 @@ namespace WikiTools.Access
 		/// <returns></returns>
 		public string ExportPages(IEnumerable<string> pages, bool plainXmlDump = false)
 		{
-			// api.php?action=query&export&exportnowrap&titles=article1|article2
-			string page = "api.php?format=xml&action=query&export&titles=" + string.Join("|", pages);
+			string page = string.Format(Query.ExportPages, string.Join("|", pages));
 			if (plainXmlDump)
 				page += "&exportnowrap";
 			return ab.CreateGetQuery(page).DownloadText();

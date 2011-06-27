@@ -22,6 +22,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 using System.Xml;
+using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -446,7 +447,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadInfo()
 		{
-			string pgname = "api.php?action=query&format=xml&prop=info&titles=" + HttpUtility.UrlEncode(name);
+			string pgname = string.Format(Query.PageInfo, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var pageElem = (XmlElement) doc.GetElementsByTagName("page")[0];
@@ -482,7 +483,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadInternalLinks()
 		{
-			string pgname = "api.php?action=query&format=xml&prop=links&titles=" + HttpUtility.UrlEncode(name);
+			string pgname = string.Format(Query.PageLinksInternal, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("pl");
@@ -495,7 +496,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadExternalLinks()
 		{
-			string pgname = "api.php?action=query&format=xml&prop=extlinks&titles=" + HttpUtility.UrlEncode(name);
+			string pgname = string.Format(Query.PageLinksExternal, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("el");
@@ -508,7 +509,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadTemplates()
 		{
-			string pgname = "api.php?action=query&format=xml&prop=templates&titles=" + HttpUtility.UrlEncode(name);
+			string pgname = string.Format(Query.PageTemplates, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("tl");
@@ -521,7 +522,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadImages()
 		{
-			string pgname = "api.php?action=query&format=xml&prop=images&titles=" + HttpUtility.UrlEncode(name);
+			string pgname = string.Format(Query.PageImages, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("im");
@@ -534,8 +535,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadHistory()
 		{
-			string uri = "api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles="
-			             + HttpUtility.UrlEncode(name);
+			string uri = string.Format(Query.PageHistory, HttpUtility.UrlEncode(name));
 			bool needNext;
 			historLoaded = true;
 			var tmp = new List<Revision>();
@@ -552,9 +552,7 @@ namespace WikiTools.Access
 				if (doc.GetElementsByTagName("query-continue").Count > 0)
 				{
 					var qcelem = (XmlElement) doc.GetElementsByTagName("query-continue")[0].FirstChild;
-					uri =
-						"api.php?action=query&format=xml&prop=revisions&rvdir=older&rvlimit=50&rvprop=ids|flags|timestamp|user|comment&titles=" +
-						HttpUtility.UrlEncode(name) + "&rvstartid=" + qcelem.Attributes["rvstartid"].Value;
+					uri = string.Format(Query.PageHistoryContinue, HttpUtility.UrlEncode(name), qcelem.Attributes["rvstartid"].Value);
 					needNext = true;
 				}
 				else
@@ -581,7 +579,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadCategories()
 		{
-			string pgname = "api.php?action=query&format=xml&prop=categories&titles=" + HttpUtility.UrlEncode(name);
+			string pgname = string.Format(Query.PageCategories, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			XmlNodeList nl = doc.GetElementsByTagName("cl");
@@ -679,8 +677,7 @@ namespace WikiTools.Access
 		/// <returns></returns>
 		public DateTime GetLastEdit()
 		{
-			string pgname = "api.php?action=query&prop=revisions&&rvprop=timestamp&limit=1&format=xml&titles=" +
-			                HttpUtility.UrlEncode(name);
+			string pgname = string.Format(Query.PageLastEdit, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
@@ -691,8 +688,7 @@ namespace WikiTools.Access
 
 		private string GetToken(string page, string type)
 		{
-			string pgname = "api.php?action=query&format=xml&prop=info&intoken="
-			                + type + "&titles=" + HttpUtility.UrlEncode(page);
+			string pgname = string.Format(Query.PageToken, HttpUtility.UrlEncode(page), type);
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var elem = (XmlElement) doc.GetElementsByTagName("page")[0];
