@@ -100,8 +100,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Load()
 		{
-			string pgname = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmtitle=" +
-							HttpUtility.UrlEncode(FullName);
+			string pgname = string.Format(Web.Query.CategoryMembers, HttpUtility.UrlEncode(FullName));
 			string text = _wiki.ab.CreateGetQuery(pgname).DownloadText();
 			var subcatsTmp = new List<string>();
 			var pagesTmp = new List<string>();
@@ -113,8 +112,8 @@ namespace WikiTools.Access
 				pagesTmp.AddRange(curPages);
 				if (!String.IsNullOrEmpty(cmcontinue))
 				{
-					string pgname1 = "api.php?action=query&format=xml&list=categorymembers&cmlimit=500&cmtitle=" +
-									 HttpUtility.UrlEncode(FullName) + "&cmcontinue=" + HttpUtility.UrlEncode(cmcontinue);
+					string pgname1 = string.Format(Web.Query.CategoryMembersContinue,
+						HttpUtility.UrlEncode(FullName), HttpUtility.UrlEncode(cmcontinue));
 					text = _wiki.ab.CreateGetQuery(pgname1).DownloadText();
 				}
 				else break;

@@ -105,7 +105,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Reload()
 		{
-			const string page = "api.php?action=query&format=xml&meta=userinfo&uiprop=blockinfo|groups|rights|hasmsg";
+			const string page = Web.Query.UserCurrentInfo;
 			var doc = new XmlDocument();
 			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
 			var rootelem = (XmlElement) doc.GetElementsByTagName("userinfo")[0];

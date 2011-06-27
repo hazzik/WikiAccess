@@ -109,8 +109,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadInfo()
 		{
-			string pgname = "api.php?action=query&prop=imageinfo&titles=Image:" + HttpUtility.UrlEncode(name) +
-							"&iiprop=timestamp|user|comment|url|size|dimensions|sha1|mime|metadata|archivename|bitdepth&iilimit=500&format=xml";
+			string pgname = string.Format(Web.Query.ImageInfo, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.LoadXml(wiki.ab.CreateGetQuery(pgname).DownloadText());
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];

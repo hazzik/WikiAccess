@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.XPath;
 using WikiTools.Web;
@@ -119,7 +120,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public const int UserTalk = 3;
 
-		private readonly SortedList<int, string> namespaces;
+		private readonly SortedList<int, string> _namespaces;
 
 		#region Load and save
 
@@ -130,10 +131,7 @@ namespace WikiTools.Access
 		/// <returns>Namespace ID:Name list</returns>
 		public static SortedList<int, string> GetNamespaces(Wiki wiki)
 		{
-		    IQuery query = wiki.ab.CreateGetQuery("api.php?format=xml" +
-		                                          "&action=query" +
-		                                          "&meta=siteinfo" +
-		                                          "&siprop=namespaces");
+			IQuery query = wiki.ab.CreateGetQuery(Query.Namespaces);
 			var xdoc = new XPathDocument(query.GetResponseStream());
 			var result = new SortedList<int, string>();
 			foreach (XPathNavigator element in xdoc.CreateNavigator().Select("api/query/namespaces/ns"))
@@ -167,10 +165,7 @@ namespace WikiTools.Access
 		/// <param name="ns">Namespaces list</param>
 		public static void SaveToFile(string fname, SortedList<int, string> ns)
 		{
-			var result = new List<string>();
-			foreach (var ckp in ns)
-				result.Add(ckp.Key + ":" + ckp.Value);
-			File.WriteAllLines(fname, result.ToArray(), Encoding.UTF8);
+			File.WriteAllLines(fname, ns.Select(ckp => ckp.Key + ":" + ckp.Value).ToArray(), Encoding.UTF8);
 		}
 
 		/// <summary>
@@ -191,7 +186,7 @@ namespace WikiTools.Access
 		/// <param name="fpath">File name</param>
 		public Namespaces(string fpath)
 		{
-			namespaces = LoadFromFile(fpath);
+			_namespaces = LoadFromFile(fpath);
 		}
 
 		/// <summary>
@@ -200,7 +195,7 @@ namespace WikiTools.Access
 		/// <param name="wiki">Wiki</param>
 		public Namespaces(Wiki wiki)
 		{
-			namespaces = GetNamespaces(wiki);
+			_namespaces = GetNamespaces(wiki);
 		}
 
 		/// <summary>
@@ -238,11 +233,11 @@ namespace WikiTools.Access
 		/// <returns></returns>
 		public int GetNamespaceID(string nsName)
 		{
-			if (namespaces.ContainsValue(nsName))
-				return namespaces.Keys[namespaces.Values.IndexOf(nsName)];
-			else if (GetStandardNamespaces().ContainsValue(nsName))
+			if (_namespaces.ContainsValue(nsName))
+				return _namespaces.Keys[_namespaces.Values.IndexOf(nsName)];
+			if (GetStandardNamespaces().ContainsValue(nsName))
 				return GetStandardNamespaces().Keys[GetStandardNamespaces().Values.IndexOf(nsName)];
-			else return 0;
+			return 0;
 		}
 
 		/// <summary>
@@ -261,7 +256,7 @@ namespace WikiTools.Access
 		/// <param name="fname">File name</param>
 		public void SaveToFile(string fname)
 		{
-			SaveToFile(fname, namespaces);
+			SaveToFile(fname, _namespaces);
 		}
 
 		/// <summary>
@@ -271,7 +266,7 @@ namespace WikiTools.Access
 		/// <returns>Namespace name</returns>
 		public string GetNamespaceByID(int ID)
 		{
-			return namespaces[ID];
+			return _namespaces[ID];
 		}
 
 		/// <summary>
@@ -283,11 +278,10 @@ namespace WikiTools.Access
 		{
 			int nid = GetNamespaceByTitle(title);
 			if (IsTalkNamespace(title) | nid < 0) return title;
-			if (nid == 0) return namespaces[1] + ":" + title;
-			else if (title.StartsWith(namespaces[nid]))
-				return namespaces[nid + 1] + title.Substring(title.IndexOf(":"));
-			else
-				return GetStandardNamespaces()[nid + 1] + title.Substring(title.IndexOf(":"));
+			if (nid == 0) return _namespaces[1] + ":" + title;
+			if (title.StartsWith(_namespaces[nid]))
+				return _namespaces[nid + 1] + title.Substring(title.IndexOf(":"));
+			return GetStandardNamespaces()[nid + 1] + title.Substring(title.IndexOf(":"));
 		}
 
 		/// <summary>
@@ -300,10 +294,9 @@ namespace WikiTools.Access
 			if (!IsTalkNamespace(title)) return title;
 			int nid = GetNamespaceByTitle(title);
 			if (nid == 1) return title.Substring(title.IndexOf(":") + 1);
-			else if (title.StartsWith(namespaces[nid]))
-				return namespaces[nid - 1] + title.Substring(title.IndexOf(":"));
-			else
-				return GetStandardNamespaces()[nid - 1] + title.Substring(title.IndexOf(":"));
+			if (title.StartsWith(_namespaces[nid]))
+				return _namespaces[nid - 1] + title.Substring(title.IndexOf(":"));
+			return GetStandardNamespaces()[nid - 1] + title.Substring(title.IndexOf(":"));
 		}
 
 		/// <summary>
@@ -326,8 +319,8 @@ namespace WikiTools.Access
 			pgname = pgname.Trim();
 			int ns = GetNamespaceByTitle(pgname);
 			if (ns == 0) return pgname;
-			else if (pgname.StartsWith(namespaces[ns])) return pgname.Substring(namespaces[ns].Length + 1);
-			else return pgname.Substring(GetStandardNamespaces()[ns].Length + 1);
+			if (pgname.StartsWith(_namespaces[ns])) return pgname.Substring(_namespaces[ns].Length + 1);
+			return pgname.Substring(GetStandardNamespaces()[ns].Length + 1);
 		}
 	}
 }

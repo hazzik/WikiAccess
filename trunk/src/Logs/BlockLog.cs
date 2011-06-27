@@ -22,8 +22,7 @@ namespace WikiTools.Access
 
 		public void Load(string adminname)
 		{
-			string pgname = "api.php?action=query&list=logevents&letype=block&leuser="
-			                + HttpUtility.UrlEncode(adminname) + "&lelimit=500&format=xml";
+			string pgname = string.Format(Web.Query.BlockLog, HttpUtility.UrlEncode(adminname));
 			var doc = new XmlDocument();
 			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
 			var root = (XmlElement) doc.GetElementsByTagName("logevents")[0];

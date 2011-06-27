@@ -64,8 +64,7 @@ namespace WikiTools.Access
 
         public RecentChange[] GetRecentChanges()
         {
-            const string page = "api.php?format=xml&action=query&list=recentchanges"
-                                + "&rclimit=max&rcprop=user|comment|flags|timestamp|title|sizes|ids";
+            const string page = Web.Query.RecentChanges;
             var doc = new XmlDocument();
             doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
             XmlNodeList nodes = doc.GetElementsByTagName("rc");

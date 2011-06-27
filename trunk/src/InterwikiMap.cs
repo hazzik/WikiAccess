@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.Xml;
 
 namespace WikiTools.Access
@@ -12,16 +12,12 @@ namespace WikiTools.Access
 
         public InterwikiMap(Wiki w)
         {
-            const string page = "api.php?format=xml&action=query&meta=siteinfo&siprop=interwikimap";
+            const string page = Web.Query.InterwikiMapInfo;
             var doc = new XmlDocument();
             doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
             XmlNodeList nl = doc.GetElementsByTagName("iw");
-            var entries_pre = new List<InterwikiMapEntry>();
-            foreach (XmlNode node in nl)
-            {
-                entries_pre.Add(ParseInterwikiMapEntry((XmlElement) node));
-            }
-            entries = entries_pre.ToArray();
+        	entries = (from XmlNode node in nl
+					   select ParseInterwikiMapEntry((XmlElement) node)).ToArray();
         }
 
         public InterwikiMapEntry[] Entries
