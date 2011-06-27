@@ -44,7 +44,8 @@ namespace WikiTools.Web
 
 		private byte[] GetDataBytes()
 		{
-			string data = StringExtensions.Join(Data
+			string data = string.Format("--{0}{1}", _boundary, Environment.NewLine);
+			data += StringExtensions.Join(Data
 						  .Select(kvp => CommitValue(kvp.Key, kvp.Value)), Environment.NewLine);
 			return Encoding.UTF8.GetBytes(data);
 		}
@@ -52,14 +53,13 @@ namespace WikiTools.Web
 		private string CommitValue(string key, string value)
 		{
 			var sb = new StringBuilder();
-			sb.AppendFormat("--{0}", _boundary)
-				.AppendLine()
-				.AppendFormat("Content-Disposition: form-data; name=\"{0}\"", key)
+			sb.AppendFormat("Content-Disposition: form-data; name=\"{0}\"", key)
 				.AppendLine()
 				.AppendFormat("Content-Type: text/plain; charset=utf-8")
 				.AppendLine()
 				.AppendLine()
-				.Append(value);
+				.AppendLine(value)
+				.AppendFormat("--{0}", _boundary);
 			return sb.ToString();
 		}
 
