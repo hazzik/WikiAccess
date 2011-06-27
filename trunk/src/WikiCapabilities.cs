@@ -102,44 +102,48 @@ namespace WikiTools.Access
 		/// <returns>Succes of parsing</returns>
 		public bool FromString(string s)
 		{
-			var sr = new StringReader(s);
-			if (sr.ReadLine().Trim() != "!Wiki-capa")
-				return false;
-			string cstr;
-			while (!String.IsNullOrEmpty(cstr = sr.ReadLine()))
+			using (var sr = new StringReader(s))
 			{
-				string[] kv = cstr.Split(new[] {'='}, 2);
-				kv[0] = kv[0].Trim();
-				kv[1] = kv[1].Trim();
-				switch (kv[0])
+				if (sr.ReadLine().Trim() != "!Wiki-capa")
+					return false;
+				string cstr;
+				while (!String.IsNullOrEmpty(cstr = sr.ReadLine()))
 				{
-					case "version":
-						Version = new Version(kv[1]);
-						break;
-					case "ext:checkuser":
-						HasCheckUser = Boolean.Parse(kv[1]);
-						break;
-					case "ext:exptl":
-						HasExpandTemplates = Boolean.Parse(kv[1]);
-						break;
-					case "ext:fpath":
-						HasFilePath = Boolean.Parse(kv[1]);
-						break;
-					case "ext:mkbot":
-						HasMakeBot = Boolean.Parse(kv[1]);
-						break;
-					case "ext:mksysop":
-						HasMakeSysop = Boolean.Parse(kv[1]);
-						break;
-					case "ext:newusers":
-						HasNewUserLog = Boolean.Parse(kv[1]);
-						break;
-					case "ext:oversight":
-						HasOversight = Boolean.Parse(kv[1]);
-						break;
-					case "ext:renameuser":
-						HasRenameUser = Boolean.Parse(kv[1]);
-						break;
+					string[] kv = cstr.Split(new[] {'='}, 2);
+					kv[0] = kv[0].Trim();
+					kv[1] = kv[1].Trim();
+					switch (kv[0])
+					{
+						case "version":
+							// if there was a problem reading version information, the persisted version will be empty
+							if (!string.IsNullOrWhiteSpace(kv[1]))
+								Version = new Version(kv[1]);
+							break;
+						case "ext:checkuser":
+							HasCheckUser = Boolean.Parse(kv[1]);
+							break;
+						case "ext:exptl":
+							HasExpandTemplates = Boolean.Parse(kv[1]);
+							break;
+						case "ext:fpath":
+							HasFilePath = Boolean.Parse(kv[1]);
+							break;
+						case "ext:mkbot":
+							HasMakeBot = Boolean.Parse(kv[1]);
+							break;
+						case "ext:mksysop":
+							HasMakeSysop = Boolean.Parse(kv[1]);
+							break;
+						case "ext:newusers":
+							HasNewUserLog = Boolean.Parse(kv[1]);
+							break;
+						case "ext:oversight":
+							HasOversight = Boolean.Parse(kv[1]);
+							break;
+						case "ext:renameuser":
+							HasRenameUser = Boolean.Parse(kv[1]);
+							break;
+					}
 				}
 			}
 			return true;
