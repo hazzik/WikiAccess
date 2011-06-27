@@ -38,9 +38,9 @@ namespace WikiTools.Access
 		private CurrentUser cu;
 		private MessageCache mcache;
 		internal Namespaces ns;
-	    private bool loggedIn;
+		private bool loggedIn;
 
-	    /// <summary>
+		/// <summary>
 		/// Initializes new instance of a Wiki object. Message cache will be stored in current directory.
 		/// </summary>
 		/// <param name="uri">URI of wiki. <see cref="Wiki.WikiURI"/></param>
@@ -48,12 +48,12 @@ namespace WikiTools.Access
 		{
 		}
 
-        public Wiki(IAccessBrowser accessBrowser)
-        {
-            ab = accessBrowser;
-        }
+		public Wiki(IAccessBrowser accessBrowser)
+		{
+			ab = accessBrowser;
+		}
 
-	    /// <summary>
+		/// <summary>
 		/// Initializes new instance of a Wiki object.
 		/// </summary>
 		/// <param name="uri">URI of Wiki. <see cref="Wiki.WikiURI"/></param>
@@ -95,18 +95,39 @@ namespace WikiTools.Access
 		/// <returns>Succes</returns>
 		public bool Login(string name, string password)
 		{
-            IQuery query = ab.CreatePostQuery("api.php?format=xml")
-		        .Add("action", "login")
-		        .Add("lgname", name)
-		        .Add("lgpassword", password);
+			IQuery query = ab.CreatePostQuery("api.php?format=xml")
+				.Add("action", "login")
+				.Add("lgname", name)
+				.Add("lgpassword", password);
 
-		    XDocument xdoc = XDocument.Load(query.GetTextReader());
-		    var element = xdoc.CreateNavigator()
-		        .SelectSingleNode("//api/login/@result");
-		    return loggedIn = string.Equals("Success", element.Value, StringComparison.InvariantCultureIgnoreCase);
+			XDocument xdoc = XDocument.Load(query.GetTextReader());
+			var element = xdoc.CreateNavigator()
+				.SelectSingleNode("//api/login/@result");
+
+			// see http://www.mediawiki.org/wiki/API:Login
+			switch (element.Value.ToLowerInvariant())
+			{
+				// until MediaWiki 1.15.3
+				case "success":
+					return loggedIn = true;
+				// since 1.15.5 (1.15.4 is broken)
+				case "needtoken":
+					element = xdoc.CreateNavigator().SelectSingleNode("//api/login/@token");
+					query = ab.CreatePostQuery("api.php?format=xml")
+						.Add("action", "login")
+						.Add("lgname", name)
+						.Add("lgpassword", password)
+						.Add("lgtoken", element.Value);
+
+					xdoc = XDocument.Load(query.GetTextReader());
+					element = xdoc.CreateNavigator().SelectSingleNode("//api/login/@result");
+					return loggedIn = element.Value.ToLowerInvariant().Equals("success");
+				default:
+					return loggedIn = false;
+			}
 		}
 
-	    /// <summary>
+		/// <summary>
 		/// Logs out
 		/// </summary>
 		public void Logout()
@@ -120,7 +141,7 @@ namespace WikiTools.Access
 		/// <returns>True, if we are logged in</returns>
 		public bool IsLoggedIn()
 		{
-		    return loggedIn;
+			return loggedIn;
 		}
 
 		#endregion
@@ -153,7 +174,7 @@ namespace WikiTools.Access
 		/// URI of wiki in format http://mediawiki.org/w
 		/// </summary>
 		[Obsolete]
-        public string WikiURI
+		public string WikiURI
 		{
 			get { return wikiUri; }
 		}
@@ -192,8 +213,8 @@ namespace WikiTools.Access
 			{
 				var result = new Statistics();
 				string statstr = ab.CreateGetQuery("index.php?title=Special:Statistics&action=raw").DownloadText();
-			    var stats = statstr.Split(';').Select(t => t.Split('=')).ToDictionary(strings => strings[0], strings => Int32.Parse(strings[1]));
-			    result.Admins = stats["admins"];
+				var stats = statstr.Split(';').Select(t => t.Split('=')).ToDictionary(strings => strings[0], strings => Int32.Parse(strings[1]));
+				result.Admins = stats["admins"];
 				result.Edits = stats["edits"];
 				result.GoodPages = stats["good"];
 				result.Images = stats["images"];
