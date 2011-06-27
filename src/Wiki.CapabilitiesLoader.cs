@@ -28,29 +28,32 @@ namespace WikiTools.Access
 		    return ParseWikiCapabilities(ab.CreateGetQuery(page).DownloadText());
 		}
 
-	    private static WikiCapabilities ParseWikiCapabilities(string vesionPage)
+	    private static WikiCapabilities ParseWikiCapabilities(string versionPage)
 		{
 			var result = new WikiCapabilities
                     {
-                        HasCheckUser = vesionPage.Contains("<i>CheckUser</i>"),
-                        HasExpandTemplates = vesionPage.Contains("<i>ExpandTemplates</i>"),
-                        HasFilePath = vesionPage.Contains("<i>Filepath</i>"),
-                        HasMakeBot = vesionPage.Contains("<i>MakeBot</i>"),
-                        HasMakeSysop = vesionPage.Contains("<i>Makesysop</i>"),
-                        HasNewUserLog = vesionPage.Contains("<i>Newuserlog</i>"),
-                        HasOversight = vesionPage.Contains("<i>Oversight</i>"),
-                        HasRenameUser = vesionPage.Contains("<i>Renameuser</i>")
+                        HasCheckUser = versionPage.Contains("<i>CheckUser</i>"),
+                        HasExpandTemplates = versionPage.Contains("<i>ExpandTemplates</i>"),
+                        HasFilePath = versionPage.Contains("<i>Filepath</i>"),
+                        HasMakeBot = versionPage.Contains("<i>MakeBot</i>"),
+                        HasMakeSysop = versionPage.Contains("<i>Makesysop</i>"),
+                        HasNewUserLog = versionPage.Contains("<i>Newuserlog</i>"),
+                        HasOversight = versionPage.Contains("<i>Oversight</i>"),
+                        HasRenameUser = versionPage.Contains("<i>Renameuser</i>")
                     };
-	        Match match = Regex.Match(vesionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
+	        Match match = Regex.Match(versionPage, @"MediaWiki</a>: (\d).(\d{1,2})");
 			// 2008-11-16 BL - Ticket 2300889 - Modified to work with newer versions of the Special:Version page.
-			if (match.Length > 0)
+			if (match.Success)
 			{
 				result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
 			}
 			else
 			{
-				match = Regex.Match(vesionPage, @"MediaWiki</a></td>\s*<td>(\d).(\d{1,2})");
-				result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
+				match = Regex.Match(versionPage, @"MediaWiki</a></td>\s*<td>(\d).(\d{1,2})");
+				if(match.Success)
+					result.Version = new Version(Int32.Parse(match.Groups[1].Value), Int32.Parse(match.Groups[2].Value));
+				else
+					System.Diagnostics.Debug.WriteLine("Could not retrieve version information.");
 			}
 			return result;
 		}
