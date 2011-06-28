@@ -53,6 +53,7 @@ namespace WikiTools.Web
 		private string CommitValue(string key, string value)
 		{
 			var sb = new StringBuilder();
+			// dont change the next line until the hack in Wiki.Import.cs:21 is fixed
 			sb.AppendFormat("Content-Disposition: form-data; name=\"{0}\"", key)
 				.AppendLine()
 				.AppendFormat("Content-Type: text/plain; charset=utf-8")
