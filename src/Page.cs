@@ -627,7 +627,7 @@ namespace WikiTools.Access
 			var query = wiki.ab.CreatePostQuery("index.php?action=submit&title=Special:Movepage")
 				.Add("wpOldTitle", name)
 				.Add("wpNewTitle", newName)
-				.Add("wpEditToken", GetToken(name, "move"))
+				.Add("wpEditToken", GetToken("move"))
 				.Add("wpReason", reason);
 			query.DownloadText();
 		}
@@ -661,7 +661,7 @@ namespace WikiTools.Access
 			try
 			{
 				lastedit = GetLastEdit().ToString("yyyyMMddHHmmss");
-				edittoken = GetToken(name, "edit");
+				edittoken = GetToken("edit");
 			}
 			catch (WikiPageNotFoundExcecption)
 			{
@@ -684,6 +684,11 @@ namespace WikiTools.Access
 			if (pageelem.HasAttribute("missing")) throw new WikiPageNotFoundExcecption();
 			var revelem = (XmlElement) doc.GetElementsByTagName("rev")[0];
 			return DateTime.Parse(revelem.Attributes["timestamp"].Value).ToUniversalTime();
+		}
+
+		internal string GetToken(string type)
+		{
+			return GetToken(name, type);
 		}
 
 		private string GetToken(string page, string type)
