@@ -35,7 +35,7 @@ namespace WikiTools.Web
 		/// {0} Filename (without namespace prefix)
 		/// </summary>
 		internal const string ImageInfo =
-			DefaultQuery + "&prop=imageinfo&titles=Image:{0}&iiprop=timestamp|user|comment|url|size|dimensions|sha1|mime|metadata|archivename|bitdepth&iilimit=500";
+			DefaultQuery + "&prop=imageinfo&titles=Image:{0}&iiprop=timestamp|user|comment|url|size|dimensions|sha1|mime|metadata|archivename|bitdepth&iilimit=500&redirects";
 		/// <summary>
 		/// 
 		/// </summary>

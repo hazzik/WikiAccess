@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
 using System.Xml;
+using WikiTools.Web;
 
 namespace WikiTools.Access
 {
@@ -34,6 +37,7 @@ namespace WikiTools.Access
 		private ImageRepositoryType repotype = ImageRepositoryType.Local;
 		private ImageRevision[] revs;
 		private readonly Wiki wiki;
+		private string redirectsOn;
 
 		/// <summary>
 		/// Initializes Image object
@@ -69,6 +73,16 @@ namespace WikiTools.Access
 				if (!infoLoaded)
 					LoadInfo();
 				return existsLocaly;
+			}
+		}
+
+		public string RedirectsOn
+		{
+			get
+			{
+				if (!infoLoaded)
+					LoadInfo();
+				return redirectsOn;
 			}
 		}
 
@@ -109,7 +123,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadInfo()
 		{
-			string pgname = string.Format(Web.Query.ImageInfo, HttpUtility.UrlEncode(name));
+			string pgname = string.Format(Query.ImageInfo, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
 			doc.LoadXml(wiki.ab.CreateGetQuery(pgname).DownloadText());
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
@@ -120,6 +134,9 @@ namespace WikiTools.Access
 			revs = (from XmlNode cnode in revs_ii
 					select ParseImageRevision(cnode)).ToArray();
 
+			var redirect = doc.CreateNavigator().SelectSingleNode("//api/query/redirects/r/@to");
+			if(redirect != null)
+				redirectsOn = redirect.Value;
 			infoLoaded = true;
 		}
 
@@ -136,7 +153,26 @@ namespace WikiTools.Access
 			result.Comment = element.Attributes["comment"].Value;
 			result.Url = element.Attributes["url"].Value;
 			result.Sha1 = element.Attributes["sha1"].Value;
-			result.Metadata = element.Attributes["metadata"].Value;
+			// Metadata can be an attribute of ii node
+			// but also a childnode (e.g. for gif Files):
+			//<metadata>
+			//    <metadata name="frameCount" value="1" /
+			//    <metadata name="looped" value="" />
+			//    <metadata name="duration" value="0" />
+			//</metadata>
+			if(element.HasChildNodes)
+			{
+				//var md = element.CreateNavigator().SelectSingleNode("metadata");
+				List<string> list = new List<string>();
+				foreach (var node in element.ChildNodes.OfType<XmlNode>().Where(x => x.Name == "metadata"))
+				{
+					list.AddRange(from XmlNode cnode in node.ChildNodes
+					              select string.Format("{0}:{1}", cnode.Attributes["name"].Value, cnode.Attributes["value"].Value));
+				}
+				result.Metadata = string.Join("; ", list);
+			}
+			else
+				result.Metadata = element.Attributes["metadata"].Value;
 			result.Mime = element.Attributes["mime"].Value;
 			result.Bitdepth = Int32.Parse(element.Attributes["bitdepth"].Value);
 			return result;
@@ -174,27 +210,23 @@ namespace WikiTools.Access
 		    return SHA1.Create().ComputeHash(img).BinaryToHexString();
 		}
 
-		#region Unimplemented Upload method
-
-		/*/// <summary>
-		/// ***NOT IMPLEMENTED***
-		/// </summary>
-		/// <param name="path">Path of file to upload</param>
-		/// <param name="fname">Target name of file</param>
-		/// <param name="description">File description</param>
-		public void Upload(string path, string fname, string description)
+		public void Upload(Stream stream, string contentType, string comment = null)
 		{
-			throw new NotImplementedException();
-			ab.PageName = "index.php?title=Special:Upload";
-			if (!File.Exists(path)) throw new FileNotFoundException("File is not found", path);
-			ab.SetValue("wpUploadFile", path);
-			ab.SetTextboxField("wpDestFile", fname);
-			ab.SetTextboxField("wpUploadDescription", description);
-			ab.SetCheckbox("wpWatchthis", false);
-			ab.SetCheckbox("wpIgnoreWarning", true);
-			ab.ClickButton("wpUpload");
-		} */
+			/* Note from http://www.mediawiki.org/wiki/API:Import:
+			 * To import pages, an import token is required. This token is equal to the edit token and
+			 * the same for all pages, but changes at every login. */
+			string token = wiki.GetPage("Main Page").GetToken("edit");
 
-		#endregion
+			using (stream)
+			{
+				var qry = ((PostQuery) wiki.ab.CreatePostQuery("api.php?format=xml"))
+					.AddFile("file", name, contentType, stream)
+					.Add("action", "upload")
+					.Add("token", token)
+					.Add("filename", name)
+					.Add("comment", comment);
+				string s = qry.DownloadText();
+			}
+		}
 	}
 }

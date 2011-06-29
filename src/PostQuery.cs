@@ -5,13 +5,26 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using WikiTools.Access;
-using StringExtensions = WikiTools.Access.Extensions.StringExtensions;
+using WikiTools.Access.Extensions;
 
 namespace WikiTools.Web
 {
 	public class PostQuery : Query
 	{
-		private readonly string _boundary = CreateBoundary();
+		private static readonly string Boundary = CreateBoundary();
+		private readonly IDictionary<string, byte[]> _extendedData = new Dictionary<string, byte[]>();
+
+		private static readonly string FormValueSimple =
+			"Content-Disposition: form-data; name=\"{0}\"" + Environment.NewLine +
+			"Content-Type: text/plain; charset=utf-8" + Environment.NewLine +
+			Environment.NewLine +
+			"{1}" + Environment.NewLine +
+			"--" + Boundary;
+
+		private static readonly string FormValueFileHeader =
+			"Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"" + Environment.NewLine +
+			"Content-Type: {2}; charset=utf-8" + Environment.NewLine +
+			Environment.NewLine;
 
 		public PostQuery(string uri)
 			: base(uri)
@@ -23,8 +36,38 @@ namespace WikiTools.Web
 		{
 		}
 
-		public PostQuery(string uri, CookieContainer cookies, IDictionary<string, string> data) : base(uri, cookies, data)
+		public PostQuery(string uri, CookieContainer cookies, IDictionary<string, string> data)
+			: base(uri, cookies, data)
 		{
+		}
+
+		public PostQuery AddFile(string formKey, string filename, string contentType, Stream stream)
+		{
+			using (MemoryStream ms = new MemoryStream())
+			{
+				// write header
+				CopyToStream(ms,
+					Encoding.UTF8.GetBytes(string.Format(FormValueFileHeader, formKey, filename, contentType)));
+				// write content
+				using (stream)
+				{
+					var data = new byte[1024];
+					int bytesRead;
+					while ((bytesRead = stream.Read(data, 0, data.Length)) != 0)
+					{
+						ms.Write(data, 0, bytesRead);
+					}
+				}
+				// writer footer
+				CopyToStream(ms, Encoding.UTF8.GetBytes(Environment.NewLine + "--" + Boundary));
+				_extendedData.Add(formKey, ms.ToArray());
+			}
+			return this;
+		}
+
+		private static void CopyToStream(Stream ms, byte[] data)
+		{
+			ms.Write(data, 0, data.Length);
 		}
 
 		protected override HttpWebRequest CreateRequest()
@@ -34,33 +77,40 @@ namespace WikiTools.Web
 			HttpWebRequest request = base.CreateRequest();
 			request.Method = WebRequestMethods.Http.Post;
 			request.AllowAutoRedirect = false;
-			request.ContentType = "multipart/form-data; boundary=" + _boundary;
+			request.ContentType = "multipart/form-data; boundary=" + Boundary;
 			request.ContentLength = data.Length;
 
-			Stream str = request.GetRequestStream();
-			str.Write(data, 0, data.Length);
+			using (Stream str = request.GetRequestStream())
+			{
+				str.Write(data, 0, data.Length);
+			}
 			return request;
 		}
 
 		private byte[] GetDataBytes()
 		{
-			string data = string.Format("--{0}{1}", _boundary, Environment.NewLine);
-			data += StringExtensions.Join(Data
-						  .Select(kvp => CommitValue(kvp.Key, kvp.Value)), Environment.NewLine);
-			return Encoding.UTF8.GetBytes(data);
+			string data = string.Format("--{0}{1}", Boundary, Environment.NewLine);
+			data += Data.Select(kvp => CommitValue(kvp.Key, kvp.Value)).Join(Environment.NewLine);
+
+			if(_extendedData.Count == 0)
+				return Encoding.UTF8.GetBytes(data);
+
+			using (var ms = new MemoryStream())
+			{
+				CopyToStream(ms, Encoding.UTF8.GetBytes(data));
+				CopyToStream(ms, Encoding.UTF8.GetBytes(Environment.NewLine));
+				foreach (var x in _extendedData.Values)
+					CopyToStream(ms, x);
+
+				return ms.ToArray();
+			}
 		}
 
-		private string CommitValue(string key, string value)
+		private static string CommitValue(string key, string value)
 		{
 			var sb = new StringBuilder();
 			// dont change the next line until the hack in Wiki.Import.cs:21 is fixed
-			sb.AppendFormat("Content-Disposition: form-data; name=\"{0}\"", key)
-				.AppendLine()
-				.AppendFormat("Content-Type: text/plain; charset=utf-8")
-				.AppendLine()
-				.AppendLine()
-				.AppendLine(value)
-				.AppendFormat("--{0}", _boundary);
+			sb.AppendFormat(FormValueSimple, key, value);
 			return sb.ToString();
 		}
 
