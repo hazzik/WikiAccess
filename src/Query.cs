@@ -64,7 +64,7 @@ namespace WikiTools.Web
 		/// <summary>
 		/// {0} pagename
 		/// </summary>
-		internal const string PageImages = DefaultQuery + "&prop=images&titles={0}";
+		internal const string PageImages = DefaultQuery + "&prop=images&titles={0}&imlimit=50";
 		/// <summary>
 		/// {0} pagename
 		/// </summary>
