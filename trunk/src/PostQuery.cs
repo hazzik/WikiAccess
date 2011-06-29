@@ -109,7 +109,6 @@ namespace WikiTools.Web
 		private static string CommitValue(string key, string value)
 		{
 			var sb = new StringBuilder();
-			// dont change the next line until the hack in Wiki.Import.cs:21 is fixed
 			sb.AppendFormat(FormValueSimple, key, value);
 			return sb.ToString();
 		}
