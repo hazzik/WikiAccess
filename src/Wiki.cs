@@ -41,6 +41,16 @@ namespace WikiTools.Access
 		private bool loggedIn;
 
 		/// <summary>
+		/// Token stored for editing, importing and so on.
+		/// <remarks>
+		/// Note from http://www.mediawiki.org/wiki/API:Import:
+		/// To import pages, an import token is required. This token is equal to the edit token and
+		/// the same for all pages, but changes at every login.
+		/// </remarks>
+		/// </summary>
+		internal string EditToken { get; set; }
+
+		/// <summary>
 		/// Initializes new instance of a Wiki object. Message cache will be stored in current directory.
 		/// </summary>
 		/// <param name="uri">URI of wiki. <see cref="Wiki.WikiURI"/></param>
@@ -95,6 +105,8 @@ namespace WikiTools.Access
 		/// <returns>Succes</returns>
 		public bool Login(string name, string password)
 		{
+			// if the user calls Login several time dont take any data from other sessions with us
+			Logout();
 			IQuery query = ab.CreatePostQuery("api.php?format=xml")
 				.Add("action", "login")
 				.Add("lgname", name)
@@ -132,6 +144,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void Logout()
 		{
+			EditToken = null;
 			ab.ClearCookies();
 		}
 

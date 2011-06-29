@@ -693,12 +693,23 @@ namespace WikiTools.Access
 
 		private string GetToken(string page, string type)
 		{
-			string pgname = string.Format(Query.PageToken, HttpUtility.UrlEncode(page), type);
-			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
-			var elem = (XmlElement) doc.GetElementsByTagName("page")[0];
-			if (elem == null || !elem.HasAttribute(type + "token")) throw new WikiPermissionsExpection();
-			return elem.Attributes[type + "token"].Value;
+			/* Note from http://www.mediawiki.org/wiki/API:Import:
+			 * To import pages, an import token is required. This token is equal to the edit token and
+			 * the same for all pages, but changes at every login. */
+
+			// We dont need to get the token every time for every page for every type!
+			// this will save requests and time when doing mass imports/uploads
+			if(wiki.EditToken == null)
+			{
+				// get once a token and store it until logout
+				string pgname = string.Format(Query.PageToken, HttpUtility.UrlEncode(page), type);
+				var doc = new XmlDocument();
+				doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+				var elem = (XmlElement)doc.GetElementsByTagName("page")[0];
+				if (elem == null || !elem.HasAttribute(type + "token")) throw new WikiPermissionsExpection();
+				wiki.EditToken = elem.Attributes[type + "token"].Value;
+			}
+			return wiki.EditToken;
 		}
 
 		#region Watch / Unwatch
