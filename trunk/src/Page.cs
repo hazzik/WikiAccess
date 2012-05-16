@@ -598,18 +598,22 @@ namespace WikiTools.Access
 			subpagesLoaded = true;
 		}
 
-		/*/// <summary>
+		/// <summary>
 		/// Deletes this page
 		/// </summary>
 		/// <param name="reason">Reason of deletion</param>
 		public void Delete(string reason)
 		{
-			ab.PageName = "index.php?action=delete&title=" + ab.EncodeUrl(name);
-			ab.SetTextboxField("wpReason", reason);
-			ab.ClickButton("wpConfirmB");
+			XmlDocument doc = new XmlDocument();
+			IQuery query = wiki.ab.CreatePostQuery("api.php?format=xml")
+				.Add("action", "delete")
+				.Add("title", HttpUtility.UrlEncode(name))
+				.Add("token", GetToken("delete"))
+				.Add("reason", reason);
+			doc.Load(query.GetResponseStream());
 		}
 
-		public void Protect(string reason, ProtectionLevel edit, ProtectionLevel move, bool cascade, TimeSpan duration)
+		/*public void Protect(string reason, ProtectionLevel edit, ProtectionLevel move, bool cascade, TimeSpan duration)
 		{
 			ab.PageName = "index.php?action=protect&title=" + ab.EncodeUrl(name);
 			ab.SetTextboxField("mwProtect-reason", reason);
