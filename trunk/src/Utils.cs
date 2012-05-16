@@ -128,9 +128,16 @@ namespace WikiTools.Access
 			while (DateTime.Now - start < ts) ;
 		}
 
-		public static string UCFisrt(string s)
+		/// <summary>
+		/// Returns the given string with first character uppercase
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		public static string UCFirst(string s)
 		{
-			return Char.ToUpper(s[0]) + s.Substring(1);
+			if(s.Length > 1)
+				return Char.ToUpper(s[0]) + s.Substring(1);
+			return string.IsNullOrEmpty(s) ? s : s.ToUpper();
 		}
 
 		public static string BinaryToHexString(this byte[] bytes)
