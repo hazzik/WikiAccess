@@ -106,7 +106,8 @@ namespace WikiTools.Access
 			}
 			catch (WebException we)
 			{
-				if (((HttpWebResponse) we.Response).StatusCode == HttpStatusCode.NotFound)
+				var hwr = we.Response as HttpWebResponse;
+				if (hwr != null && hwr.StatusCode == HttpStatusCode.NotFound)
 					throw new WikiPageNotFoundExcecption();
 				throw;
 			}
