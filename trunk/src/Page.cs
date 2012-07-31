@@ -603,15 +603,25 @@ namespace WikiTools.Access
 		/// Deletes this page
 		/// </summary>
 		/// <param name="reason">Reason of deletion</param>
-		public void Delete(string reason)
+		/// <returns>null if deletion was successful otherwise a error message</returns>
+		public string Delete(string reason)
 		{
 			XmlDocument doc = new XmlDocument();
 			IQuery query = wiki.ab.CreatePostQuery("api.php?format=xml")
 				.Add("action", "delete")
-				.Add("title", HttpUtility.UrlEncode(name))
+				.Add("title", HttpUtility.HtmlEncode(name))
 				.Add("token", GetToken("delete"))
 				.Add("reason", reason);
 			doc.Load(query.GetResponseStream());
+			// Success: "<?xml version=\"1.0\"?><api><delete title=\"{Pagename}\" reason=\"{SpecifiedReason}\" /></api>"
+			// Error: "<?xml version=\"1.0\"?><api><error code=\"missingtitle\" info=\"The page you requested doesn't exist\" /></api>"
+			var de = doc.GetElementsByTagName("delete");
+			if (de.Count == 0)
+			{
+				var error = doc.GetElementsByTagName("error")[0];
+				return string.Format("{0}: {1}", error.Attributes["code"].Value, error.Attributes["info"].Value);
+			}
+			return null;
 		}
 
 		/*public void Protect(string reason, ProtectionLevel edit, ProtectionLevel move, bool cascade, TimeSpan duration)
