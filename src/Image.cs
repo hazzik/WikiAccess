@@ -162,12 +162,37 @@ namespace WikiTools.Access
 			//</metadata>
 			if(element.HasChildNodes)
 			{
-				//var md = element.CreateNavigator().SelectSingleNode("metadata");
 				List<string> list = new List<string>();
-				foreach (var node in element.ChildNodes.OfType<XmlNode>().Where(x => x.Name == "metadata"))
+				foreach (XmlNode cnode in element.ChildNodes.OfType<XmlNode>()
+					.Where(x => x.Name == "metadata").SelectMany(node => node.ChildNodes.Cast<XmlNode>()))
 				{
-					list.AddRange(from XmlNode cnode in node.ChildNodes
-					              select string.Format("{0}:{1}", cnode.Attributes["name"].Value, cnode.Attributes["value"].Value));
+					if(cnode.Attributes["value"] != null)
+						list.Add(string.Format("{0}:{1}", cnode.Attributes["name"].Value, cnode.Attributes["value"].Value));
+					else
+					{
+						// since 1.18 (?) the metadata of gif files contains an additional metadata block with its version number
+						//<metadata>
+						//    <metadata name="frameCount" value="1" />
+						//    <metadata name="looped" value="" />
+						//    <metadata name="duration" value="0" />
+						//    <metadata name="metadata">
+						//        <value>
+						//            <metadata name="_MW_GIF_VERSION" value="1" />
+						//        </value>
+						//    </metadata>
+						//</metadata>
+						// this block will be transformed in
+						// "frameCount:1; looped:; duration:0; metadata:{_MW_GIF_VERSION:1}"
+						if (cnode.HasChildNodes)
+						{
+							var tmp = (from XmlNode cnode2 in cnode.ChildNodes[0] select string.Format("{0}:{1}", cnode2.Attributes["name"].Value, cnode2.Attributes["value"].Value));
+							list.Add(string.Format("{0}:{{{1}}}", cnode.Attributes["name"].Value, string.Join("; ", tmp)));
+						}
+						else
+						{
+							list.Add(string.Format("{0}:unknown", cnode.Attributes["name"].Value));
+						}
+					}
 				}
 				result.Metadata = string.Join("; ", list);
 			}
