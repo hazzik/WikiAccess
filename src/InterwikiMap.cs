@@ -14,7 +14,7 @@ namespace WikiTools.Access
         {
             const string page = Web.Query.InterwikiMapInfo;
             var doc = new XmlDocument();
-            doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
+            doc.Load(w.ab.HttpClient.GetStreamAsync(page).Result);
             XmlNodeList nl = doc.GetElementsByTagName("iw");
         	entries = (from XmlNode node in nl
 					   select ParseInterwikiMapEntry((XmlElement) node)).ToArray();

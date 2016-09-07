@@ -80,7 +80,7 @@ namespace WikiTools.Access
 		{
 			var doc = new XmlDocument();
 			string pgname = string.Format(Web.Query.UserInfo, HttpUtility.UrlEncode(name));
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			if (doc.GetElementsByTagName("u").Count < 1) throw new WikiPageNotFoundExcecption();
 			var u = (XmlElement) doc.GetElementsByTagName("u")[0];
 			if (u.Attributes["name"].Value != name) throw new WikiPageNotFoundExcecption();

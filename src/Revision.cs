@@ -88,7 +88,7 @@ namespace WikiTools.Access
 		public string GetContent()
 		{
 			string pgname = "index.php?action=raw&title=" + HttpUtility.UrlEncode(Page) + "&oldid=" + ID;
-			return Wiki.ab.CreateGetQuery(pgname).DownloadText();
+			return Wiki.ab.HttpClient.GetStringAsync(pgname).Result;
 		}
 
 		/// <summary>

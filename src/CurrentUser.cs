@@ -107,7 +107,7 @@ namespace WikiTools.Access
 		{
 			const string page = Web.Query.UserCurrentInfo;
 			var doc = new XmlDocument();
-			doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
+		    doc.Load(w.ab.HttpClient.GetStreamAsync(page).Result);
 			var rootelem = (XmlElement) doc.GetElementsByTagName("userinfo")[0];
 			hasnewmsg = rootelem.HasAttribute("messages");
 			var rightselem = (XmlElement) rootelem.GetElementsByTagName("rights")[0];

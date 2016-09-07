@@ -164,6 +164,7 @@ namespace WikiTools.Web
 
 		public Stream GetResponseStream()
 		{
+
 			var response = (HttpWebResponse) CreateRequest().GetResponse();
 			Cookies.Add(response.Cookies);
 			return response.GetResponseStream();

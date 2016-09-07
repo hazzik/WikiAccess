@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Net.Http;
 using WikiTools.Access;
 using WikiTools.Web;
 
@@ -50,14 +50,9 @@ namespace WikiAccess.Tests
             return query;
         }
 
-        public IQuery CreatePostQuery(string page, IDictionary<string, string> data)
+        public HttpClient HttpClient
         {
-            return query;
-        }
-
-        public IQuery CreatePostQueryFullUrl(string uri, IDictionary<string, string> data)
-        {
-            return query;
+            get { throw new NotImplementedException(); }
         }
 
         #endregion

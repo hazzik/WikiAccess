@@ -24,7 +24,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Web.Query.BlockLog, HttpUtility.UrlEncode(adminname));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			var root = (XmlElement) doc.GetElementsByTagName("logevents")[0];
 			foreach (XmlNode cnode in root.ChildNodes)
 			{

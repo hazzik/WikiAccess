@@ -25,7 +25,7 @@ namespace WikiTools.Access
 		private WikiCapabilities LoadCapabilities()
 		{
 		    const string page = "index.php?title=Special:Version";
-		    return ParseWikiCapabilities(ab.CreateGetQuery(page).DownloadText());
+		    return ParseWikiCapabilities(ab.HttpClient.GetStringAsync(page).Result);
 		}
 
 	    private static WikiCapabilities ParseWikiCapabilities(string versionPage)

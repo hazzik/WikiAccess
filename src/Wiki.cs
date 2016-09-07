@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using WikiTools.Web;
@@ -107,7 +108,8 @@ namespace WikiTools.Access
 		{
 			// if the user calls Login several time dont take any data from other sessions with us
 			Logout();
-			IQuery query = ab.CreatePostQuery("api.php?format=xml")
+
+            var query = ab.CreatePostQuery("api.php?format=xml")
 				.Add("action", "login")
 				.Add("lgname", name)
 				.Add("lgpassword", password);
@@ -222,24 +224,31 @@ namespace WikiTools.Access
 		/// </summary>
 		public Statistics Statistics
 		{
-			get
-			{
-				var result = new Statistics();
-				string statstr = ab.CreateGetQuery("index.php?title=Special:Statistics&action=raw").DownloadText();
-				var stats = statstr.Split(';').Select(t => t.Split('=')).ToDictionary(strings => strings[0], strings => Int32.Parse(strings[1]));
-				result.Admins = stats["admins"];
-				result.Edits = stats["edits"];
-				result.GoodPages = stats["good"];
-				result.Images = stats["images"];
-				result.Jobs = stats["jobs"];
-				result.TotalPages = stats["total"];
-				result.Users = stats["users"];
-				result.Views = stats["views"];
-				return result;
-			}
+		    get { return GetStatisticsAsync(); }
 		}
 
-		/// <summary>
+	    private Statistics GetStatisticsAsync()
+	    {
+	        string statstr = ab.HttpClient.GetStringAsync("index.php?title=Special:Statistics&action=raw").Result;
+
+	        var stats = statstr.Split(';')
+	            .Select(t => t.Split('='))
+	            .ToDictionary(strings => strings[0], strings => int.Parse(strings[1]));
+
+	        return new Statistics
+	        {
+	            Admins = stats["admins"],
+	            Edits = stats["edits"],
+	            GoodPages = stats["good"],
+	            Images = stats["images"],
+	            Jobs = stats["jobs"],
+	            TotalPages = stats["total"],
+	            Users = stats["users"],
+	            Views = stats["views"]
+	        };
+	    }
+
+	    /// <summary>
 		/// Returns info about current user
 		/// </summary>
 		public CurrentUser CurrentUserInfo
@@ -322,7 +331,7 @@ namespace WikiTools.Access
 		/// </summary>
 		public void ReadNewMessages()
 		{
-			ab.CreateGetQuery("index.php?title=Special:Mytalk").DownloadText();
+		    ab.HttpClient.GetStringAsync("index.php?title=Special:Mytalk").Wait();
 		}
 
 		private void LoadCurrentUserInfo()

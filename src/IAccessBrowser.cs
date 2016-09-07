@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Net.Http;
 using WikiTools.Web;
 
 namespace WikiTools.Access
@@ -12,7 +12,6 @@ namespace WikiTools.Access
         IQuery CreateGetQueryFullUrl(string uri);
         IQuery CreatePostQuery(string page);
         IQuery CreatePostQueryFullUrl(string uri);
-        IQuery CreatePostQuery(string page, IDictionary<string, string> data);
-        IQuery CreatePostQueryFullUrl(string uri, IDictionary<string, string> data);
+        HttpClient HttpClient { get; }
     }
 }

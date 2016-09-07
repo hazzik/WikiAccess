@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Web;
 using System.Xml;
@@ -101,8 +102,8 @@ namespace WikiTools.Access
 		{
 			try
 			{
-				string pgname = "index.php?action=raw&title=" + HttpUtility.UrlEncode(name).Replace("%3a", ":");
-				text = wiki.ab.CreateGetQuery(pgname).DownloadText();
+			    string pgname = "index.php?action=raw&title=" + HttpUtility.UrlEncode(name).Replace("%3a", ":");
+				text = wiki.ab.HttpClient.GetStringAsync(pgname).Result;
 			}
 			catch (WebException we)
 			{
@@ -450,7 +451,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Query.PageInfo, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			var pageElem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			propsLoaded = true;
 			exists = !pageElem.HasAttribute("missing");
@@ -469,7 +470,7 @@ namespace WikiTools.Access
 		public void LoadRedirectsOn()
 		{
 			string pgname = "index.php?redirect=no&title=" + HttpUtility.UrlEncode(name);
-			string pgtext = wiki.ab.CreateGetQuery(pgname).DownloadText();
+			string pgtext = wiki.ab.HttpClient.GetStringAsync(pgname).Result;
 			redirectsOnLoaded = true;
 			if (!Regexes.HTMLRedirect.Match(pgtext).Success)
 			{
@@ -484,9 +485,9 @@ namespace WikiTools.Access
 		/// </summary>
 		public void LoadInternalLinks()
 		{
-			string pgname = string.Format(Query.PageLinksInternal, HttpUtility.UrlEncode(name));
+		    string pgname = string.Format(Query.PageLinksInternal, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			XmlNodeList nl = doc.GetElementsByTagName("pl");
 			internalLinksLoaded = true;
 			internalLinks = (from XmlElement node in nl select node.Attributes["title"].Value).ToArray();
@@ -499,7 +500,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Query.PageLinksExternal, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			XmlNodeList nl = doc.GetElementsByTagName("el");
 			externalLinksLoaded = true;
 			externalLinks = (from XmlElement node in nl select node.InnerText).ToArray();
@@ -512,7 +513,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Query.PageTemplates, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			XmlNodeList nl = doc.GetElementsByTagName("tl");
 			templatesLoaded = true;
 			templates = (from XmlElement node in nl select node.Attributes["title"].Value).ToArray();
@@ -525,7 +526,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Query.PageImages, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			XmlNodeList nl = doc.GetElementsByTagName("im");
 			imagesLoaded = true;
 			images = (from XmlElement celem in nl select celem.Attributes["title"].Value).ToArray();
@@ -543,7 +544,7 @@ namespace WikiTools.Access
 			do
 			{
 				var doc = new XmlDocument();
-				doc.Load(wiki.ab.CreateGetQuery(uri).GetResponseStream());
+				doc.Load(wiki.ab.HttpClient.GetStreamAsync(uri).Result);
 				if (((XmlElement) doc.GetElementsByTagName("page")[0]).HasAttribute("missing"))
 					throw new WikiPageNotFoundExcecption();
 				var revsroot = (XmlElement) doc.GetElementsByTagName("revisions")[0];
@@ -582,7 +583,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Query.PageCategories, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			XmlNodeList nl = doc.GetElementsByTagName("cl");
 			categoriesLoaded = true;
 			categories = (from XmlElement node in nl
@@ -653,7 +654,7 @@ namespace WikiTools.Access
 		public void Purge()
 		{
 			string pgname = "index.php?action=purge&title=" + HttpUtility.UrlEncode(name);
-			wiki.ab.CreateGetQuery(pgname).DownloadText();
+			wiki.ab.HttpClient.GetStringAsync(pgname).Wait();
 		}
 
 		/// <summary>
@@ -694,7 +695,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Query.PageLastEdit, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+			doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			if (pageelem.HasAttribute("missing")) throw new WikiPageNotFoundExcecption();
 			var revelem = (XmlElement) doc.GetElementsByTagName("rev")[0];
@@ -719,7 +720,7 @@ namespace WikiTools.Access
 				// get once a token and store it until logout
 				string pgname = string.Format(Query.PageToken, HttpUtility.UrlEncode(page), type);
 				var doc = new XmlDocument();
-				doc.Load(wiki.ab.CreateGetQuery(pgname).GetResponseStream());
+				doc.Load(wiki.ab.HttpClient.GetStreamAsync(pgname).Result);
 				var elem = (XmlElement)doc.GetElementsByTagName("page")[0];
 				if (elem == null || !elem.HasAttribute(type + "token")) throw new WikiPermissionsExpection();
 				wiki.EditToken = elem.Attributes[type + "token"].Value;
@@ -735,7 +736,7 @@ namespace WikiTools.Access
 		public void Watch()
 		{
 			string pgname = "index.php?action=watch&title=" + name;
-			wiki.ab.CreateGetQuery(pgname).DownloadText();
+			wiki.ab.HttpClient.GetStringAsync(pgname).Wait();
 		}
 
 		/// <summary>
@@ -744,7 +745,7 @@ namespace WikiTools.Access
 		public void Unwatch()
 		{
 			string pgname = "index.php?action=unwatch&title=" + name;
-			wiki.ab.CreateGetQuery(pgname).DownloadText();
+			wiki.ab.HttpClient.GetStringAsync(pgname).Wait();
 		}
 
 		#endregion

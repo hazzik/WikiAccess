@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Web;
+using System.Net.Http;
 using WikiTools.Web;
 
 namespace WikiTools.Access
@@ -29,154 +28,29 @@ namespace WikiTools.Access
 	public class AccessBrowser : IDisposable, IAccessBrowser
     {
 		private readonly string baseUri;
-		private CookieContainer cookies = new CookieContainer();
-		private string cpagename = "";
-		private string cpagetext = "";
+        private CookieContainer cookies = new CookieContainer();
 
-		/// <summary>
+        /// <summary>
 		/// Initializes new instance of AccessBrowser for the specified URI
 		/// </summary>
 		/// <param name="uri">Uniform Resource Identifier</param>
 		public AccessBrowser(string uri)
 		{
-			baseUri = uri;
+		    baseUri = uri;
+		    HttpClient = new HttpClient
+		    {
+		        BaseAddress = new Uri(baseUri),
+		    };
 		}
 
-		#region IDisposable Members
-
-		/// <summary>
+        /// <summary>
 		/// Release WebBrowser control
 		/// </summary>
 		public void Dispose()
 		{
-			//wb.Dispose();
 		}
 
-		#endregion
-
-		#region Obsolete members, can be deleted anytime
-
-		/// <summary>
-		/// Initializes new instance of AccessBrowser
-		/// </summary>
-		/// <param name="wiki">Wiki to work with</param>
-		[Obsolete("Please use constructor with string argument")]
-		public AccessBrowser(Wiki wiki)
-			: this(wiki.WikiURI)
-		{
-		}
-
-		/// <summary>
-		/// Allows to change current page
-		/// </summary>
-		[Obsolete]
-		public string PageName
-		{
-			get { return cpagename; }
-			set
-			{
-				cpagename = baseUri + "/" + value;
-				cpagetext = CreateGetQuery(value).DownloadText();
-			}
-		}
-
-		/// <summary>
-		/// Current page text
-		/// </summary>
-		[Obsolete]
-		public string PageText
-		{
-			get { return cpagetext; }
-		}
-
-		/// <summary>
-		/// Checks if we are currently logged in
-		/// </summary>
-		/// <returns>Login status</returns>
-		public bool IsLoggedIn()
-		{
-			return !cpagetext.Contains("var wgUserName = null;");
-		}
-
-		/// <summary>
-		/// Downloads page via WebRequest
-		/// </summary>
-		/// <param name="pgname">Page name</param>
-		/// <returns>Page content</returns>
-		[Obsolete("Please use instance of GetQuery class instead")]
-		public string DownloadPage(string pgname)
-		{
-			return DownloadPageFullUrl(baseUri + "/" + pgname);
-		}
-
-		/// <summary>
-		/// Downloads page via WebRequest
-		/// </summary>
-		/// <param name="pgname">URL</param>
-		/// <returns>Page content</returns>
-		[Obsolete("Please use instance of GetQuery class instead")]
-		public string DownloadPageFullUrl(string pgname)
-		{
-			cpagename = pgname;
-			return cpagetext = CreateGetQueryFullUrl(pgname).DownloadText();
-		}
-
-		/// <summary>
-		/// Sends a HTTP request using POST method and multipart/form-data content type
-		/// </summary>
-		/// <param name="pgname">Page name</param>
-		/// <param name="data">Post data</param>
-		/// <returns>HTTP response</returns>
-		[Obsolete("Please use instance of PostQuery class instead")]
-		public string PostQuery(string pgname, IDictionary<string, string> data)
-		{
-			cpagename = pgname;
-			return cpagetext = CreatePostQueryFullUrl(baseUri + "/" + pgname, data).DownloadText();
-		}
-
-		[Obsolete("Please use instance of GetQuery class instead")]
-		public byte[] DownloadBinary(string pgname)
-		{
-			return DownloadBinaryFullUrl(baseUri + "/" + pgname);
-		}
-
-		/// <summary>
-		/// Downloads page via WebRequest.
-		/// Note: this method is blocking
-		/// </summary>
-		/// <param name="pgname">Page name</param>
-		/// <returns>Page content</returns>
-		[Obsolete("Please use instance of GetQuery class instead")]
-		public byte[] DownloadBinaryFullUrl(string pgname)
-		{
-			return CreateGetQueryFullUrl(pgname).DownloadBinary();
-		}
-
-		/// <summary>
-		/// Parses API timestamp
-		/// </summary>
-		/// <param name="p">API timestamp in string</param>
-		/// <returns>Result in DateTime</returns>
-		[Obsolete("Please use DateTime.Parse(time).ToUniversalTime() instead.")]
-		public DateTime ParseAPITimestamp(string p)
-		{
-			return DateTime.Parse(p).ToUniversalTime();
-		}
-
-		/// <summary>
-		/// Encodes URL
-		/// </summary>
-		/// <param name="str">String to encode</param>
-		/// <returns>Encoded URL</returns>
-		[Obsolete("Please use HttpUtility.UrlEncode(url) instead")]
-		public string EncodeUrl(string str)
-		{
-			return HttpUtility.UrlEncode(str);
-		}
-
-		#endregion
-
-		public void ClearCookies()
+        public void ClearCookies()
 		{
 			cookies = new CookieContainer();
 		}
@@ -201,14 +75,6 @@ namespace WikiTools.Access
 			return new PostQuery(uri, cookies);
 		}
 
-		public IQuery CreatePostQuery(string page, IDictionary<string, string> data)
-		{
-			return new PostQuery(baseUri + '/' + page, cookies, data);
-		}
-
-		public IQuery CreatePostQueryFullUrl(string uri, IDictionary<string, string> data)
-		{
-			return new PostQuery(uri, cookies, data);
-		}
-	}
+        public HttpClient HttpClient { get; }
+    }
 }

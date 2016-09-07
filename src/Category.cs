@@ -101,7 +101,7 @@ namespace WikiTools.Access
 		public void Load()
 		{
 			string pgname = string.Format(Web.Query.CategoryMembers, HttpUtility.UrlEncode(FullName));
-			string text = _wiki.ab.CreateGetQuery(pgname).DownloadText();
+		    string text = _wiki.ab.HttpClient.GetStringAsync(pgname).Result;
 			var subcatsTmp = new List<string>();
 			var pagesTmp = new List<string>();
 		    do
@@ -114,7 +114,7 @@ namespace WikiTools.Access
 				{
 					string pgname1 = string.Format(Web.Query.CategoryMembersContinue,
 						HttpUtility.UrlEncode(FullName), HttpUtility.UrlEncode(cmcontinue));
-					text = _wiki.ab.CreateGetQuery(pgname1).DownloadText();
+				    text = _wiki.ab.HttpClient.GetStringAsync(pgname1).Result;
 				}
 				else break;
 			} while (true);

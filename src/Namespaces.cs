@@ -131,8 +131,8 @@ namespace WikiTools.Access
 		/// <returns>Namespace ID:Name list</returns>
 		public static SortedList<int, string> GetNamespaces(Wiki wiki)
 		{
-			IQuery query = wiki.ab.CreateGetQuery(Query.Namespaces);
-			var xdoc = new XPathDocument(query.GetResponseStream());
+		    var response = wiki.ab.HttpClient.GetStreamAsync(Query.Namespaces).Result;
+		    var xdoc = new XPathDocument(response);
 			var result = new SortedList<int, string>();
 			foreach (XPathNavigator element in xdoc.CreateNavigator().Select("api/query/namespaces/ns"))
 			{

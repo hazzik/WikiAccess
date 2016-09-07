@@ -23,7 +23,7 @@ namespace WikiTools.Access
 				string.Format("{0}:{1}", ns.GetNamespaceByID(Namespaces.Category), HttpUtility.UrlEncode(categoryName)));
 			if (plainXmlDump)
 				page += "&exportnowrap";
-			return ab.CreateGetQuery(page).DownloadText();
+		    return ab.HttpClient.GetStringAsync(page).Result;
 		}
 
 		/// <summary>
@@ -42,7 +42,7 @@ namespace WikiTools.Access
 			string page = string.Format(Query.ExportPages, string.Join("|", pages));
 			if (plainXmlDump)
 				page += "&exportnowrap";
-			return ab.CreateGetQuery(page).DownloadText();
+			return ab.HttpClient.GetStringAsync(page).Result;
 		}
 	}
 }

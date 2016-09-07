@@ -44,13 +44,13 @@ namespace WikiTools.Access
 			for (int i = 0; i < walksCount; i++)
 			{
 				rqUri = string.Format(Web.Query.PageList, maxPages, filter.ToString().ToLower(), HttpUtility.UrlEncode(next), namespaceId);
-				result.AddRange(ParseAllPages(ab.CreateGetQuery(rqUri).DownloadText(), out next));
+				result.AddRange(ParseAllPages(ab.HttpClient.GetStringAsync(rqUri).Result, out next));
 				if (String.IsNullOrEmpty(next)) return result.ToArray();
 			}
 			if (additionalWalk > 0)
 			{
 				rqUri = string.Format(Web.Query.PageList, additionalWalk, filter.ToString().ToLower(), HttpUtility.UrlEncode(next), namespaceId);
-				result.AddRange(ParseAllPages(ab.CreateGetQuery(rqUri).DownloadText(), out next));
+				result.AddRange(ParseAllPages(ab.HttpClient.GetStringAsync(rqUri).Result, out next));
 			}
 			return result.ToArray();
 		}
@@ -85,7 +85,7 @@ namespace WikiTools.Access
 			do
 			{
 			    string rqUri = string.Format(Web.Query.PageListPrefix, 500, filter.ToString().ToLower(), HttpUtility.UrlEncode(next), namespaceId, prefix);
-			    result.AddRange(ParseAllPages(ab.CreateGetQuery(rqUri).DownloadText(), out next));
+			    result.AddRange(ParseAllPages(ab.HttpClient.GetStringAsync(rqUri).Result, out next));
 			} while (!String.IsNullOrEmpty(next));
 			return result.ToArray();
 		}

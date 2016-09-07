@@ -66,7 +66,7 @@ namespace WikiTools.Access
         {
             const string page = Web.Query.RecentChanges;
             var doc = new XmlDocument();
-            doc.Load(w.ab.CreateGetQuery(page).GetResponseStream());
+            doc.Load(w.ab.HttpClient.GetStreamAsync(page).Result);
             XmlNodeList nodes = doc.GetElementsByTagName("rc");
 
             var changes = new List<RecentChange>();

@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Web;
 using System.Xml;
@@ -125,7 +127,7 @@ namespace WikiTools.Access
 		{
 			string pgname = string.Format(Query.ImageInfo, HttpUtility.UrlEncode(name));
 			var doc = new XmlDocument();
-			doc.LoadXml(wiki.ab.CreateGetQuery(pgname).DownloadText());
+			doc.LoadXml(wiki.ab.HttpClient.GetStringAsync(pgname).Result);
 			var pageelem = (XmlElement) doc.GetElementsByTagName("page")[0];
 			existsLocaly = !pageelem.HasAttribute("missing");
 			repotype = ParseRepoType(pageelem.Attributes["imagerepository"].Value);
