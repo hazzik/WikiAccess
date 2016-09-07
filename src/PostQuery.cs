@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using WikiTools.Access;
-using WikiTools.Access.Extensions;
 
 namespace WikiTools.Web
 {
@@ -90,7 +89,7 @@ namespace WikiTools.Web
 		private byte[] GetDataBytes()
 		{
 			string data = string.Format("--{0}{1}", Boundary, Environment.NewLine);
-			data += Data.Select(kvp => CommitValue(kvp.Key, kvp.Value)).Join(Environment.NewLine);
+		    data += string.Join(Environment.NewLine, Data.Select(kvp => CommitValue(kvp.Key, kvp.Value)));
 
 			if(_extendedData.Count == 0)
 				return Encoding.UTF8.GetBytes(data);
