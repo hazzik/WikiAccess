@@ -31,17 +31,26 @@ namespace WikiTools.Access
         private CookieContainer cookies = new CookieContainer();
 
         /// <summary>
-		/// Initializes new instance of AccessBrowser for the specified URI
-		/// </summary>
-		/// <param name="uri">Uniform Resource Identifier</param>
-		public AccessBrowser(string uri)
-		{
-		    baseUri = uri;
-		    HttpClient = new HttpClient
-		    {
-		        BaseAddress = new Uri(baseUri),
-		    };
-		}
+        /// Initializes new instance of AccessBrowser for the specified URI
+        /// </summary>
+        /// <param name="uri">Uniform Resource Identifier</param>
+        public AccessBrowser(string uri)
+        {
+            baseUri = uri;
+
+            HttpClient = new HttpClient(new HttpClientHandler
+            {
+                DefaultProxyCredentials = CredentialCache.DefaultCredentials,
+                UseDefaultCredentials = true,
+                PreAuthenticate = true,
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
+                CookieContainer = cookies,
+            })
+            {
+
+                BaseAddress = new Uri(baseUri),
+            };
+        }
 
         /// <summary>
 		/// Release WebBrowser control

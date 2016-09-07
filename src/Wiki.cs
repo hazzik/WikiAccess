@@ -16,8 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>           *
  **********************************************************************************/
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -109,12 +111,17 @@ namespace WikiTools.Access
 			// if the user calls Login several time dont take any data from other sessions with us
 			Logout();
 
-            var query = ab.CreatePostQuery("api.php?format=xml")
-				.Add("action", "login")
-				.Add("lgname", name)
-				.Add("lgpassword", password);
 
-			XDocument xdoc = XDocument.Load(query.GetTextReader());
+		    var stream =
+		        ab.HttpClient.PostAsync("api.php?format=xml", new FormUrlEncodedContent(new Dictionary<string, string>
+		        {
+		            {"action", "login"},
+		            {"lgname", name},
+		            {"lgpassword", password},
+
+		        })).Result.Content.ReadAsStreamAsync().Result;
+
+            XDocument xdoc = XDocument.Load(stream);
 			var element = xdoc.CreateNavigator()
 				.SelectSingleNode("//api/login/@result");
 
@@ -126,14 +133,17 @@ namespace WikiTools.Access
 					return loggedIn = true;
 				// since 1.15.5 (1.15.4 is broken)
 				case "needtoken":
-					element = xdoc.CreateNavigator().SelectSingleNode("//api/login/@token");
-					query = ab.CreatePostQuery("api.php?format=xml")
-						.Add("action", "login")
-						.Add("lgname", name)
-						.Add("lgpassword", password)
-						.Add("lgtoken", element.Value);
+			        element = xdoc.CreateNavigator().SelectSingleNode("//api/login/@token");
 
-					xdoc = XDocument.Load(query.GetTextReader());
+			        stream = ab.HttpClient.PostAsync("api.php?format=xml", new FormUrlEncodedContent(new Dictionary<string, string>
+			            {
+			                {"action", "login"},
+			                {"lgname", name},
+			                {"lgpassword", password},
+			                {"lgtoken", element.Value},
+			            })).Result.Content.ReadAsStreamAsync().Result;
+
+                    xdoc = XDocument.Load(stream);
 					element = xdoc.CreateNavigator().SelectSingleNode("//api/login/@result");
 					return loggedIn = element.Value.ToLowerInvariant().Equals("success");
 				default:
